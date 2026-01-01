@@ -1,6 +1,7 @@
 'use client';
 
 import { DividerContent, ThemeType, SectionStyle } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface DividerSectionProps {
   content: DividerContent;
@@ -10,9 +11,10 @@ interface DividerSectionProps {
   onEdit?: (content: DividerContent) => void;
 }
 
-export function DividerSection({ content, theme = 'toss', isEditable, onEdit }: DividerSectionProps) {
+export function DividerSection({ content, theme = 'toss', style }: DividerSectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
   const spacing = content.spacing || 40;
-  const color = content.color || '#E5E8EB';
+  const color = content.color || colors.border;
   const dividerStyle = content.style || 'line';
 
   const renderDivider = () => {
@@ -64,6 +66,7 @@ export function DividerSection({ content, theme = 'toss', isEditable, onEdit }: 
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        background: colors.background,
       }}
     >
       {renderDivider()}

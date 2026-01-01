@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CalendarContent, SectionStyle, ThemeType } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface CalendarSectionProps {
   theme?: ThemeType;
@@ -12,7 +13,8 @@ interface CalendarSectionProps {
   onBooking?: (booking: { date: string; time: string; name: string; phone: string }) => void;
 }
 
-export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
+export function CalendarSection({ content, theme = 'toss', style, onBooking }: CalendarSectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -21,6 +23,8 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   // 현재 월의 날짜들 생성
   const getDaysInMonth = (date: Date) => {
@@ -120,59 +124,45 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
   return (
     <>
       <style>{`
-        .calendar-label {
+        .calendar-label-${theme} {
           font-size: clamp(12px, 3.5vw, 14px);
           font-weight: 600;
-          color: #0064FF;
+          color: ${colors.primary};
           margin-bottom: 8px;
           text-align: center;
         }
-        .calendar-title {
-          font-size: clamp(22px, 6vw, 28px);
+        .calendar-title-${theme} {
+          font-size: clamp(22px, 6vw, ${titleSize}px);
           font-weight: bold;
-          color: #191F28;
+          color: ${colors.text};
           text-align: center;
           margin-bottom: 8px;
           word-break: keep-all;
           text-wrap: balance;
         }
-        .calendar-subtitle {
-          font-size: clamp(14px, 3.8vw, 16px);
-          color: #4E5968;
+        .calendar-subtitle-${theme} {
+          font-size: clamp(14px, 3.8vw, ${textSize}px);
+          color: ${colors.textSecondary};
           text-align: center;
           margin-bottom: 32px;
           word-break: keep-all;
           text-wrap: balance;
         }
-        .calendar-complete-title {
-          font-size: clamp(18px, 5vw, 20px);
-          font-weight: 700;
-          color: #191F28;
-          margin-bottom: 8px;
-          text-wrap: balance;
-        }
-        .calendar-complete-text {
-          font-size: clamp(14px, 3.8vw, 15px);
-          color: #4E5968;
-          margin-bottom: 16px;
-          line-height: 1.6;
-          text-wrap: balance;
-        }
       `}</style>
-      <section id="calendar-section" style={{ padding: 'clamp(48px, 10vw, 64px) 20px', background: '#fff' }}>
+      <section id="calendar-section" style={{ padding: 'clamp(48px, 10vw, 64px) 20px', background: colors.background }}>
         <div style={{ maxWidth: '480px', margin: '0 auto' }}>
           {content.label && (
-            <p className="calendar-label">
+            <p className={`calendar-label-${theme}`}>
               {content.label}
             </p>
           )}
 
-          <h2 className="calendar-title">
+          <h2 className={`calendar-title-${theme}`}>
             {content.title}
           </h2>
 
           {content.subtitle && (
-            <p className="calendar-subtitle">
+            <p className={`calendar-subtitle-${theme}`}>
               {content.subtitle}
             </p>
           )}
@@ -197,8 +187,8 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: isActive ? '#0064FF' : '#E5E8EB',
-                  color: isActive ? '#fff' : '#8B95A1',
+                  background: isActive ? colors.primary : colors.border,
+                  color: isActive ? '#fff' : colors.textMuted,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -210,7 +200,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                 </div>
                 <span style={{
                   fontSize: '12px',
-                  color: isActive ? '#191F28' : '#8B95A1'
+                  color: isActive ? colors.text : colors.textMuted
                 }}>
                   {s}
                 </span>
@@ -222,7 +212,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
         {/* 날짜 선택 */}
         {step === 'date' && (
           <div style={{
-            background: '#F8FAFC',
+            background: colors.backgroundAlt,
             borderRadius: '16px',
             padding: '20px'
           }}>
@@ -237,11 +227,12 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                 border: 'none',
                 fontSize: '20px',
                 cursor: 'pointer',
-                padding: '8px'
+                padding: '8px',
+                color: colors.text
               }}>
                 ←
               </button>
-              <span style={{ fontWeight: '600', color: '#191F28' }}>
+              <span style={{ fontWeight: '600', color: colors.text }}>
                 {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
               </span>
               <button onClick={nextMonth} style={{
@@ -249,7 +240,8 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                 border: 'none',
                 fontSize: '20px',
                 cursor: 'pointer',
-                padding: '8px'
+                padding: '8px',
+                color: colors.text
               }}>
                 →
               </button>
@@ -265,7 +257,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                 <div key={day} style={{
                   textAlign: 'center',
                   fontSize: '12px',
-                  color: '#8B95A1',
+                  color: colors.textMuted,
                   padding: '8px 0'
                 }}>
                   {day}
@@ -289,8 +281,8 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                       padding: '10px 0',
                       border: 'none',
                       borderRadius: '8px',
-                      background: date && available ? '#fff' : 'transparent',
-                      color: date ? (available ? '#191F28' : '#D1D5DB') : 'transparent',
+                      background: date && available ? colors.background : 'transparent',
+                      color: date ? (available ? colors.text : colors.border) : 'transparent',
                       cursor: available ? 'pointer' : 'default',
                       fontWeight: available ? '500' : '400',
                       fontSize: '14px'
@@ -305,7 +297,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
             {content.note && (
               <p style={{
                 fontSize: '13px',
-                color: '#8B95A1',
+                color: colors.textMuted,
                 textAlign: 'center',
                 marginTop: '16px'
               }}>
@@ -318,14 +310,14 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
         {/* 시간 선택 */}
         {step === 'time' && selectedDate && (
           <div style={{
-            background: '#F8FAFC',
+            background: colors.backgroundAlt,
             borderRadius: '16px',
             padding: '20px'
           }}>
             <button onClick={() => setStep('date')} style={{
               background: 'none',
               border: 'none',
-              color: '#0064FF',
+              color: colors.primary,
               fontSize: '14px',
               cursor: 'pointer',
               marginBottom: '16px'
@@ -336,7 +328,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
             <p style={{
               fontSize: '16px',
               fontWeight: '600',
-              color: '#191F28',
+              color: colors.text,
               marginBottom: '16px'
             }}>
               {formatDisplayDate(selectedDate)}
@@ -344,7 +336,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
 
             <p style={{
               fontSize: '14px',
-              color: '#4E5968',
+              color: colors.textSecondary,
               marginBottom: '16px'
             }}>
               상담 시간을 선택해주세요 ({content.duration}분)
@@ -361,10 +353,10 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                   onClick={() => handleTimeSelect(time)}
                   style={{
                     padding: '12px',
-                    border: '1px solid #E5E8EB',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
-                    background: '#fff',
-                    color: '#191F28',
+                    background: colors.background,
+                    color: colors.text,
                     fontSize: '14px',
                     cursor: 'pointer',
                     fontWeight: '500'
@@ -380,14 +372,14 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
         {/* 정보 입력 */}
         {step === 'info' && selectedDate && selectedTime && (
           <div style={{
-            background: '#F8FAFC',
+            background: colors.backgroundAlt,
             borderRadius: '16px',
             padding: '20px'
           }}>
             <button onClick={() => setStep('time')} style={{
               background: 'none',
               border: 'none',
-              color: '#0064FF',
+              color: colors.primary,
               fontSize: '14px',
               cursor: 'pointer',
               marginBottom: '16px'
@@ -396,23 +388,23 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
             </button>
 
             <div style={{
-              background: '#E8F3FF',
+              background: colors.primaryLight,
               borderRadius: '8px',
               padding: '16px',
               marginBottom: '20px'
             }}>
-              <p style={{ fontSize: '14px', color: '#0064FF', marginBottom: '4px' }}>
+              <p style={{ fontSize: '14px', color: colors.primary, marginBottom: '4px' }}>
                 선택하신 일정
               </p>
-              <p style={{ fontSize: '16px', fontWeight: '600', color: '#191F28' }}>
+              <p style={{ fontSize: '16px', fontWeight: '600', color: colors.text }}>
                 {formatDisplayDate(selectedDate)} {selectedTime}
               </p>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '600', color: '#333D4B', display: 'block', marginBottom: '6px' }}>
-                  이름 <span style={{ color: '#F04452' }}>*</span>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '6px' }}>
+                  이름 <span style={{ color: colors.error }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -422,16 +414,18 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                   style={{
                     width: '100%',
                     padding: '14px',
-                    border: '1px solid #E5E8EB',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '15px',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    background: colors.background,
+                    color: colors.text
                   }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '600', color: '#333D4B', display: 'block', marginBottom: '6px' }}>
-                  연락처 <span style={{ color: '#F04452' }}>*</span>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '6px' }}>
+                  연락처 <span style={{ color: colors.error }}>*</span>
                 </label>
                 <input
                   type="tel"
@@ -441,10 +435,12 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                   style={{
                     width: '100%',
                     padding: '14px',
-                    border: '1px solid #E5E8EB',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '15px',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    background: colors.background,
+                    color: colors.text
                   }}
                 />
               </div>
@@ -459,7 +455,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
                 marginTop: '20px',
                 border: 'none',
                 borderRadius: '12px',
-                background: (formData.name && formData.phone) ? '#0064FF' : '#E5E8EB',
+                background: (formData.name && formData.phone) ? colors.primary : colors.border,
                 color: '#fff',
                 fontSize: '16px',
                 fontWeight: '600',
@@ -474,7 +470,7 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
         {/* 완료 */}
         {step === 'done' && (
           <div style={{
-            background: '#F8FAFC',
+            background: colors.backgroundAlt,
             borderRadius: '16px',
             padding: 'clamp(24px, 6vw, 32px) 20px',
             textAlign: 'center'
@@ -489,25 +485,35 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
               justifyContent: 'center',
               margin: '0 auto 16px',
               fontSize: 'clamp(24px, 6vw, 28px)',
-              color: '#4CAF50'
+              color: colors.success
             }}>
               ✓
             </div>
-            <h3 className="calendar-complete-title">
+            <h3 style={{
+              fontSize: 'clamp(18px, 5vw, 20px)',
+              fontWeight: '700',
+              color: colors.text,
+              marginBottom: '8px'
+            }}>
               예약이 완료되었습니다!
             </h3>
-            <p className="calendar-complete-text">
+            <p style={{
+              fontSize: 'clamp(14px, 3.8vw, 15px)',
+              color: colors.textSecondary,
+              marginBottom: '16px',
+              lineHeight: 1.6
+            }}>
               {formData.name}님, 예약해주셔서 감사합니다.<br/>
               확인 문자를 보내드릴게요.
             </p>
             <div style={{
-              background: '#fff',
+              background: colors.background,
               borderRadius: '8px',
               padding: '16px',
               marginBottom: '20px'
             }}>
-              <p style={{ fontSize: '14px', color: '#8B95A1', marginBottom: '4px' }}>예약 일시</p>
-              <p style={{ fontSize: '16px', fontWeight: '600', color: '#191F28' }}>
+              <p style={{ fontSize: '14px', color: colors.textMuted, marginBottom: '4px' }}>예약 일시</p>
+              <p style={{ fontSize: '16px', fontWeight: '600', color: colors.text }}>
                 {selectedDate && formatDisplayDate(selectedDate)} {selectedTime}
               </p>
             </div>
@@ -520,10 +526,10 @@ export function CalendarSection({ content, onBooking }: CalendarSectionProps) {
               }}
               style={{
                 background: 'none',
-                border: '1px solid #E5E8EB',
+                border: `1px solid ${colors.border}`,
                 borderRadius: '8px',
                 padding: '12px 24px',
-                color: '#4E5968',
+                color: colors.textSecondary,
                 fontSize: '14px',
                 cursor: 'pointer'
               }}

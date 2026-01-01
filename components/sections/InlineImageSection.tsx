@@ -1,6 +1,7 @@
 'use client';
 
 import { InlineImageContent, ThemeType, SectionStyle } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface InlineImageSectionProps {
   content: InlineImageContent;
@@ -10,7 +11,9 @@ interface InlineImageSectionProps {
   onEdit?: (content: InlineImageContent) => void;
 }
 
-export function InlineImageSection({ content, theme = 'toss', isEditable, onEdit }: InlineImageSectionProps) {
+export function InlineImageSection({ content, theme = 'toss', style }: InlineImageSectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
+
   const getSizeStyles = () => {
     switch (content.size) {
       case 'small':
@@ -41,7 +44,8 @@ export function InlineImageSection({ content, theme = 'toss', isEditable, onEdit
         style={{
           padding: '48px 24px',
           textAlign: 'center',
-          color: '#9CA3AF',
+          color: colors.textMuted,
+          background: colors.background,
         }}
       >
         이미지 URL을 입력해주세요
@@ -54,6 +58,7 @@ export function InlineImageSection({ content, theme = 'toss', isEditable, onEdit
       style={{
         padding: '24px',
         display: 'flex',
+        background: colors.background,
         ...getAlignStyles(),
       }}
     >
@@ -81,7 +86,7 @@ export function InlineImageSection({ content, theme = 'toss', isEditable, onEdit
             style={{
               marginTop: '12px',
               fontSize: '14px',
-              color: '#6B7280',
+              color: colors.textMuted,
               textAlign: 'center',
             }}
           >

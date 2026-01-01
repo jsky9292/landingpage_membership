@@ -112,6 +112,23 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
       cardBackground: '#FFFFFF',
     },
   },
+  slate: {
+    id: 'slate',
+    name: '슬레이트',
+    description: '차분하고 전문적인 그레이 테마',
+    colors: {
+      primary: '#475569',
+      primaryLight: '#F1F5F9',
+      background: '#FFFFFF',
+      backgroundAlt: '#F8FAFC',
+      text: '#0F172A',
+      textSecondary: '#334155',
+      textMuted: '#64748B',
+      border: '#CBD5E1',
+      success: '#16A34A',
+      error: '#DC2626',
+    },
+  },
 };
 
 // 테마 목록

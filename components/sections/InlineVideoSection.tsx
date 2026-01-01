@@ -1,6 +1,7 @@
 'use client';
 
 import { InlineVideoContent, ThemeType, SectionStyle } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface InlineVideoSectionProps {
   content: InlineVideoContent;
@@ -28,7 +29,8 @@ function getYouTubeVideoId(url: string): string | null {
   return null;
 }
 
-export function InlineVideoSection({ content, theme = 'toss', isEditable, onEdit }: InlineVideoSectionProps) {
+export function InlineVideoSection({ content, theme = 'toss', style }: InlineVideoSectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
   const videoId = getYouTubeVideoId(content.videoUrl);
 
   if (!videoId) {
@@ -37,7 +39,8 @@ export function InlineVideoSection({ content, theme = 'toss', isEditable, onEdit
         style={{
           padding: '48px 24px',
           textAlign: 'center',
-          color: '#9CA3AF',
+          color: colors.textMuted,
+          background: colors.background,
         }}
       >
         유효한 YouTube URL을 입력해주세요
@@ -51,6 +54,7 @@ export function InlineVideoSection({ content, theme = 'toss', isEditable, onEdit
     <div
       style={{
         padding: '24px',
+        background: colors.background,
       }}
     >
       {content.title && (
@@ -58,7 +62,7 @@ export function InlineVideoSection({ content, theme = 'toss', isEditable, onEdit
           style={{
             fontSize: '20px',
             fontWeight: '700',
-            color: '#191F28',
+            color: colors.text,
             textAlign: 'center',
             marginBottom: '16px',
             marginTop: 0,
@@ -99,7 +103,7 @@ export function InlineVideoSection({ content, theme = 'toss', isEditable, onEdit
           style={{
             marginTop: '12px',
             fontSize: '14px',
-            color: '#6B7280',
+            color: colors.textMuted,
             textAlign: 'center',
           }}
         >

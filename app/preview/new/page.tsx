@@ -210,6 +210,13 @@ export default function PreviewNewPage() {
     setEditingSection(null);
   };
 
+  const handleReorderSections = (reorderedSections: Section[]) => {
+    if (!data) return;
+    const newData = { ...data, sections: reorderedSections };
+    setData(newData);
+    localStorage.setItem('generatedPage', JSON.stringify(newData));
+  };
+
   const handleThemeChange = (theme: ThemeType) => {
     if (!data) return;
     const newData = { ...data, theme };
@@ -557,6 +564,7 @@ export default function PreviewNewPage() {
             onAddSectionAt={handleAddSectionAt}
             onMoveSection={handleMoveSection}
             onDeleteSection={handleDeleteSection}
+            onReorderSections={handleReorderSections}
             onFormSubmit={(formData) => {
               console.log('Form submitted:', formData);
               alert('미리보기에서는 폼 제출이 작동하지 않습니다');

@@ -1,6 +1,7 @@
 'use client';
 
 import { InlineCTAContent, ThemeType, SectionStyle } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface InlineCTASectionProps {
   content: InlineCTAContent;
@@ -11,16 +12,8 @@ interface InlineCTASectionProps {
   onCTAClick?: () => void;
 }
 
-const themeColors: Record<string, { primary: string; secondary: string }> = {
-  toss: { primary: '#0064FF', secondary: '#E8F3FF' },
-  dark: { primary: '#6366F1', secondary: '#1E1B4B' },
-  warm: { primary: '#F97316', secondary: '#FFF7ED' },
-  luxury: { primary: '#D4AF37', secondary: '#1C1C1C' },
-  peach: { primary: '#EC4899', secondary: '#FCE7F3' },
-};
-
-export function InlineCTASection({ content, theme = 'toss', isEditable, onEdit, onCTAClick }: InlineCTASectionProps) {
-  const colors = themeColors[theme] || themeColors.toss;
+export function InlineCTASection({ content, theme = 'toss', style, onCTAClick }: InlineCTASectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
   const buttonStyle = content.style || 'primary';
   const buttonSize = content.size || 'medium';
 
@@ -50,7 +43,7 @@ export function InlineCTASection({ content, theme = 'toss', isEditable, onEdit, 
       case 'secondary':
         return {
           ...baseStyles,
-          background: colors.secondary,
+          background: colors.primaryLight,
           color: colors.primary,
           border: 'none',
         };
@@ -76,13 +69,14 @@ export function InlineCTASection({ content, theme = 'toss', isEditable, onEdit, 
       style={{
         padding: '32px 24px',
         textAlign: 'center',
+        background: colors.background,
       }}
     >
       {content.subtitle && (
         <p
           style={{
             fontSize: '14px',
-            color: '#6B7280',
+            color: colors.textMuted,
             marginBottom: '12px',
             marginTop: 0,
           }}

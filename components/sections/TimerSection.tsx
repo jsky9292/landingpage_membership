@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TimerContent, ThemeType, SectionStyle } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface TimerSectionProps {
   content: TimerContent;
@@ -11,7 +12,8 @@ interface TimerSectionProps {
   onEdit?: (content: TimerContent) => void;
 }
 
-export function TimerSection({ content, theme = 'toss', isEditable, onEdit }: TimerSectionProps) {
+export function TimerSection({ content, theme = 'toss', style }: TimerSectionProps) {
+  const colors = THEMES[theme]?.colors || THEMES.toss.colors;
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -52,7 +54,8 @@ export function TimerSection({ content, theme = 'toss', isEditable, onEdit }: Ti
     return () => clearInterval(timer);
   }, [content.endDate]);
 
-  const backgroundColor = content.backgroundColor || '#FF6B6B';
+  // 테마에 맞는 기본 배경색 설정
+  const backgroundColor = content.backgroundColor || colors.primary;
   const textColor = content.textColor || '#FFFFFF';
 
   if (timeLeft.expired && content.expiredMessage) {

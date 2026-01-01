@@ -30,7 +30,7 @@ export type SectionType =
 
 export type PageStatus = 'draft' | 'published' | 'archived';
 
-export type ThemeType = 'toss' | 'dark' | 'warm' | 'luxury' | 'peach';
+export type ThemeType = 'toss' | 'dark' | 'warm' | 'luxury' | 'peach' | 'slate';
 
 // 섹션 콘텐츠 타입
 export interface HeroContent {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Section, SectionType, SectionContent, FormField, SectionStyle, ThemeType } from '@/types/page';
 import { HeroSection } from './HeroSection';
 import { PainSection } from './PainSection';
@@ -32,6 +32,7 @@ interface SectionRendererProps {
   onAddSectionAt?: (order: number) => void;
   onMoveSection?: (sectionId: string, direction: 'up' | 'down') => void;
   onDeleteSection?: (sectionId: string) => void;
+  onReorderSections?: (sections: Section[]) => void;
 }
 
 const sectionLabels: Record<string, string> = {
@@ -79,7 +80,7 @@ function AddSectionButton({ onClick, isFirst }: { onClick: () => void; isFirst?:
     <div
       style={{
         position: 'relative',
-        height: isHovered ? '48px' : '24px',
+        height: isHovered ? '48px' : '16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -95,6 +96,7 @@ function AddSectionButton({ onClick, isFirst }: { onClick: () => void; isFirst?:
         transform: 'translateX(-50%)',
         opacity: isHovered ? 1 : 0,
         transition: 'opacity 0.2s ease',
+        zIndex: 10,
       }}>
         <button
           onClick={(e) => {
@@ -117,18 +119,9 @@ function AddSectionButton({ onClick, isFirst }: { onClick: () => void; isFirst?:
             whiteSpace: 'nowrap',
           }}
         >
-          <span>➕</span> 섹션 추가
+          ➕ 섹션 추가
         </button>
       </div>
-      {/* 가이드 라인 */}
-      <div style={{
-        position: 'absolute',
-        left: '20px',
-        right: '20px',
-        height: '2px',
-        background: isHovered ? '#0064FF' : 'transparent',
-        transition: 'background 0.2s ease',
-      }} />
     </div>
   );
 }
@@ -244,7 +237,12 @@ export function SectionRenderer({
   onAddSectionAt,
   onMoveSection,
   onDeleteSection,
+  onReorderSections,
 }: SectionRendererProps) {
+  const [draggedSection, setDraggedSection] = useState<string | null>(null);
+  const [dragOverSection, setDragOverSection] = useState<string | null>(null);
+  const dragCounter = useRef(0);
+
   const scrollToForm = () => {
     const formSection = document.getElementById('form-section');
     formSection?.scrollIntoView({ behavior: 'smooth' });
@@ -252,6 +250,72 @@ export function SectionRenderer({
 
   const handleEdit = (sectionId: string) => (content: SectionContent) => {
     onSectionEdit?.(sectionId, content);
+  };
+
+  // 드래그 앤 드롭 핸들러
+  const handleDragStart = (e: React.DragEvent, sectionId: string) => {
+    setDraggedSection(sectionId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', sectionId);
+    // 드래그 이미지 투명도
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    setDraggedSection(null);
+    setDragOverSection(null);
+    dragCounter.current = 0;
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1';
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    dragCounter.current++;
+    if (sectionId !== draggedSection) {
+      setDragOverSection(sectionId);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setDragOverSection(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
+    e.preventDefault();
+    setDragOverSection(null);
+    dragCounter.current = 0;
+
+    if (!draggedSection || draggedSection === targetSectionId) return;
+
+    const sortedList = [...sections].sort((a, b) => a.order - b.order);
+    const draggedIndex = sortedList.findIndex(s => s.id === draggedSection);
+    const targetIndex = sortedList.findIndex(s => s.id === targetSectionId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // 순서 재배열
+    const newSections = [...sortedList];
+    const [removed] = newSections.splice(draggedIndex, 1);
+    newSections.splice(targetIndex, 0, removed);
+
+    // order 값 업데이트
+    const reorderedSections = newSections.map((s, i) => ({ ...s, order: i }));
+    onReorderSections?.(reorderedSections);
+
+    setDraggedSection(null);
   };
 
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
@@ -301,7 +365,8 @@ export function SectionRenderer({
     <>
       <style>{`
         .section-wrapper { position: relative; transition: all 0.2s ease; }
-        .section-wrapper.editable { cursor: pointer; }
+        .section-wrapper.editable { cursor: grab; }
+        .section-wrapper.editable:active { cursor: grabbing; }
         .section-wrapper.editable:hover { background: rgba(0,100,255,0.03); }
         .section-wrapper.editable:hover .section-controls { opacity: 1; }
         .section-wrapper.editing {
@@ -322,6 +387,26 @@ export function SectionRenderer({
           z-index: 15;
           animation: pulse-border 1.5s ease-in-out infinite;
         }
+        .section-wrapper.drag-over {
+          background: rgba(0,100,255,0.15);
+          outline: 3px dashed #0064FF;
+          outline-offset: -3px;
+        }
+        .section-wrapper.drag-over::after {
+          content: '여기에 놓기';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: #0064FF;
+          color: #fff;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          z-index: 100;
+          pointer-events: none;
+        }
         @keyframes pulse-border {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
@@ -336,8 +421,15 @@ export function SectionRenderer({
         {sortedSections.map((section, index) => (
           <div key={section.id}>
             <div
-              className={`section-wrapper ${isEditable ? 'editable' : ''} ${editingSection === section.id ? 'editing' : ''}`}
+              className={`section-wrapper ${isEditable ? 'editable' : ''} ${editingSection === section.id ? 'editing' : ''} ${dragOverSection === section.id ? 'drag-over' : ''}`}
               onClick={() => isEditable && onSectionSelect?.(section.id)}
+              draggable={isEditable}
+              onDragStart={(e) => isEditable && handleDragStart(e, section.id)}
+              onDragEnd={handleDragEnd}
+              onDragEnter={(e) => isEditable && handleDragEnter(e, section.id)}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={(e) => isEditable && handleDrop(e, section.id)}
             >
               {isEditable && (
                 <SectionControls
