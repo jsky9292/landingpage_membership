@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Section, SectionType, SectionContent, FormField, SectionStyle, ThemeType } from '@/types/page';
 import { HeroSection } from './HeroSection';
 import { PainSection } from './PainSection';
@@ -11,6 +12,11 @@ import { VideoSection } from './VideoSection';
 import { CalendarSection } from './CalendarSection';
 import { CTASection } from './CTASection';
 import { FormSection } from './FormSection';
+import { TimerSection } from './TimerSection';
+import { InlineCTASection } from './InlineCTASection';
+import { InlineImageSection } from './InlineImageSection';
+import { InlineVideoSection } from './InlineVideoSection';
+import { DividerSection } from './DividerSection';
 
 interface SectionRendererProps {
   sections: Section[];
@@ -23,9 +29,27 @@ interface SectionRendererProps {
   isSubmitting?: boolean;
   editingSection?: string | null;
   onSectionSelect?: (sectionId: string | null) => void;
+  onAddSectionAt?: (order: number) => void;
+  onMoveSection?: (sectionId: string, direction: 'up' | 'down') => void;
+  onDeleteSection?: (sectionId: string) => void;
 }
 
-// 이모지/섹션 이미지 컴포넌트
+const sectionLabels: Record<string, string> = {
+  hero: '히어로', pain: '고객 고민', solution: '해결책', benefits: '혜택',
+  process: '진행 방식', philosophy: '철학', video: '동영상', image: '이미지',
+  calendar: '예약', cta: 'CTA', form: '신청폼',
+  timer: '타이머', 'inline-cta': '중간 CTA', 'inline-image': '중간 이미지',
+  'inline-video': '중간 영상', divider: '구분선',
+};
+
+const sectionIcons: Record<string, string> = {
+  hero: '🎯', pain: '😰', solution: '💡', benefits: '✨',
+  process: '📋', philosophy: '💝', video: '🎬', image: '🖼️',
+  calendar: '📅', cta: '🔥', form: '📝',
+  timer: '⏰', 'inline-cta': '🔘', 'inline-image': '🖼️',
+  'inline-video': '📹', divider: '➖',
+};
+
 function SectionImageDisplay({ emojiImage, sectionImage }: { emojiImage?: string; sectionImage?: string }) {
   if (!emojiImage && !sectionImage) return null;
 
@@ -38,31 +62,173 @@ function SectionImageDisplay({ emojiImage, sectionImage }: { emojiImage?: string
       padding: '24px 20px',
     }}>
       {emojiImage && (
-        <img
-          src={emojiImage}
-          alt="emoji"
-          style={{
-            width: '80px',
-            height: '80px',
-            objectFit: 'contain',
-          }}
-        />
+        <img src={emojiImage} alt="emoji" style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
       )}
       {sectionImage && (
-        <img
-          src={sectionImage}
-          alt="section"
-          style={{
-            maxWidth: '100%',
-            maxHeight: '300px',
-            borderRadius: '12px',
-            objectFit: 'cover',
-          }}
-        />
+        <img src={sectionImage} alt="section" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '12px', objectFit: 'cover' }} />
       )}
     </div>
   );
 }
+
+// 섹션 사이 추가 버튼
+function AddSectionButton({ onClick, isFirst }: { onClick: () => void; isFirst?: boolean }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        height: isHovered ? '48px' : '24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'height 0.2s ease',
+        margin: isFirst ? '0 0 0 0' : '0',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div style={{
+        position: 'absolute',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        opacity: isHovered ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+      }}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px',
+            background: '#0064FF',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '20px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,100,255,0.3)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <span>➕</span> 섹션 추가
+        </button>
+      </div>
+      {/* 가이드 라인 */}
+      <div style={{
+        position: 'absolute',
+        left: '20px',
+        right: '20px',
+        height: '2px',
+        background: isHovered ? '#0064FF' : 'transparent',
+        transition: 'background 0.2s ease',
+      }} />
+    </div>
+  );
+}
+
+// 섹션 컨트롤 바
+function SectionControls({
+  section,
+  isEditing,
+  onEdit,
+  onMoveUp,
+  onMoveDown,
+  onDelete,
+  isFirst,
+  isLast,
+}: {
+  section: Section;
+  isEditing: boolean;
+  onEdit: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  onDelete?: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
+  return (
+    <div
+      className="section-controls"
+      style={{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '8px 12px',
+        background: isEditing ? '#191F28' : 'rgba(0,100,255,0.95)',
+        color: '#fff',
+        fontSize: '13px',
+        fontWeight: '600',
+        zIndex: 20,
+        opacity: 0,
+        transition: 'opacity 0.2s ease',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span>{sectionIcons[section.type] || '📄'}</span>
+        <span>{sectionLabels[section.type] || section.type}</span>
+      </div>
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {!isFirst && onMoveUp && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
+            style={controlButtonStyle}
+            title="위로 이동"
+          >
+            ↑
+          </button>
+        )}
+        {!isLast && onMoveDown && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
+            style={controlButtonStyle}
+            title="아래로 이동"
+          >
+            ↓
+          </button>
+        )}
+        <button
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
+          style={{ ...controlButtonStyle, background: isEditing ? '#0064FF' : 'rgba(255,255,255,0.2)' }}
+        >
+          ✏️ 편집
+        </button>
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            style={{ ...controlButtonStyle, background: 'rgba(255,100,100,0.8)' }}
+            title="삭제"
+          >
+            🗑️
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const controlButtonStyle: React.CSSProperties = {
+  padding: '4px 10px',
+  background: 'rgba(255,255,255,0.2)',
+  border: 'none',
+  borderRadius: '4px',
+  color: '#fff',
+  fontSize: '12px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+};
 
 export function SectionRenderer({
   sections,
@@ -75,6 +241,9 @@ export function SectionRenderer({
   isSubmitting,
   editingSection,
   onSectionSelect,
+  onAddSectionAt,
+  onMoveSection,
+  onDeleteSection,
 }: SectionRendererProps) {
   const scrollToForm = () => {
     const formSection = document.getElementById('form-section');
@@ -87,37 +256,42 @@ export function SectionRenderer({
 
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
-  const sectionLabels: Record<string, string> = {
-    hero: '히어로', pain: '고객 고민', solution: '해결책', benefits: '혜택',
-    process: '진행 방식', philosophy: '철학', video: '동영상', image: '이미지',
-    calendar: '예약', cta: 'CTA', form: '신청폼',
-  };
-
   const renderSection = (section: Section) => {
     const editHandler = handleEdit(section.id);
     const imageDisplay = <SectionImageDisplay emojiImage={section.emojiImage} sectionImage={section.sectionImage} />;
+    const sectionStyle = section.style;
 
     switch (section.type as SectionType) {
       case 'hero':
-        return (<><HeroSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{imageDisplay}</>);
+        return (<><HeroSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{imageDisplay}</>);
       case 'pain':
-        return (<>{imageDisplay}<PainSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<PainSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'solution':
-        return (<>{imageDisplay}<SolutionSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<SolutionSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'benefits':
-        return (<>{imageDisplay}<BenefitsSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<BenefitsSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'process':
-        return (<>{imageDisplay}<ProcessSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<ProcessSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'philosophy':
-        return (<>{imageDisplay}<PhilosophySection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<PhilosophySection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'video':
-        return (<>{imageDisplay}<VideoSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<VideoSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'calendar':
-        return (<>{imageDisplay}<CalendarSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<CalendarSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'cta':
-        return (<>{imageDisplay}<CTASection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
+        return (<>{imageDisplay}<CTASection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
       case 'form':
-        return (<FormSection content={section.content as any} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} />);
+        return (<FormSection content={section.content as any} formFields={formFields} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} />);
+      case 'timer':
+        return (<TimerSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} />);
+      case 'inline-cta':
+        return (<InlineCTASection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />);
+      case 'inline-image':
+        return (<InlineImageSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} />);
+      case 'inline-video':
+        return (<InlineVideoSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} />);
+      case 'divider':
+        return (<DividerSection content={section.content as any} theme={theme} style={sectionStyle} isEditable={isEditable} onEdit={editHandler} />);
       default:
         return null;
     }
@@ -126,18 +300,64 @@ export function SectionRenderer({
   return (
     <>
       <style>{`
-        .section-wrapper { position: relative; }
-        .section-wrapper.editable:hover { outline: 2px solid #0064FF; outline-offset: -2px; }
-        .section-wrapper.editing { outline: 2px solid #0064FF; outline-offset: -2px; }
-        .section-edit-badge { position: absolute; top: 8px; right: 8px; background: #0064FF; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 10; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
-        .section-wrapper.editable:hover .section-edit-badge { opacity: 1; }
-        .section-wrapper.editing .section-edit-badge { opacity: 1; background: #191F28; }
+        .section-wrapper { position: relative; transition: all 0.2s ease; }
+        .section-wrapper.editable { cursor: pointer; }
+        .section-wrapper.editable:hover { background: rgba(0,100,255,0.03); }
+        .section-wrapper.editable:hover .section-controls { opacity: 1; }
+        .section-wrapper.editing {
+          background: rgba(0,100,255,0.08);
+          outline: 3px solid #0064FF;
+          outline-offset: -3px;
+        }
+        .section-wrapper.editing .section-controls { opacity: 1; }
+        .section-wrapper.editing::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border: 3px solid #0064FF;
+          pointer-events: none;
+          z-index: 15;
+          animation: pulse-border 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
       `}</style>
       <div>
-        {sortedSections.map((section) => (
-          <div key={section.id} className={`section-wrapper ${isEditable ? 'editable' : ''} ${editingSection === section.id ? 'editing' : ''}`} onClick={() => isEditable && onSectionSelect?.(section.id)}>
-            {isEditable && (<div className="section-edit-badge">{editingSection === section.id ? '편집 중' : `${sectionLabels[section.type] || section.type} 편집`}</div>)}
-            {renderSection(section)}
+        {/* 맨 위에 섹션 추가 버튼 */}
+        {isEditable && onAddSectionAt && (
+          <AddSectionButton onClick={() => onAddSectionAt(-1)} isFirst />
+        )}
+
+        {sortedSections.map((section, index) => (
+          <div key={section.id}>
+            <div
+              className={`section-wrapper ${isEditable ? 'editable' : ''} ${editingSection === section.id ? 'editing' : ''}`}
+              onClick={() => isEditable && onSectionSelect?.(section.id)}
+            >
+              {isEditable && (
+                <SectionControls
+                  section={section}
+                  isEditing={editingSection === section.id}
+                  onEdit={() => onSectionSelect?.(section.id)}
+                  onMoveUp={onMoveSection ? () => onMoveSection(section.id, 'up') : undefined}
+                  onMoveDown={onMoveSection ? () => onMoveSection(section.id, 'down') : undefined}
+                  onDelete={onDeleteSection ? () => onDeleteSection(section.id) : undefined}
+                  isFirst={index === 0}
+                  isLast={index === sortedSections.length - 1}
+                />
+              )}
+              {renderSection(section)}
+            </div>
+
+            {/* 각 섹션 아래에 추가 버튼 */}
+            {isEditable && onAddSectionAt && (
+              <AddSectionButton onClick={() => onAddSectionAt(section.order)} />
+            )}
           </div>
         ))}
       </div>

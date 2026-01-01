@@ -1,10 +1,11 @@
 'use client';
 
-import { VideoContent } from '@/types/page';
+import { VideoContent, SectionStyle, ThemeType } from '@/types/page';
 
 interface VideoSectionProps {
-  theme?: string;
+  theme?: ThemeType;
   content: VideoContent;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: VideoContent) => void;
 }

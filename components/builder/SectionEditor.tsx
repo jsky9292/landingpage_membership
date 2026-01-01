@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Section, SectionContent, SectionStyle, SectionType, VideoContent, HeroContent, PainContent, SolutionContent, BenefitsContent, ProcessContent, PhilosophyContent, CTAContent, FormContent, FormField, ContactInfo, ImageContent } from '@/types/page';
+import { Section, SectionContent, SectionStyle, SectionType, VideoContent, HeroContent, PainContent, SolutionContent, BenefitsContent, ProcessContent, PhilosophyContent, CTAContent, FormContent, FormField, ContactInfo, ImageContent, TimerContent, InlineCTAContent, InlineImageContent, InlineVideoContent, DividerContent } from '@/types/page';
 
 // 카테고리별 추천 이모지 (대폭 확장)
 const EMOJI_CATEGORIES = {
@@ -134,6 +134,11 @@ export function SectionEditor({
     calendar: '예약',
     cta: 'CTA',
     form: '신청폼',
+    timer: '⏱️ 카운트다운 타이머',
+    'inline-cta': '🔘 중간 CTA 버튼',
+    'inline-image': '🖼️ 중간 이미지',
+    'inline-video': '📹 중간 영상',
+    divider: '➖ 구분선',
   };
 
   // 텍스트 필드 렌더러
@@ -604,6 +609,460 @@ export function SectionEditor({
             {renderTextField('부제목', formContent.subtitle || '', (v) => handleContentUpdate({ subtitle: v }))}
             {renderTextField('안내 문구', formContent.note || '', (v) => handleContentUpdate({ note: v }))}
             {renderTextField('버튼 텍스트', formContent.buttonText, (v) => handleContentUpdate({ buttonText: v }))}
+          </>
+        );
+
+      case 'timer':
+        const timerContent = localContent as TimerContent;
+        return (
+          <>
+            {renderTextField('타이머 제목', timerContent.title || '', (v) => handleContentUpdate({ title: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                종료 날짜/시간
+              </label>
+              <input
+                type="datetime-local"
+                value={timerContent.endDate ? new Date(timerContent.endDate).toISOString().slice(0, 16) : ''}
+                onChange={(e) => handleContentUpdate({ endDate: new Date(e.target.value).toISOString() })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #E5E8EB',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                배경색
+              </label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={timerContent.backgroundColor || '#FF6B6B'}
+                  onChange={(e) => handleContentUpdate({ backgroundColor: e.target.value })}
+                  style={{
+                    width: '50px',
+                    height: '40px',
+                    border: '1px solid #E5E8EB',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <input
+                  type="text"
+                  value={timerContent.backgroundColor || '#FF6B6B'}
+                  onChange={(e) => handleContentUpdate({ backgroundColor: e.target.value })}
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: '1px solid #E5E8EB',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                텍스트 색상
+              </label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={timerContent.textColor || '#FFFFFF'}
+                  onChange={(e) => handleContentUpdate({ textColor: e.target.value })}
+                  style={{
+                    width: '50px',
+                    height: '40px',
+                    border: '1px solid #E5E8EB',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <input
+                  type="text"
+                  value={timerContent.textColor || '#FFFFFF'}
+                  onChange={(e) => handleContentUpdate({ textColor: e.target.value })}
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: '1px solid #E5E8EB',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+            {renderTextField('종료 후 메시지', timerContent.expiredMessage || '', (v) => handleContentUpdate({ expiredMessage: v }))}
+          </>
+        );
+
+      case 'inline-cta':
+        const inlineCTAContent = localContent as InlineCTAContent;
+        return (
+          <>
+            {renderTextField('버튼 텍스트', inlineCTAContent.buttonText || '', (v) => handleContentUpdate({ buttonText: v }))}
+            {renderTextField('부가 텍스트', inlineCTAContent.subtitle || '', (v) => handleContentUpdate({ subtitle: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                버튼 스타일
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['primary', 'secondary', 'outline'] as const).map((style) => (
+                  <button
+                    key={style}
+                    onClick={() => handleContentUpdate({ style })}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      border: inlineCTAContent.style === style ? '2px solid #0064FF' : '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      background: inlineCTAContent.style === style ? '#E8F3FF' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: inlineCTAContent.style === style ? '600' : '400'
+                    }}
+                  >
+                    {style === 'primary' ? '강조' : style === 'secondary' ? '보조' : '외곽선'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                버튼 크기
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['small', 'medium', 'large'] as const).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => handleContentUpdate({ size })}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      border: inlineCTAContent.size === size ? '2px solid #0064FF' : '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      background: inlineCTAContent.size === size ? '#E8F3FF' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: inlineCTAContent.size === size ? '600' : '400'
+                    }}
+                  >
+                    {size === 'small' ? '작게' : size === 'medium' ? '중간' : '크게'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={inlineCTAContent.fullWidth || false}
+                  onChange={(e) => handleContentUpdate({ fullWidth: e.target.checked })}
+                  style={{ width: '18px', height: '18px', accentColor: '#0064FF' }}
+                />
+                <span style={{ fontSize: '14px', color: '#333D4B' }}>전체 너비로 표시</span>
+              </label>
+            </div>
+          </>
+        );
+
+      case 'inline-image':
+        const inlineImageContent = localContent as InlineImageContent;
+        return (
+          <>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                이미지 URL
+              </label>
+              <input
+                type="url"
+                value={inlineImageContent.imageUrl || ''}
+                onChange={(e) => handleContentUpdate({ imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #E5E8EB',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            {inlineImageContent.imageUrl && (
+              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                <img
+                  src={inlineImageContent.imageUrl}
+                  alt="미리보기"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '200px',
+                    borderRadius: '8px',
+                    border: '1px solid #E5E8EB'
+                  }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            {renderTextField('대체 텍스트 (Alt)', inlineImageContent.alt || '', (v) => handleContentUpdate({ alt: v }))}
+            {renderTextField('캡션', inlineImageContent.caption || '', (v) => handleContentUpdate({ caption: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                이미지 크기
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['small', 'medium', 'large', 'full'] as const).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => handleContentUpdate({ size })}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      border: inlineImageContent.size === size ? '2px solid #0064FF' : '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      background: inlineImageContent.size === size ? '#E8F3FF' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: inlineImageContent.size === size ? '600' : '400'
+                    }}
+                  >
+                    {size === 'small' ? '작게' : size === 'medium' ? '중간' : size === 'large' ? '크게' : '전체'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                정렬
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['left', 'center', 'right'] as const).map((align) => (
+                  <button
+                    key={align}
+                    onClick={() => handleContentUpdate({ alignment: align })}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      border: inlineImageContent.alignment === align ? '2px solid #0064FF' : '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      background: inlineImageContent.alignment === align ? '#E8F3FF' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: inlineImageContent.alignment === align ? '600' : '400'
+                    }}
+                  >
+                    {align === 'left' ? '왼쪽' : align === 'center' ? '가운데' : '오른쪽'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        );
+
+      case 'inline-video':
+        const inlineVideoContent = localContent as InlineVideoContent;
+        return (
+          <>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                유튜브 URL
+              </label>
+              <input
+                type="url"
+                value={inlineVideoContent.videoUrl || ''}
+                onChange={(e) => handleContentUpdate({ videoUrl: e.target.value })}
+                placeholder="https://www.youtube.com/watch?v=..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #E5E8EB',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <p style={{ fontSize: '12px', color: '#8B95A1', marginTop: '4px' }}>
+                YouTube 동영상 URL을 붙여넣으세요 (예: youtube.com/watch?v=...)
+              </p>
+            </div>
+            {renderTextField('제목', inlineVideoContent.title || '', (v) => handleContentUpdate({ title: v }))}
+            {renderTextField('캡션', inlineVideoContent.caption || '', (v) => handleContentUpdate({ caption: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={inlineVideoContent.showControls !== false}
+                  onChange={(e) => handleContentUpdate({ showControls: e.target.checked })}
+                  style={{ width: '18px', height: '18px', accentColor: '#0064FF' }}
+                />
+                <span style={{ fontSize: '14px', color: '#333D4B' }}>컨트롤 표시</span>
+              </label>
+            </div>
+          </>
+        );
+
+      case 'divider':
+        const dividerContent = localContent as DividerContent;
+        return (
+          <>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                구분선 스타일
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['line', 'dots', 'space'] as const).map((style) => (
+                  <button
+                    key={style}
+                    onClick={() => handleContentUpdate({ style })}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      border: dividerContent.style === style ? '2px solid #0064FF' : '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      background: dividerContent.style === style ? '#E8F3FF' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: dividerContent.style === style ? '600' : '400'
+                    }}
+                  >
+                    {style === 'line' ? '실선' : style === 'dots' ? '점선' : '여백'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {dividerContent.style !== 'space' && (
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#333D4B',
+                  marginBottom: '6px'
+                }}>
+                  구분선 색상
+                </label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="color"
+                    value={dividerContent.color || '#E5E8EB'}
+                    onChange={(e) => handleContentUpdate({ color: e.target.value })}
+                    style={{
+                      width: '50px',
+                      height: '40px',
+                      border: '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    value={dividerContent.color || '#E5E8EB'}
+                    onChange={(e) => handleContentUpdate({ color: e.target.value })}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      border: '1px solid #E5E8EB',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#333D4B',
+                marginBottom: '6px'
+              }}>
+                <span>여백 (px)</span>
+                <span style={{ color: '#0064FF' }}>{dividerContent.spacing || 40}px</span>
+              </label>
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={dividerContent.spacing || 40}
+                onChange={(e) => handleContentUpdate({ spacing: Number(e.target.value) })}
+                style={{
+                  width: '100%',
+                  accentColor: '#0064FF'
+                }}
+              />
+            </div>
           </>
         );
 

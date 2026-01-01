@@ -1,18 +1,21 @@
 'use client';
 
-import { SolutionContent, ThemeType } from '@/types/page';
+import { SolutionContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface SolutionSectionProps {
   content: SolutionContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: SolutionContent) => void;
 }
 
-export function SolutionSection({ content, theme = 'toss' }: SolutionSectionProps) {
+export function SolutionSection({ content, theme = 'toss', style }: SolutionSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   // 다크 계열 테마인지 확인
   const isDark = theme === 'dark' || theme === 'luxury';
@@ -21,7 +24,7 @@ export function SolutionSection({ content, theme = 'toss' }: SolutionSectionProp
     <>
       <style>{`
         .solution-title {
-          font-size: clamp(22px, 6vw, 28px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: #fff;
           margin-bottom: 24px;
@@ -30,7 +33,7 @@ export function SolutionSection({ content, theme = 'toss' }: SolutionSectionProp
           text-wrap: balance;
         }
         .solution-headline {
-          font-size: clamp(17px, 5vw, 20px);
+          font-size: ${Math.round(titleSize * 0.7)}px;
           font-weight: bold;
           color: #fff;
           margin-bottom: 12px;
@@ -38,7 +41,7 @@ export function SolutionSection({ content, theme = 'toss' }: SolutionSectionProp
           text-wrap: balance;
         }
         .solution-desc {
-          font-size: clamp(14px, 3.8vw, 16px);
+          font-size: ${textSize}px;
           color: rgba(255,255,255,0.9);
           line-height: 1.7;
           white-space: pre-line;
@@ -49,12 +52,12 @@ export function SolutionSection({ content, theme = 'toss' }: SolutionSectionProp
           font-weight: 600;
           color: #fff;
           margin-bottom: 4px;
-          font-size: clamp(14px, 4vw, 16px);
+          font-size: ${textSize}px;
           word-break: keep-all;
           text-wrap: balance;
         }
         .solution-item-desc {
-          font-size: clamp(13px, 3.5vw, 14px);
+          font-size: ${Math.round(textSize * 0.875)}px;
           color: rgba(255,255,255,0.7);
           line-height: 1.6;
           word-break: keep-all;

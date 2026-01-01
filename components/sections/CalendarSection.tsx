@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarContent } from '@/types/page';
+import { CalendarContent, SectionStyle, ThemeType } from '@/types/page';
 
 interface CalendarSectionProps {
-  theme?: string;
+  theme?: ThemeType;
   content: CalendarContent;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: CalendarContent) => void;
   onBooking?: (booking: { date: string; time: string; name: string; phone: string }) => void;

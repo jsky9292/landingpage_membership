@@ -1,19 +1,22 @@
 'use client';
 
-import { HeroContent, ThemeType } from '@/types/page';
+import { HeroContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface HeroSectionProps {
   content: HeroContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: HeroContent) => void;
   onCTAClick?: () => void;
 }
 
-export function HeroSection({ content, theme = 'toss', isEditable, onEdit, onCTAClick }: HeroSectionProps) {
+export function HeroSection({ content, theme = 'toss', style, isEditable, onEdit, onCTAClick }: HeroSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 36;
+  const textSize = style?.textFontSize || 18;
 
   // peach 테마일 때 그라데이션 배경 사용
   const backgroundStyle = colors.gradient
@@ -24,7 +27,7 @@ export function HeroSection({ content, theme = 'toss', isEditable, onEdit, onCTA
     <>
       <style>{`
         .hero-headline {
-          font-size: clamp(24px, 7vw, 36px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: ${colors.text};
           line-height: 1.35;
@@ -34,7 +37,7 @@ export function HeroSection({ content, theme = 'toss', isEditable, onEdit, onCTA
           text-wrap: balance;
         }
         .hero-subtext {
-          font-size: clamp(15px, 4vw, 18px);
+          font-size: ${textSize}px;
           color: ${colors.textSecondary};
           margin-bottom: 32px;
           line-height: 1.7;

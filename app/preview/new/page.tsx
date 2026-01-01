@@ -4,7 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
 import { SectionEditor } from '@/components/builder/SectionEditor';
-import { Section, FormField, SectionContent, SectionStyle } from '@/types/page';
+import { AddSectionPanel } from '@/components/builder/AddSectionPanel';
+import { ThemeSelector } from '@/components/builder/ThemeSelector';
+import { Section, FormField, SectionContent, SectionStyle, ThemeType } from '@/types/page';
 import html2canvas from 'html2canvas';
 
 interface GeneratedData {
@@ -26,6 +28,9 @@ export default function PreviewNewPage() {
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [showAddSection, setShowAddSection] = useState(false);
+  const [showThemePanel, setShowThemePanel] = useState(false);
+  const [insertAfterOrder, setInsertAfterOrder] = useState<number>(999);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,6 +146,73 @@ export default function PreviewNewPage() {
       s.id === sectionId ? { ...s, style } : s
     );
     const newData = { ...data, sections: newSections };
+    setData(newData);
+    localStorage.setItem('generatedPage', JSON.stringify(newData));
+  };
+
+  const handleAddSection = (newSection: Section) => {
+    if (!data) return;
+    // insertAfterOrder 위치에 섹션 삽입
+    const sectionWithOrder = {
+      ...newSection,
+      order: insertAfterOrder + 0.5,
+    };
+    const newSections = [...data.sections, sectionWithOrder]
+      .sort((a, b) => a.order - b.order)
+      .map((s, i) => ({ ...s, order: i }));
+    const newData = { ...data, sections: newSections };
+    setData(newData);
+    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    setEditingSection(newSection.id);
+    setShowAddSection(false);
+  };
+
+  const handleAddSectionAt = (order: number) => {
+    setInsertAfterOrder(order);
+    setShowAddSection(true);
+    setEditingSection(null);
+  };
+
+  const handleMoveSection = (sectionId: string, direction: 'up' | 'down') => {
+    if (!data) return;
+    const sortedSections = [...data.sections].sort((a, b) => a.order - b.order);
+    const currentIndex = sortedSections.findIndex((s) => s.id === sectionId);
+
+    if (currentIndex === -1) return;
+    if (direction === 'up' && currentIndex === 0) return;
+    if (direction === 'down' && currentIndex === sortedSections.length - 1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    // 순서 교환
+    const temp = sortedSections[currentIndex].order;
+    sortedSections[currentIndex].order = sortedSections[targetIndex].order;
+    sortedSections[targetIndex].order = temp;
+
+    const newSections = sortedSections
+      .sort((a, b) => a.order - b.order)
+      .map((s, i) => ({ ...s, order: i }));
+    const newData = { ...data, sections: newSections };
+    setData(newData);
+    localStorage.setItem('generatedPage', JSON.stringify(newData));
+  };
+
+  const handleDeleteSection = (sectionId: string) => {
+    if (!data) return;
+    if (!confirm('이 섹션을 삭제하시겠습니까?')) return;
+
+    const newSections = data.sections
+      .filter((s) => s.id !== sectionId)
+      .map((s, i) => ({ ...s, order: i }));
+    const newData = { ...data, sections: newSections };
+    setData(newData);
+    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    setEditingSection(null);
+  };
+
+  const handleThemeChange = (theme: ThemeType) => {
+    if (!data) return;
+    const newData = { ...data, theme };
     setData(newData);
     localStorage.setItem('generatedPage', JSON.stringify(newData));
   };
@@ -476,11 +548,15 @@ export default function PreviewNewPage() {
           <SectionRenderer
             sections={data.sections}
             formFields={data.formFields}
+            theme={(data.theme as ThemeType) || 'toss'}
             isEditable={isEditing}
             editingSection={editingSection}
             onSectionSelect={handleSectionSelect}
             onSectionEdit={(sectionId, content) => handleSectionContentChange(sectionId, content)}
             onSectionStyleEdit={(sectionId, style) => handleSectionStyleChange(sectionId, style)}
+            onAddSectionAt={handleAddSectionAt}
+            onMoveSection={handleMoveSection}
+            onDeleteSection={handleDeleteSection}
             onFormSubmit={(formData) => {
               console.log('Form submitted:', formData);
               alert('미리보기에서는 폼 제출이 작동하지 않습니다');
@@ -501,39 +577,116 @@ export default function PreviewNewPage() {
           borderLeft: '1px solid #E5E8EB',
           boxShadow: '-4px 0 20px rgba(0,0,0,0.05)',
           zIndex: 90,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}>
-          {editingSection ? (
-            <SectionEditor
-              section={getSelectedSection()}
-              onContentChange={(content) => {
-                if (editingSection) {
-                  handleSectionContentChange(editingSection, content);
-                }
-              }}
-              onStyleChange={(style) => {
-                if (editingSection) {
-                  handleSectionStyleChange(editingSection, style);
-                }
-              }}
-              onClose={() => setEditingSection(null)}
-            />
-          ) : (
+          {/* 패널 상단 탭 */}
+          {!showAddSection && !editingSection && (
             <div style={{
-              padding: '32px 24px',
-              textAlign: 'center',
-              color: '#8B95A1'
+              display: 'flex',
+              borderBottom: '1px solid #E5E8EB',
+              background: '#F8FAFC',
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>👆</div>
-              <p style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '8px' }}>
-                섹션을 선택하세요
-              </p>
-              <p style={{ fontSize: '14px' }}>
-                왼쪽 미리보기에서 편집할 섹션을 클릭하면<br/>
-                여기서 내용을 수정할 수 있어요
-              </p>
+              <button
+                onClick={() => setShowThemePanel(false)}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  border: 'none',
+                  background: !showThemePanel ? '#fff' : 'transparent',
+                  color: !showThemePanel ? '#0064FF' : '#6B7280',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  borderBottom: !showThemePanel ? '2px solid #0064FF' : '2px solid transparent',
+                }}
+              >
+                📝 섹션 편집
+              </button>
+              <button
+                onClick={() => setShowThemePanel(true)}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  border: 'none',
+                  background: showThemePanel ? '#fff' : 'transparent',
+                  color: showThemePanel ? '#0064FF' : '#6B7280',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  borderBottom: showThemePanel ? '2px solid #0064FF' : '2px solid transparent',
+                }}
+              >
+                🎨 톤앤매너
+              </button>
             </div>
           )}
+
+          {/* 패널 콘텐츠 */}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            {showAddSection ? (
+              <AddSectionPanel
+                onAddSection={handleAddSection}
+                onClose={() => setShowAddSection(false)}
+                insertAfterOrder={insertAfterOrder}
+              />
+            ) : editingSection ? (
+              <SectionEditor
+                section={getSelectedSection()}
+                onContentChange={(content) => {
+                  if (editingSection) {
+                    handleSectionContentChange(editingSection, content);
+                  }
+                }}
+                onStyleChange={(style) => {
+                  if (editingSection) {
+                    handleSectionStyleChange(editingSection, style);
+                  }
+                }}
+                onClose={() => setEditingSection(null)}
+                onDeleteSection={() => handleDeleteSection(editingSection)}
+              />
+            ) : showThemePanel ? (
+              <ThemeSelector
+                currentTheme={(data?.theme as ThemeType) || 'toss'}
+                onThemeChange={handleThemeChange}
+              />
+            ) : (
+              <div style={{
+                padding: '32px 24px',
+                textAlign: 'center',
+                color: '#8B95A1'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>👆</div>
+                <p style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '8px' }}>
+                  섹션을 선택하세요
+                </p>
+                <p style={{ fontSize: '14px', marginBottom: '24px' }}>
+                  왼쪽 미리보기에서 편집할 섹션을 클릭하면<br/>
+                  여기서 내용을 수정할 수 있어요
+                </p>
+                <button
+                  onClick={() => setShowAddSection(true)}
+                  style={{
+                    padding: '14px 28px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: '#0064FF',
+                    color: '#fff',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  ➕ 새 섹션 추가
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

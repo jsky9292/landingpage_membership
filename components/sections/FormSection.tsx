@@ -1,22 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { FormContent, FormField, ThemeType } from '@/types/page';
+import { FormContent, FormField, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface FormSectionProps {
   content: FormContent;
   formFields: FormField[];
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: FormContent) => void;
   onSubmit?: (data: Record<string, string>) => void;
   isSubmitting?: boolean;
 }
 
-export function FormSection({ content, formFields, theme = 'toss', onSubmit, isSubmitting }: FormSectionProps) {
+export function FormSection({ content, formFields, theme = 'toss', style, onSubmit, isSubmitting }: FormSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 24;
+  const textSize = style?.textFontSize || 14;
 
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});

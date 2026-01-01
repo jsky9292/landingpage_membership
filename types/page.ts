@@ -21,7 +21,12 @@ export type SectionType =
   | 'image'
   | 'calendar'
   | 'cta'
-  | 'form';
+  | 'form'
+  | 'timer'        // 카운트다운 타이머
+  | 'inline-cta'   // 중간 CTA 버튼
+  | 'inline-image' // 중간 이미지
+  | 'inline-video' // 중간 유튜브 영상
+  | 'divider';     // 구분선
 
 export type PageStatus = 'draft' | 'published' | 'archived';
 
@@ -131,6 +136,54 @@ export interface CalendarContent {
   note?: string;
 }
 
+// 카운트다운 타이머 콘텐츠
+export interface TimerContent {
+  title: string; // 예: "36% 런칭 할인 종료까지"
+  endDate: string; // ISO 날짜 문자열
+  backgroundColor?: string; // 배경색
+  textColor?: string; // 텍스트 색상
+  showDays?: boolean;
+  showHours?: boolean;
+  showMinutes?: boolean;
+  showSeconds?: boolean;
+  expiredMessage?: string; // 타이머 종료 후 메시지
+}
+
+// 중간 CTA 버튼 콘텐츠
+export interface InlineCTAContent {
+  buttonText: string;
+  subtitle?: string; // 버튼 위 또는 아래 텍스트
+  style?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
+  fullWidth?: boolean;
+}
+
+// 중간 이미지 콘텐츠
+export interface InlineImageContent {
+  imageUrl: string;
+  alt?: string;
+  caption?: string;
+  size?: 'small' | 'medium' | 'large' | 'full';
+  alignment?: 'left' | 'center' | 'right';
+}
+
+// 중간 유튜브 영상 콘텐츠
+export interface InlineVideoContent {
+  videoUrl: string; // YouTube URL
+  title?: string;
+  caption?: string;
+  autoplay?: boolean;
+  showControls?: boolean;
+}
+
+// 구분선 콘텐츠
+export interface DividerContent {
+  style?: 'line' | 'dots' | 'space';
+  color?: string;
+  thickness?: number;
+  spacing?: number; // 상하 여백
+}
+
 export type SectionContent =
   | HeroContent
   | PainContent
@@ -142,7 +195,12 @@ export type SectionContent =
   | ImageContent
   | CalendarContent
   | CTAContent
-  | FormContent;
+  | FormContent
+  | TimerContent
+  | InlineCTAContent
+  | InlineImageContent
+  | InlineVideoContent
+  | DividerContent;
 
 export interface Section {
   id: string;

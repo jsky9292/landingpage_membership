@@ -1,24 +1,27 @@
 'use client';
 
-import { BenefitsContent, ThemeType } from '@/types/page';
+import { BenefitsContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface BenefitsSectionProps {
   content: BenefitsContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: BenefitsContent) => void;
 }
 
-export function BenefitsSection({ content, theme = 'toss' }: BenefitsSectionProps) {
+export function BenefitsSection({ content, theme = 'toss', style }: BenefitsSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   return (
     <>
       <style>{`
         .benefits-title {
-          font-size: clamp(22px, 6vw, 28px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: ${colors.text};
           margin-bottom: 32px;
@@ -29,13 +32,13 @@ export function BenefitsSection({ content, theme = 'toss' }: BenefitsSectionProp
         .benefit-item-title {
           font-weight: 600;
           color: ${colors.text};
-          font-size: clamp(14px, 4vw, 16px);
+          font-size: ${textSize}px;
           margin-bottom: 4px;
           word-break: keep-all;
           text-wrap: balance;
         }
         .benefit-item-desc {
-          font-size: clamp(13px, 3.5vw, 14px);
+          font-size: ${Math.round(textSize * 0.875)}px;
           color: ${colors.textSecondary};
           line-height: 1.6;
           word-break: keep-all;

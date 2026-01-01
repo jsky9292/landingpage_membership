@@ -1,25 +1,28 @@
 'use client';
 
-import { CTAContent, ThemeType } from '@/types/page';
+import { CTAContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface CTASectionProps {
   content: CTAContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: CTAContent) => void;
   onCTAClick?: () => void;
 }
 
-export function CTASection({ content, theme = 'toss', onCTAClick }: CTASectionProps) {
+export function CTASection({ content, theme = 'toss', style, onCTAClick }: CTASectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   return (
     <>
       <style>{`
         .cta-headline {
-          font-size: clamp(22px, 6vw, 28px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: #fff;
           margin-bottom: 16px;
@@ -28,7 +31,7 @@ export function CTASection({ content, theme = 'toss', onCTAClick }: CTASectionPr
           text-wrap: balance;
         }
         .cta-subtext {
-          font-size: clamp(14px, 3.8vw, 16px);
+          font-size: ${textSize}px;
           color: rgba(255,255,255,0.9);
           margin-bottom: 32px;
           line-height: 1.7;

@@ -1,11 +1,12 @@
 'use client';
 
-import { ProcessContent, ThemeType } from '@/types/page';
+import { ProcessContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface ProcessSectionProps {
   content: ProcessContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: ProcessContent) => void;
 }
@@ -13,15 +14,17 @@ interface ProcessSectionProps {
 // 스텝별 아이콘 (참조 이미지 스타일)
 const stepIcons = ['%', '🔗', '💰', '📊', '✓'];
 
-export function ProcessSection({ content, theme = 'toss' }: ProcessSectionProps) {
+export function ProcessSection({ content, theme = 'toss', style }: ProcessSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   return (
     <>
       <style>{`
         .process-title {
-          font-size: clamp(22px, 6vw, 28px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: ${colors.text};
           margin-bottom: 12px;
@@ -30,7 +33,7 @@ export function ProcessSection({ content, theme = 'toss' }: ProcessSectionProps)
           text-wrap: balance;
         }
         .process-subtitle {
-          font-size: clamp(14px, 4vw, 16px);
+          font-size: ${textSize}px;
           color: ${colors.textSecondary};
           margin-bottom: 32px;
           line-height: 1.6;
@@ -41,7 +44,7 @@ export function ProcessSection({ content, theme = 'toss' }: ProcessSectionProps)
           font-weight: 600;
           color: ${colors.text};
           margin-bottom: 4px;
-          font-size: clamp(14px, 4vw, 16px);
+          font-size: ${textSize}px;
           word-break: keep-all;
           text-wrap: balance;
         }

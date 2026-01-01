@@ -1,24 +1,27 @@
 'use client';
 
-import { PainContent, ThemeType } from '@/types/page';
+import { PainContent, ThemeType, SectionStyle } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
 interface PainSectionProps {
   content: PainContent;
   theme?: ThemeType;
+  style?: SectionStyle;
   isEditable?: boolean;
   onEdit?: (content: PainContent) => void;
 }
 
-export function PainSection({ content, theme = 'toss' }: PainSectionProps) {
+export function PainSection({ content, theme = 'toss', style }: PainSectionProps) {
   const themeConfig = THEMES[theme];
   const colors = themeConfig.colors;
+  const titleSize = style?.titleFontSize || 28;
+  const textSize = style?.textFontSize || 16;
 
   return (
     <>
       <style>{`
         .pain-title {
-          font-size: clamp(22px, 6vw, 28px);
+          font-size: ${titleSize}px;
           font-weight: bold;
           color: ${colors.text};
           margin-bottom: 32px;
@@ -27,7 +30,7 @@ export function PainSection({ content, theme = 'toss' }: PainSectionProps) {
           text-wrap: balance;
         }
         .pain-item-text {
-          font-size: clamp(14px, 4vw, 16px);
+          font-size: ${textSize}px;
           color: ${colors.textSecondary};
           line-height: 1.7;
           word-break: keep-all;
