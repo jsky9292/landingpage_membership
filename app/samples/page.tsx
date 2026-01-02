@@ -199,7 +199,7 @@ const samplePages = [
     themeColor: '#EAB308',
     description: '업계 전문가와 함께하는 세미나',
     preview: {
-      headline: '2024년 트렌드를 먼저 알려드립니다',
+      headline: '2026년 트렌드를 먼저 알려드립니다',
       subtext: '업계 TOP 10 전문가가 모였습니다',
       cta: '세미나 신청하기',
       badge: '무료 참가',
@@ -266,19 +266,126 @@ const samplePages = [
       badge: '임대수익률 7%',
     },
   },
+  // 프랜차이즈/창업 - 오렌지 테마
   {
-    id: 'interior-sample',
-    category: 'realestate',
-    categoryName: '부동산/분양',
-    name: '인테리어',
+    id: 'chicken-franchise-sample',
+    category: 'franchise',
+    categoryName: '프랜차이즈/창업',
+    name: '치킨 프랜차이즈',
+    theme: 'orange',
+    themeColor: '#EA580C',
+    description: '전국 500호점 돌파 치킨 브랜드',
+    preview: {
+      headline: '월 순수익 1,200만원, 가능합니다',
+      subtext: '본사 직영 물류, 마케팅 100% 지원',
+      cta: '창업 상담 신청',
+      badge: '가맹비 50% 할인',
+    },
+  },
+  {
+    id: 'cafe-franchise-sample',
+    category: 'franchise',
+    categoryName: '프랜차이즈/창업',
+    name: '카페 프랜차이즈',
+    theme: 'amber',
+    themeColor: '#D97706',
+    description: '2030이 가장 좋아하는 디저트 카페',
+    preview: {
+      headline: '하루 매출 200만원, 비결이 있습니다',
+      subtext: '인스타 핫플 브랜드, 본사 인테리어 지원',
+      cta: '가맹 문의하기',
+      badge: '성공 사례 공개',
+    },
+  },
+  {
+    id: 'gym-franchise-sample',
+    category: 'franchise',
+    categoryName: '프랜차이즈/창업',
+    name: '피트니스 창업',
+    theme: 'red',
+    themeColor: '#DC2626',
+    description: '무인 24시 피트니스 창업',
+    preview: {
+      headline: '인건비 0원, 월 순수익 800만원',
+      subtext: '무인 시스템으로 운영 부담 최소화',
+      cta: '창업 설명회 신청',
+      badge: '무인 운영',
+    },
+  },
+  {
+    id: 'restaurant-franchise-sample',
+    category: 'franchise',
+    categoryName: '프랜차이즈/창업',
+    name: '음식점 프랜차이즈',
+    theme: 'rose',
+    themeColor: '#E11D48',
+    description: '배달 전문 한식 프랜차이즈',
+    preview: {
+      headline: '배달앱 리뷰 4.9점, 비결을 공개합니다',
+      subtext: '주방 경험 없어도 OK, 본사 레시피 100% 제공',
+      cta: '가맹 상담 신청',
+      badge: '초보 창업 OK',
+    },
+  },
+  // 인테리어/시공 - 브라운/그레이 테마
+  {
+    id: 'home-interior-sample',
+    category: 'interior',
+    categoryName: '인테리어/시공',
+    name: '주거 인테리어',
     theme: 'stone',
     themeColor: '#78716C',
-    description: '감각적인 인테리어 디자인',
+    description: '감각적인 주거 공간 인테리어',
     preview: {
       headline: '당신의 공간을 호텔처럼',
       subtext: '1,000세대 시공 경험, 5년 AS 보장',
       cta: '무료 상담 받기',
       badge: '시공 사례',
+    },
+  },
+  {
+    id: 'office-interior-sample',
+    category: 'interior',
+    categoryName: '인테리어/시공',
+    name: '사무실 인테리어',
+    theme: 'slate',
+    themeColor: '#475569',
+    description: '생산성을 높이는 오피스 공간',
+    preview: {
+      headline: '직원 만족도 200% 높이는 사무실',
+      subtext: '스타트업부터 대기업까지 300개+ 시공',
+      cta: '견적 문의하기',
+      badge: '포트폴리오',
+    },
+  },
+  {
+    id: 'store-interior-sample',
+    category: 'interior',
+    categoryName: '인테리어/시공',
+    name: '상가 인테리어',
+    theme: 'neutral',
+    themeColor: '#525252',
+    description: '매출을 올리는 상가 디자인',
+    preview: {
+      headline: '인테리어 바꾸니 매출이 2배',
+      subtext: '고객 동선 분석 기반 공간 설계',
+      cta: '무료 컨설팅',
+      badge: '매출 보장',
+    },
+  },
+  {
+    id: 'kitchen-interior-sample',
+    category: 'interior',
+    categoryName: '인테리어/시공',
+    name: '주방 리모델링',
+    theme: 'zinc',
+    themeColor: '#71717A',
+    description: '요리가 즐거워지는 주방',
+    preview: {
+      headline: '20년 된 주방, 새집처럼 바꿔드립니다',
+      subtext: '싱크대+가전+시공 올인원 패키지',
+      cta: '리모델링 상담',
+      badge: '패키지 할인',
     },
   },
 ];
@@ -291,7 +398,9 @@ const categories = [
   { id: 'service', name: '서비스/대행', icon: '🛠️', color: '#EC4899' },
   { id: 'product', name: '상품/판매', icon: '🛒', color: '#10B981' },
   { id: 'event', name: '이벤트/모집', icon: '🎉', color: '#F59E0B' },
-  { id: 'realestate', name: '부동산/분양', icon: '🏠', color: '#EF4444' },
+  { id: 'realestate', name: '부동산/분양', icon: '🏢', color: '#EF4444' },
+  { id: 'franchise', name: '프랜차이즈/창업', icon: '🍗', color: '#EA580C' },
+  { id: 'interior', name: '인테리어/시공', icon: '🏠', color: '#78716C' },
 ];
 
 export default function SamplesPage() {
@@ -625,7 +734,7 @@ export default function SamplesPage() {
         textAlign: 'center',
       }}>
         <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
-          © 2024 랜딩메이커. AI로 더 쉽게 만드는 랜딩페이지.
+          © 2026 랜딩메이커. AI로 더 쉽게 만드는 랜딩페이지.
         </p>
       </footer>
     </div>
