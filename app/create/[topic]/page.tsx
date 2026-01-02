@@ -1786,7 +1786,7 @@ export default function CreatePage() {
         </div>
       )}
 
-      {/* 헤더 - 모던 디자인 */}
+      {/* 헤더 - 모던 디자인 v2.1 */}
       <header style={{
         padding: '0 24px',
         height: '64px',
@@ -1794,10 +1794,11 @@ export default function CreatePage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: '#fff',
+        background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <button
@@ -1892,25 +1893,27 @@ export default function CreatePage() {
         background: '#F8FAFC',
         minHeight: 'calc(100vh - 64px)',
       }}>
-        {/* 히어로 섹션 */}
+        {/* 히어로 섹션 v2.1 */}
         <div style={{
           textAlign: 'center',
           marginBottom: '40px',
-          padding: '32px',
-          background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
-          borderRadius: '20px',
+          padding: '40px 32px',
+          background: 'linear-gradient(135deg, #0EA5E9 0%, #6366F1 50%, #8B5CF6 100%)',
+          borderRadius: '24px',
           color: '#fff',
+          boxShadow: '0 20px 40px rgba(99, 102, 241, 0.3)',
         }}>
           <div style={{
             display: 'inline-block',
-            padding: '6px 14px',
-            background: 'rgba(255,255,255,0.2)',
-            borderRadius: '20px',
-            fontSize: '13px',
-            fontWeight: '600',
-            marginBottom: '16px',
+            padding: '8px 16px',
+            background: 'rgba(255,255,255,0.25)',
+            borderRadius: '24px',
+            fontSize: '14px',
+            fontWeight: '700',
+            marginBottom: '20px',
+            backdropFilter: 'blur(10px)',
           }}>
-            ✨ AI가 30초 만에 완성해드려요
+            🚀 AI가 30초 만에 완성해드려요
           </div>
           <h1 style={{
             fontSize: '36px',
