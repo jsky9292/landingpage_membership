@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { toneStyles, customEmojis } from '@/lib/config/emojis';
+import { getSampleById } from '@/data/samples';
 
 // 질문-답변 형식 가이드
 interface TopicGuide {
@@ -1536,12 +1537,13 @@ const topicData: Record<string, TopicGuide> = {
 export default function CreatePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const { limits, canCreatePage, incrementPages, isLoading: usageLoading } = useUsageLimits();
 
   const topic = params.topic as string;
   const config = topicData[topic] || topicData.free;
-// 질문 개수만큼 답변 배열 초기화  useEffect(() => {    if (config.questions) {      setAnswers(new Array(config.questions.length).fill(''));    }  }, [config.questions]);
+  const sampleId = searchParams.get('sample');
 
   const [answers, setAnswers] = useState<string[]>([]);
   const [additionalPrompt, setAdditionalPrompt] = useState('');
@@ -1551,6 +1553,31 @@ export default function CreatePage() {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [selectedTone, setSelectedTone] = useState('professional');
+  const [loadedFromSample, setLoadedFromSample] = useState(false);
+
+  // 질문 개수만큼 답변 배열 초기화
+  useEffect(() => {
+    if (config.questions) {
+      setAnswers(new Array(config.questions.length).fill(''));
+    }
+  }, [config.questions]);
+
+  // 샘플 데이터 로드 - URL에 sample 파라미터가 있으면 해당 샘플 데이터로 폼 채우기
+  useEffect(() => {
+    if (sampleId && !loadedFromSample) {
+      const sample = getSampleById(sampleId);
+      if (sample && sample.formData) {
+        // 첫 번째 질문에 제목, 두 번째 질문에 내용을 채움
+        const newAnswers = new Array(config.questions?.length || 4).fill('');
+        if (config.questions && config.questions.length >= 2) {
+          newAnswers[0] = sample.formData.title;
+          newAnswers[1] = sample.formData.content;
+        }
+        setAnswers(newAnswers);
+        setLoadedFromSample(true);
+      }
+    }
+  }, [sampleId, config.questions, loadedFromSample]);
 
   // 사용량 체크 - 무료 1개 초과시 로그인 또는 결제 필요
   useEffect(() => {

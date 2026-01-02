@@ -737,7 +737,7 @@ export default function SamplePreviewPage() {
           ← 목록으로
         </button>
         <button
-          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}`)}
+          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}?sample=${id}`)}
           style={{
             padding: '12px 24px',
             background: themeColor,
@@ -1063,7 +1063,7 @@ export default function SamplePreviewPage() {
           이 페이지는 랜딩메이커로 제작된 샘플입니다
         </p>
         <button
-          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}`)}
+          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}?sample=${id}`)}
           style={{
             padding: '12px 32px',
             background: themeColor,
