@@ -2,6 +2,18 @@
 
 import { useParams, useRouter } from 'next/navigation';
 
+// 카테고리 → 토픽 매핑
+const categoryToTopic: Record<string, string> = {
+  '교육/강의': 'course',
+  '상담/컨설팅': 'consulting',
+  '서비스/대행': 'service',
+  '상품/판매': 'product',
+  '이벤트/모집': 'event',
+  '부동산/분양': 'realestate',
+  '프랜차이즈/창업': 'franchise',
+  '인테리어/시공': 'interior',
+};
+
 // 샘플 상세 데이터
 const sampleDetails: Record<string, {
   name: string;
@@ -725,7 +737,7 @@ export default function SamplePreviewPage() {
           ← 목록으로
         </button>
         <button
-          onClick={() => router.push(`/create/${id}`)}
+          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}`)}
           style={{
             padding: '12px 24px',
             background: themeColor,
@@ -1051,7 +1063,7 @@ export default function SamplePreviewPage() {
           이 페이지는 랜딩메이커로 제작된 샘플입니다
         </p>
         <button
-          onClick={() => router.push(`/create/${id}`)}
+          onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}`)}
           style={{
             padding: '12px 32px',
             background: themeColor,

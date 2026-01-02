@@ -3,6 +3,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// 카테고리 → 토픽 매핑
+const categoryToTopic: Record<string, string> = {
+  education: 'course',
+  consulting: 'consulting',
+  service: 'service',
+  product: 'product',
+  event: 'event',
+  realestate: 'realestate',
+  franchise: 'franchise',
+  interior: 'interior',
+};
+
 // 샘플 랜딩페이지 데이터
 const samplePages = [
   // 교육/강의 - 인디고 테마
@@ -659,7 +671,7 @@ export default function SamplesPage() {
                         미리보기
                       </button>
                       <button
-                        onClick={() => router.push(`/create/${sample.id}`)}
+                        onClick={() => router.push(`/create/${categoryToTopic[sample.category] || 'free'}`)}
                         style={{
                           padding: '10px 20px',
                           background: sample.themeColor,
