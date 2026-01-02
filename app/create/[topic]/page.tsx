@@ -1786,136 +1786,302 @@ export default function CreatePage() {
         </div>
       )}
 
-      {/* 헤더 */}
+      {/* 헤더 - 모던 디자인 */}
       <header style={{
-        padding: '16px 24px',
-        borderBottom: '1px solid #F0F0F0',
+        padding: '0 24px',
+        height: '64px',
+        borderBottom: '1px solid #E5E8EB',
         display: 'flex',
         alignItems: 'center',
-        gap: '16px'
+        justifyContent: 'space-between',
+        background: '#fff',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
       }}>
-        <button
-          onClick={() => router.push('/')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            color: '#666',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          ← 돌아가기
-        </button>
-        <span style={{ color: '#E0E0E0' }}>|</span>
-        <span style={{ fontSize: '15px', fontWeight: '600', color: '#191919' }}>{config.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              background: '#F8FAFC',
+              border: '1px solid #E5E8EB',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#4E5968',
+              padding: '8px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#F0F4F8';
+              e.currentTarget.style.borderColor = '#CBD5E1';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#F8FAFC';
+              e.currentTarget.style.borderColor = '#E5E8EB';
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>←</span>
+            홈으로
+          </button>
+          <div style={{ height: '24px', width: '1px', background: '#E5E8EB' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{
+              background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+              color: '#fff',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: '600',
+            }}>
+              {topic === 'free' ? '자유주제' : config.name}
+            </span>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: '#191919' }}>
+              랜딩페이지 만들기
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={() => router.push('/samples')}
+            style={{
+              background: 'transparent',
+              border: '1px solid #E5E8EB',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: '#6B7280',
+              padding: '8px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🎨 샘플 보기
+          </button>
+          {session && (
+            <button
+              onClick={() => router.push('/dashboard')}
+              style={{
+                background: 'linear-gradient(135deg, #0064FF 0%, #0052CC 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#fff',
+                padding: '8px 16px',
+              }}
+            >
+              내 대시보드
+            </button>
+          )}
+        </div>
       </header>
 
       {/* 메인 */}
-      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px' }}>
-        {/* 헤더 */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+      <main style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '32px 24px 60px',
+        background: '#F8FAFC',
+        minHeight: 'calc(100vh - 64px)',
+      }}>
+        {/* 히어로 섹션 */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '40px',
+          padding: '32px',
+          background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
+          borderRadius: '20px',
+          color: '#fff',
+        }}>
+          <div style={{
+            display: 'inline-block',
+            padding: '6px 14px',
+            background: 'rgba(255,255,255,0.2)',
+            borderRadius: '20px',
+            fontSize: '13px',
+            fontWeight: '600',
+            marginBottom: '16px',
+          }}>
+            ✨ AI가 30초 만에 완성해드려요
+          </div>
           <h1 style={{
-            fontSize: '32px',
-            fontWeight: '700',
-            color: '#191919',
-            marginBottom: '8px'
+            fontSize: '36px',
+            fontWeight: '800',
+            marginBottom: '12px',
+            lineHeight: 1.3,
           }}>
             {config.name}
           </h1>
           <p style={{
-            fontSize: '16px',
-            color: '#666',
+            fontSize: '17px',
+            opacity: 0.9,
+            maxWidth: '500px',
+            margin: '0 auto',
+            lineHeight: 1.6,
           }}>
             {config.description}
           </p>
         </div>
 
-        {/* 2컬럼 레이아웃 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        {/* 2컬럼 레이아웃 - 더 넓게 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
           {/* 왼쪽: 입력 영역 */}
-          <div>
-            {/* 질문 가이드 */}
+          <div style={{
+            background: '#fff',
+            borderRadius: '20px',
+            padding: '28px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+            border: '1px solid #E5E8EB',
+          }}>
+            {/* 섹션 타이틀 */}
             <div style={{
-              background: '#F8FAFC',
-              borderRadius: '16px',
-              padding: '24px',
-              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '24px',
+              paddingBottom: '16px',
+              borderBottom: '1px solid #F0F0F0',
             }}>
-              <h3 style={{
-                fontSize: '15px',
+              <span style={{
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                color: '#fff',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+              }}>
+                📝
+              </span>
+              <div>
+                <h3 style={{
+                  fontSize: '17px',
+                  fontWeight: '700',
+                  color: '#191919',
+                  margin: 0,
+                }}>
+                  정보 입력하기
+                </h3>
+                <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0' }}>
+                  AI가 맞춤형 랜딩페이지를 만들어드려요
+                </p>
+              </div>
+            </div>
+
+            {/* 질문 입력 필드들 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
+              {config.questions.map((q, i) => (
+                <div key={i}>
+                  <label style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <span style={{
+                      background: answers[i]?.trim() ? '#10B981' : '#E5E8EB',
+                      color: answers[i]?.trim() ? '#fff' : '#6B7280',
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      transition: 'all 0.2s',
+                    }}>
+                      {i + 1}
+                    </span>
+                    {q.q}
+                  </label>
+                  <input
+                    type="text"
+                    value={answers[i] || ''}
+                    onChange={(e) => {
+                      const newAnswers = [...answers];
+                      newAnswers[i] = e.target.value;
+                      setAnswers(newAnswers);
+                    }}
+                    placeholder={q.placeholder}
+                    disabled={isLoading}
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      fontSize: '14px',
+                      border: '2px solid #E5E8EB',
+                      borderRadius: '10px',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      transition: 'all 0.2s',
+                      background: '#FAFBFC',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#6366F1';
+                      e.currentTarget.style.background = '#fff';
+                      e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#E5E8EB';
+                      e.currentTarget.style.background = '#FAFBFC';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* 추가 프롬프트 입력 */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                fontSize: '14px',
                 fontWeight: '600',
-                color: '#333',
-                marginBottom: '16px',
+                color: '#374151',
+                marginBottom: '10px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
               }}>
-                💡 이런 내용을 포함해주세요
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {config.questions.map((q, i) => (
-                  <div key={i} style={{
-                    background: '#fff',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    border: '1px solid #E5E8EB',
-                  }}>
-                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#333', marginBottom: '8px', display: 'block' }}>
-                      {i + 1}. {q.q}
-                    </label>
-                    <input
-                      type="text"
-                      value={answers[i] || ''}
-                      onChange={(e) => {
-                        const newAnswers = [...answers];
-                        newAnswers[i] = e.target.value;
-                        setAnswers(newAnswers);
-                      }}
-                      placeholder={q.placeholder}
-                      disabled={isLoading}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        fontSize: '14px',
-                        border: '1px solid #E5E8EB',
-                        borderRadius: '8px',
-                        outline: 'none',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-
-            {/* 추가 프롬프트 입력 */}
-            <div style={{ marginTop: '20px' }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '12px',
-              }}>
-                ✍️ 추가 요청사항 (선택)
-              </h3>
+                <span style={{ fontSize: '16px' }}>✨</span>
+                추가 요청사항 (선택)
+              </label>
               <textarea
                 value={additionalPrompt}
                 onChange={(e) => setAdditionalPrompt(e.target.value)}
                 placeholder="예: 젊은 층을 타겟으로 한 트렌디한 느낌으로 작성해주세요"
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '14px 16px',
                   fontSize: '14px',
-                  border: '1px solid #E5E8EB',
-                  borderRadius: '8px',
+                  border: '2px solid #E5E8EB',
+                  borderRadius: '10px',
                   outline: 'none',
                   boxSizing: 'border-box',
                   minHeight: '80px',
                   resize: 'vertical',
+                  background: '#FAFBFC',
+                  transition: 'all 0.2s',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#6366F1';
+                  e.currentTarget.style.background = '#fff';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#E5E8EB';
+                  e.currentTarget.style.background = '#FAFBFC';
                 }}
               />
             </div>
@@ -1927,10 +2093,14 @@ export default function CreatePage() {
                 border: '1px solid #FECACA',
                 color: '#DC2626',
                 padding: '16px',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 marginBottom: '20px',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
               }}>
+                <span style={{ fontSize: '18px' }}>⚠️</span>
                 {error}
               </div>
             )}
@@ -1943,104 +2113,185 @@ export default function CreatePage() {
                 width: '100%',
                 padding: '18px',
                 fontSize: '16px',
-                fontWeight: '600',
+                fontWeight: '700',
                 color: (!answers.some(a => a.trim()) || isLoading) ? '#8B95A1' : '#fff',
-                background: (!answers.some(a => a.trim()) || isLoading) ? '#E5E8EB' : '#0064FF',
+                background: (!answers.some(a => a.trim()) || isLoading)
+                  ? '#E5E8EB'
+                  : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
                 border: 'none',
                 borderRadius: '12px',
-                cursor: (!answers.some(a => a.trim()) || isLoading) ? 'not-allowed' : 'pointer'
+                cursor: (!answers.some(a => a.trim()) || isLoading) ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: (!answers.some(a => a.trim()) || isLoading)
+                  ? 'none'
+                  : '0 4px 15px rgba(99,102,241,0.35)',
+                transition: 'all 0.3s',
               }}
             >
-              {isLoading ? '생성 중...' : '랜딩페이지 만들기'}
+              {isLoading ? (
+                <>
+                  <span style={{
+                    width: '20px',
+                    height: '20px',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTopColor: '#fff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }} />
+                  AI가 생성 중...
+                </>
+              ) : (
+                <>
+                  <span style={{ fontSize: '20px' }}>🚀</span>
+                  랜딩페이지 만들기
+                </>
+              )}
             </button>
 
             {isLoading && (
-              <p style={{
+              <div style={{
                 textAlign: 'center',
                 marginTop: '16px',
-                fontSize: '14px',
-                color: '#666'
+                padding: '16px',
+                background: '#F0F9FF',
+                borderRadius: '10px',
               }}>
-                AI가 마케팅 카피와 디자인을 만들고 있어요. 약 30초 정도 걸려요.
-              </p>
+                <p style={{ fontSize: '14px', color: '#0369A1', margin: 0 }}>
+                  🎨 AI가 마케팅 카피와 디자인을 만들고 있어요
+                </p>
+                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
+                  약 30초 정도 걸려요. 잠시만 기다려주세요!
+                </p>
+              </div>
             )}
           </div>
 
           {/* 오른쪽: 예시 영역 */}
-          <div>
+          <div style={{
+            background: '#fff',
+            borderRadius: '20px',
+            padding: '28px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+            border: '1px solid #E5E8EB',
+          }}>
+            {/* 섹션 헤더 */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '16px',
+              marginBottom: '20px',
+              paddingBottom: '16px',
+              borderBottom: '1px solid #F0F0F0',
             }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#333' }}>
-                📝 예시 (클릭하면 바로 적용)
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  color: '#fff',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                }}>
+                  💡
+                </span>
+                <div>
+                  <h3 style={{
+                    fontSize: '17px',
+                    fontWeight: '700',
+                    color: '#191919',
+                    margin: 0,
+                  }}>
+                    예시 템플릿
+                  </h3>
+                  <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0' }}>
+                    클릭하면 자동으로 입력돼요
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={() => setShowExamples(!showExamples)}
                 style={{
-                  background: 'none',
+                  background: showExamples ? '#F3F4F6' : '#EEF2FF',
                   border: 'none',
-                  color: '#0064FF',
+                  color: showExamples ? '#6B7280' : '#6366F1',
                   cursor: 'pointer',
-                  fontSize: '13px'
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
                 }}
               >
-                {showExamples ? '접기' : '펼치기'}
+                {showExamples ? '접기 ▲' : '펼치기 ▼'}
               </button>
             </div>
 
             {showExamples && (
               <>
-                {/* 카테고리 탭 */}
+                {/* 카테고리 탭 - 더 예쁘게 */}
                 <div style={{
                   display: 'flex',
                   gap: '8px',
-                  marginBottom: '16px',
+                  marginBottom: '20px',
                   flexWrap: 'wrap',
+                  padding: '4px',
+                  background: '#F8FAFC',
+                  borderRadius: '12px',
                 }}>
                   {config.categories.map((cat, i) => (
                     <button
                       key={i}
                       onClick={() => setSelectedCategory(i)}
                       style={{
-                        padding: '8px 14px',
+                        padding: '10px 16px',
                         fontSize: '13px',
-                        fontWeight: selectedCategory === i ? '600' : '400',
-                        background: selectedCategory === i ? '#0064FF' : '#F0F0F0',
-                        color: selectedCategory === i ? '#fff' : '#666',
+                        fontWeight: selectedCategory === i ? '600' : '500',
+                        background: selectedCategory === i
+                          ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
+                          : 'transparent',
+                        color: selectedCategory === i ? '#fff' : '#4B5563',
                         border: 'none',
-                        borderRadius: '20px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
+                        gap: '6px',
+                        transition: 'all 0.2s',
+                        boxShadow: selectedCategory === i
+                          ? '0 2px 8px rgba(99,102,241,0.3)'
+                          : 'none',
                       }}
                     >
-                      <span>{cat.icon}</span>
+                      <span style={{ fontSize: '15px' }}>{cat.icon}</span>
                       {cat.name}
                     </button>
                   ))}
                 </div>
 
-                {/* 예시 그리드 */}
+                {/* 예시 그리드 - 3열 */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '12px',
-                  maxHeight: '500px',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '14px',
+                  maxHeight: '480px',
                   overflowY: 'auto',
+                  padding: '4px',
                 }}>
                   {config.categories[selectedCategory]?.examples.map((example, index) => (
                     <button
                       key={index}
                       onClick={() => {
-                        // answers 배열이 있으면 각 필드에 맞게 입력, 없으면 content를 첫 번째 필드에 입력
                         if (example.answers && Array.isArray(example.answers)) {
                           setAnswers(example.answers);
                         } else if (example.content) {
-                          // 기존 content 형식 호환 - content를 파싱하여 각 필드에 분배
                           const parts = example.content.split('. ').filter(Boolean);
                           const newAnswers = config.questions.map((_, i) => {
                             if (i === 0) return parts.slice(0, 2).join('. ') + '.';
@@ -2054,46 +2305,116 @@ export default function CreatePage() {
                       }}
                       style={{
                         textAlign: 'left',
-                        padding: '16px',
-                        background: '#fff',
-                        border: '1px solid #E5E8EB',
-                        borderRadius: '12px',
+                        padding: '18px',
+                        background: '#FAFBFC',
+                        border: '2px solid #E5E8EB',
+                        borderRadius: '14px',
                         cursor: 'pointer',
                         transition: 'all 0.2s',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#0064FF';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,100,255,0.1)';
+                        e.currentTarget.style.borderColor = '#6366F1';
+                        e.currentTarget.style.background = '#fff';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.15)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = '#E5E8EB';
+                        e.currentTarget.style.background = '#FAFBFC';
                         e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '10px',
+                      }}>
+                        <span style={{
+                          background: '#EEF2FF',
+                          color: '#6366F1',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                        }}>
+                          예시 {index + 1}
+                        </span>
+                      </div>
                       <h4 style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
+                        fontSize: '15px',
+                        fontWeight: '700',
                         color: '#191919',
                         marginBottom: '8px',
+                        lineHeight: 1.3,
                       }}>
                         {example.title}
                       </h4>
                       <p style={{
-                        fontSize: '12px',
-                        color: '#666',
-                        lineHeight: 1.5,
+                        fontSize: '13px',
+                        color: '#6B7280',
+                        lineHeight: 1.6,
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
+                        margin: 0,
                       }}>
                         {example.answers ? example.answers[0] : example.content}
                       </p>
+                      <div style={{
+                        marginTop: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        color: '#6366F1',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                      }}>
+                        <span>클릭하여 적용</span>
+                        <span>→</span>
+                      </div>
                     </button>
                   ))}
                 </div>
               </>
             )}
+
+            {/* 샘플 갤러리 링크 */}
+            <div style={{
+              marginTop: '20px',
+              padding: '16px',
+              background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#4338CA', margin: 0 }}>
+                  🎨 더 다양한 샘플이 필요하신가요?
+                </p>
+                <p style={{ fontSize: '12px', color: '#6366F1', marginTop: '4px' }}>
+                  26개의 업종별 샘플을 확인해보세요
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/samples')}
+                style={{
+                  background: '#6366F1',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                샘플 보기
+              </button>
+            </div>
           </div>
         </div>
       </main>
