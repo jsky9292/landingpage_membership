@@ -52,7 +52,7 @@ export default function SamplesPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <a href="/" style={{ fontSize: '20px', fontWeight: '800', color: '#191919', textDecoration: 'none' }}>
-              랜딩메이커
+              랜딩메이커 <span style={{ fontSize: '10px', color: '#6366F1', marginLeft: '4px' }}>v2.1</span>
             </a>
             <span style={{ color: '#E5E7EB' }}>|</span>
             <span style={{ fontSize: '16px', fontWeight: '600', color: '#6B7280' }}>샘플 갤러리</span>
@@ -282,16 +282,17 @@ export default function SamplesPage() {
                         onClick={() => handleUseSample(sample)}
                         style={{
                           padding: '10px 20px',
-                          background: sample.themeColor,
+                          background: `linear-gradient(135deg, ${sample.themeColor} 0%, ${adjustColor(sample.themeColor, -20)} 100%)`,
                           color: '#fff',
                           border: 'none',
                           borderRadius: '8px',
                           fontSize: '13px',
                           fontWeight: '600',
                           cursor: 'pointer',
+                          boxShadow: `0 4px 12px ${sample.themeColor}40`,
                         }}
                       >
-                        이 샘플로 만들기
+                        ✨ 이 샘플로 시작하기
                       </button>
                     </div>
                   </div>
