@@ -179,6 +179,23 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Admin users API error:', error);
+    // 에러 발생 시에도 데모 관리자라면 빈 데이터 반환
+    const session = await getServerSession(authOptions).catch(() => null);
+    const sessionRole = (session?.user as any)?.role;
+    if (sessionRole === 'admin') {
+      return NextResponse.json({
+        stats: {
+          totalUsers: 0,
+          totalPages: 0,
+          totalSubmissions: 0,
+          newSubmissions: 0,
+          totalViews: 0,
+          conversionRate: 0,
+        },
+        users: [],
+        message: 'Error occurred but admin access granted',
+      });
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
