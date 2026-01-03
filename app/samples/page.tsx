@@ -52,7 +52,7 @@ export default function SamplesPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <a href="/" style={{ fontSize: '20px', fontWeight: '800', color: '#191919', textDecoration: 'none' }}>
-              랜딩메이커 <span style={{ fontSize: '10px', color: '#6366F1', marginLeft: '4px' }}>v2.2</span>
+              랜딩메이커 <span style={{ fontSize: '10px', color: '#6366F1', marginLeft: '4px' }}>v2.3</span>
             </a>
             <span style={{ color: '#E5E7EB' }}>|</span>
             <span style={{ fontSize: '16px', fontWeight: '600', color: '#6B7280' }}>샘플 갤러리</span>
@@ -160,54 +160,68 @@ export default function SamplesPage() {
                 {/* 미리보기 영역 */}
                 <div style={{
                   background: `linear-gradient(135deg, ${sample.themeColor} 0%, ${adjustColor(sample.themeColor, 30)} 100%)`,
-                  padding: '40px 32px',
+                  padding: '32px 24px',
                   position: 'relative',
-                  minHeight: '280px',
+                  height: '260px',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}>
                   {/* 배지 */}
                   <div style={{
                     display: 'inline-block',
-                    padding: '6px 14px',
+                    padding: '5px 12px',
                     background: 'rgba(255,255,255,0.2)',
                     borderRadius: '20px',
-                    marginBottom: '20px',
+                    marginBottom: '16px',
+                    alignSelf: 'flex-start',
                   }}>
-                    <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>
+                    <span style={{ color: '#fff', fontSize: '12px', fontWeight: '600' }}>
                       {sample.preview.badge}
                     </span>
                   </div>
 
                   {/* 헤드라인 */}
                   <h2 style={{
-                    fontSize: '28px',
+                    fontSize: '22px',
                     fontWeight: '800',
                     color: '#fff',
-                    lineHeight: 1.3,
-                    marginBottom: '12px',
+                    lineHeight: 1.35,
+                    marginBottom: '10px',
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical' as const,
                   }}>
                     {sample.preview.headline}
                   </h2>
 
                   {/* 서브텍스트 */}
                   <p style={{
-                    fontSize: '15px',
+                    fontSize: '14px',
                     color: 'rgba(255,255,255,0.9)',
-                    lineHeight: 1.6,
-                    marginBottom: '24px',
+                    lineHeight: 1.5,
+                    marginBottom: '16px',
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical' as const,
+                    flex: 1,
                   }}>
                     {sample.preview.subtext}
                   </p>
 
                   {/* CTA 버튼 */}
                   <button style={{
-                    padding: '14px 32px',
+                    padding: '10px 24px',
                     background: '#fff',
                     color: sample.themeColor,
                     border: 'none',
-                    borderRadius: '10px',
-                    fontSize: '15px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
                     fontWeight: '700',
                     cursor: 'pointer',
+                    alignSelf: 'flex-start',
+                    marginTop: 'auto',
                   }}>
                     {sample.preview.cta}
                   </button>
