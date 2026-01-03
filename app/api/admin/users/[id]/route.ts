@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/options';
 import { createServerClient } from '@/lib/supabase/client';
 
 // 관리자용 - 특정 사용자 상세 정보 조회
@@ -10,22 +11,31 @@ export async function GET(
 ) {
   try {
     const { id: userId } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // 세션에서 role 확인 (데모 계정용)
+    const sessionRole = (session.user as any).role;
+
     const supabase = createServerClient() as any;
 
-    // 현재 사용자가 관리자인지 확인
-    const { data: currentUser } = await supabase
-      .from('users')
-      .select('id, role')
-      .eq('email', session.user.email)
-      .single();
+    // 현재 사용자가 관리자인지 확인 (세션 또는 DB에서)
+    let isAdmin = sessionRole === 'admin';
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!isAdmin) {
+      const { data: currentUser } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('email', session.user.email)
+        .single();
+
+      isAdmin = currentUser?.role === 'admin';
+    }
+
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
@@ -124,7 +134,7 @@ export async function PATCH(
 ) {
   try {
     const { id: userId } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -149,21 +159,33 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
+    // 세션에서 role 확인 (데모 계정용)
+    const sessionRole = (session.user as any).role;
+    const sessionUserId = (session.user as any).id;
+
     const supabase = createServerClient() as any;
 
-    // 현재 사용자가 관리자인지 확인
-    const { data: currentUser } = await supabase
-      .from('users')
-      .select('id, role')
-      .eq('email', session.user.email)
-      .single();
+    // 현재 사용자가 관리자인지 확인 (세션 또는 DB에서)
+    let isAdmin = sessionRole === 'admin';
+    let currentUserId = sessionUserId;
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!isAdmin) {
+      const { data: currentUser } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('email', session.user.email)
+        .single();
+
+      isAdmin = currentUser?.role === 'admin';
+      currentUserId = currentUser?.id;
+    }
+
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
     // 자기 자신의 역할은 변경 불가 (플랜은 가능)
-    if (role && currentUser.id === userId) {
+    if (role && currentUserId === userId) {
       return NextResponse.json({ error: 'Cannot change own role' }, { status: 400 });
     }
 

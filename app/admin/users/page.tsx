@@ -126,13 +126,11 @@ export default function AdminUsersPage() {
       </div>
 
       {/* 전체 통계 카드 */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatsCard icon="👥" label="전체 사용자" value={stats.totalUsers} suffix="명" />
         <StatsCard icon="📄" label="전체 페이지" value={stats.totalPages} suffix="개" />
-        <StatsCard icon="👁️" label="총 조회수" value={stats.totalViews.toLocaleString()} suffix="" />
-        <StatsCard icon="📬" label="총 신청" value={stats.totalSubmissions} suffix="건" />
-        <StatsCard icon="🔔" label="새 신청" value={stats.newSubmissions} suffix="건" highlight />
-        <StatsCard icon="📈" label="평균 전환율" value={stats.conversionRate.toFixed(1)} suffix="%" />
+        <StatsCard icon="📬" label="총 신청" value={stats.totalSubmissions} suffix="건" subValue={`새 ${stats.newSubmissions}건`} />
+        <StatsCard icon="📈" label="전환율" value={stats.conversionRate.toFixed(1)} suffix="%" subValue={`조회 ${stats.totalViews.toLocaleString()}회`} />
       </div>
 
       {/* 검색 및 정렬 */}
@@ -157,24 +155,20 @@ export default function AdminUsersPage() {
         </select>
       </div>
 
-      {/* 사용자 목록 테이블 */}
+      {/* 사용자 목록 */}
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-        {/* 테이블 헤더 */}
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
-          <div className="col-span-3">사용자</div>
-          <div className="col-span-1 text-center">역할</div>
-          <div className="col-span-1 text-center">플랜</div>
-          <div className="col-span-2 text-center">페이지</div>
-          <div className="col-span-2 text-center">신청</div>
-          <div className="col-span-1 text-center">조회수</div>
-          <div className="col-span-2 text-center">가입일</div>
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="font-semibold text-[#191F28]">회원 목록</h2>
+          <p className="text-sm text-[#4E5968]">{filteredUsers.length}명의 사용자</p>
         </div>
 
-        {/* 사용자 목록 */}
+        {/* 사용자 카드 목록 */}
         {filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <UserRow key={user.id} user={user} />
-          ))
+          <div className="divide-y divide-gray-100">
+            {filteredUsers.map((user) => (
+              <UserRow key={user.id} user={user} />
+            ))}
+          </div>
         ) : (
           <div className="text-center py-16">
             <span className="text-4xl mb-4 block">👥</span>
@@ -193,30 +187,27 @@ function StatsCard({
   label,
   value,
   suffix,
-  highlight = false,
+  subValue,
 }: {
   icon: string;
   label: string;
   value: string | number;
   suffix: string;
-  highlight?: boolean;
+  subValue?: string;
 }) {
   return (
-    <div
-      className={`rounded-2xl p-4 ${
-        highlight
-          ? 'bg-[#0064FF] text-white'
-          : 'bg-white border border-gray-200'
-      }`}
-    >
-      <span className="text-xl">{icon}</span>
-      <p className={`text-xs mt-2 ${highlight ? 'text-white/80' : 'text-[#4E5968]'}`}>
-        {label}
-      </p>
-      <p className="text-xl font-bold mt-1">
+    <div className="rounded-2xl p-5 bg-white border border-gray-200 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between">
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <p className="text-xs mt-3 text-[#4E5968]">{label}</p>
+      <p className="text-2xl font-bold mt-1 text-[#191F28]">
         {value}
         {suffix && <span className="text-sm font-normal ml-1">{suffix}</span>}
       </p>
+      {subValue && (
+        <p className="text-xs mt-1 text-[#0064FF]">{subValue}</p>
+      )}
     </div>
   );
 }
@@ -236,56 +227,48 @@ function UserRow({ user }: { user: UserStats }) {
   return (
     <Link
       href={`/admin/users/${user.id}`}
-      className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer items-center"
+      className="block px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
     >
-      {/* 사용자 정보 */}
-      <div className="col-span-3">
-        <p className="font-medium text-[#191F28]">{user.name || '이름 없음'}</p>
-        <p className="text-sm text-[#4E5968]">{user.email}</p>
-      </div>
+      <div className="flex items-center justify-between">
+        {/* 사용자 정보 */}
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-[#E8F3FF] flex items-center justify-center text-[#0064FF] font-medium">
+            {(user.name || user.email)[0].toUpperCase()}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-[#191F28]">{user.name || '이름 없음'}</p>
+              {user.role === 'admin' && (
+                <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                  관리자
+                </span>
+              )}
+              <span className={`text-xs px-2 py-0.5 rounded-full ${planInfo.color}`}>
+                {planInfo.name}
+              </span>
+            </div>
+            <p className="text-sm text-[#4E5968]">{user.email}</p>
+          </div>
+        </div>
 
-      {/* 역할 */}
-      <div className="col-span-1 text-center">
-        {user.role === 'admin' ? (
-          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-            관리자
-          </span>
-        ) : (
-          <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-            일반
-          </span>
-        )}
-      </div>
-
-      {/* 플랜 */}
-      <div className="col-span-1 text-center">
-        <span className={`text-xs px-2 py-1 rounded-full ${planInfo.color}`}>
-          {planInfo.name}
-        </span>
-      </div>
-
-      {/* 페이지 수 */}
-      <div className="col-span-2 text-center">
-        <p className="font-medium text-[#191F28]">{user.totalPages}개</p>
-        <p className="text-xs text-[#4E5968]">게시 {user.publishedPages}개</p>
-      </div>
-
-      {/* 신청 수 */}
-      <div className="col-span-2 text-center">
-        <p className="font-medium text-[#191F28]">{user.totalSubmissions}건</p>
-        {user.newSubmissions > 0 && (
-          <p className="text-xs text-red-500">새 {user.newSubmissions}건</p>
-        )}
-      </div>
-
-      {/* 조회수 */}
-      <div className="col-span-1 text-center">
-        <p className="font-medium text-[#191F28]">{user.totalViews.toLocaleString()}</p>
-      </div>
-
-      {/* 가입일 */}
-      <div className="col-span-2 text-center text-sm text-[#4E5968]">
-        {formatDate(user.createdAt)}
+        {/* 통계 */}
+        <div className="hidden md:flex items-center gap-6 text-sm">
+          <div className="text-center">
+            <p className="font-medium text-[#191F28]">{user.totalPages}</p>
+            <p className="text-xs text-[#4E5968]">페이지</p>
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-[#191F28]">{user.totalSubmissions}</p>
+            <p className="text-xs text-[#4E5968]">신청</p>
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-[#191F28]">{user.totalViews.toLocaleString()}</p>
+            <p className="text-xs text-[#4E5968]">조회</p>
+          </div>
+          <div className="text-center min-w-[80px]">
+            <p className="text-sm text-[#4E5968]">{formatDate(user.createdAt)}</p>
+          </div>
+        </div>
       </div>
     </Link>
   );

@@ -1,27 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/options';
 import { createServerClient } from '@/lib/supabase/client';
 
 // 관리자용 - 전체 사용자 목록 및 통계 조회
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // 세션에서 role 확인 (데모 계정용)
+    const sessionRole = (session.user as any).role;
+
     const supabase = createServerClient() as any;
 
-    // 현재 사용자가 관리자인지 확인
-    const { data: currentUser } = await supabase
-      .from('users')
-      .select('id, role')
-      .eq('email', session.user.email)
-      .single();
+    // 현재 사용자가 관리자인지 확인 (세션 또는 DB에서)
+    let isAdmin = sessionRole === 'admin';
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!isAdmin) {
+      const { data: currentUser } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('email', session.user.email)
+        .single();
+
+      isAdmin = currentUser?.role === 'admin';
+    }
+
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
