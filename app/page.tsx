@@ -303,26 +303,31 @@ export default function HomePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA' }}>
-      {/* 모바일 반응형 스타일 */}
+      {/* 토스 스타일 모바일 반응형 */}
       <style>{`
+        * { -webkit-tap-highlight-color: transparent; }
         @media (max-width: 768px) {
-          .hero-headline { font-size: 32px !important; }
-          .hero-subtext { font-size: 16px !important; }
-          .hero-buttons { flex-direction: column !important; }
-          .hero-button { width: 100% !important; padding: 16px 24px !important; }
+          .hero-headline { font-size: 28px !important; line-height: 1.3 !important; }
+          .hero-subtext { font-size: 17px !important; line-height: 1.6 !important; }
+          .hero-buttons { flex-direction: column !important; gap: 12px !important; }
+          .hero-button { width: 100% !important; padding: 18px 24px !important; font-size: 17px !important; border-radius: 16px !important; }
           .nav-links { display: none !important; }
           .mobile-menu { display: block !important; }
-          .stats-grid { flex-direction: column !important; gap: 24px !important; }
-          .pricing-grid { grid-template-columns: 1fr !important; }
+          .mobile-auth-buttons { flex-direction: column !important; gap: 12px !important; width: 100% !important; }
+          .mobile-auth-buttons span { display: none !important; }
+          .mobile-auth-buttons button { flex: 1 !important; padding: 16px !important; font-size: 16px !important; border-radius: 14px !important; }
+          .stats-grid { flex-direction: column !important; gap: 20px !important; }
+          .pricing-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
           .pricing-card-featured { transform: none !important; }
           .pain-grid { grid-template-columns: 1fr !important; }
-          .value-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .value-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+          .value-grid > div { padding: 14px 10px !important; }
           .footer-grid { grid-template-columns: 1fr !important; text-align: center !important; }
           .template-grid { grid-template-columns: 1fr !important; }
           .blog-grid { grid-template-columns: 1fr !important; }
-          .category-tabs { overflow-x: auto !important; justify-content: flex-start !important; padding-bottom: 8px !important; }
-          .category-tab { flex-shrink: 0 !important; }
-          .section-title { font-size: 24px !important; }
+          .category-tabs { overflow-x: auto !important; justify-content: flex-start !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch !important; }
+          .category-tab { flex-shrink: 0 !important; padding: 12px 18px !important; font-size: 15px !important; }
+          .section-title { font-size: 22px !important; line-height: 1.4 !important; }
           .testimonial-grid { grid-template-columns: 1fr !important; }
           .success-grid { grid-template-columns: 1fr !important; }
         }
@@ -529,28 +534,32 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* 로그인/회원가입 버튼 */}
+          {/* 로그인/회원가입 버튼 - 토스 스타일 */}
           {status !== 'authenticated' && (
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: '16px',
-            }}>
-              <span style={{ fontSize: '14px', color: '#6B7280' }}>
+            <div
+              className="mobile-auth-buttons"
+              style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: '20px',
+                marginTop: '8px',
+              }}
+            >
+              <span style={{ fontSize: '15px', color: '#6B7280' }}>
                 이미 계정이 있으신가요?
               </span>
               <button
                 onClick={() => router.push('/login')}
                 style={{
-                  padding: '10px 24px',
-                  fontSize: '14px',
+                  padding: '14px 28px',
+                  fontSize: '15px',
                   fontWeight: '600',
-                  background: '#fff',
-                  color: '#6366F1',
-                  border: '2px solid #6366F1',
-                  borderRadius: '8px',
+                  background: '#F3F4F6',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '12px',
                   cursor: 'pointer',
                 }}
               >
@@ -559,17 +568,17 @@ export default function HomePage() {
               <button
                 onClick={() => router.push('/signup')}
                 style={{
-                  padding: '10px 24px',
-                  fontSize: '14px',
+                  padding: '14px 28px',
+                  fontSize: '15px',
                   fontWeight: '600',
-                  background: '#6366F1',
+                  background: '#191919',
                   color: '#fff',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   cursor: 'pointer',
                 }}
               >
-                회원가입
+                무료 회원가입
               </button>
             </div>
           )}
