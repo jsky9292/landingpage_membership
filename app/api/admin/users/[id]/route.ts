@@ -102,6 +102,7 @@ export async function GET(
         name: user.name,
         role: user.role,
         plan: user.plan || 'free',
+        planExpiresAt: user.plan_expires_at || null,
         createdAt: user.created_at,
         lastLoginAt: user.last_login_at,
       },
@@ -141,11 +142,11 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { role, plan } = body;
+    const { role, plan, planExpiresAt } = body;
 
-    // role 또는 plan 중 하나는 있어야 함
-    if (!role && !plan) {
-      return NextResponse.json({ error: 'role or plan required' }, { status: 400 });
+    // role, plan, planExpiresAt 중 하나는 있어야 함
+    if (!role && !plan && planExpiresAt === undefined) {
+      return NextResponse.json({ error: 'role, plan, or planExpiresAt required' }, { status: 400 });
     }
 
     // role 유효성 검사
@@ -154,7 +155,7 @@ export async function PATCH(
     }
 
     // plan 유효성 검사
-    const validPlans = ['free', 'single', 'starter', 'pro', 'unlimited', 'agency'];
+    const validPlans = ['free', 'starter', 'pro', 'unlimited', 'agency'];
     if (plan && !validPlans.includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
@@ -190,9 +191,12 @@ export async function PATCH(
     }
 
     // 업데이트할 필드 구성
-    const updateData: { role?: string; plan?: string } = {};
+    const updateData: { role?: string; plan?: string; plan_expires_at?: string | null } = {};
     if (role) updateData.role = role;
     if (plan) updateData.plan = plan;
+    if (planExpiresAt !== undefined) {
+      updateData.plan_expires_at = planExpiresAt; // null이면 만료일 삭제
+    }
 
     // 업데이트
     const { data: updated, error } = await supabase

@@ -1085,6 +1085,18 @@ export default function HomePage() {
       <section id="pricing" style={{ padding: '60px 16px', background: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <div style={{
+              display: 'inline-block',
+              background: '#EF4444',
+              color: '#fff',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: '700',
+              marginBottom: '12px',
+            }}>
+              🎉 런칭 기념 50% 할인 중!
+            </div>
             <h2 className="section-title" style={{
               fontSize: '24px',
               fontWeight: '800',
@@ -1100,55 +1112,38 @@ export default function HomePage() {
 
           <div className="pricing-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '14px',
           }}>
-            {/* 단건 구매 */}
-            <div style={{
-              background: '#F9FAFB',
-              borderRadius: '16px',
-              padding: '20px',
-              border: '2px solid #E5E7EB',
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>단건 구매</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>99,000원</div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>1개 페이지 (1회성)</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['AI 카피 생성', '모든 템플릿', 'DB 수집 폼', '워터마크 제거', '평생 이용'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
-                    <span style={{ color: '#10B981' }}>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => router.push('/pricing')} style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: '#fff',
-                color: '#374151',
-                border: '2px solid #E5E7EB',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}>
-                구매하기
-              </button>
-            </div>
-
-            {/* 월 1개 */}
+            {/* 스타터 - 월 1개 */}
             <div style={{
               background: '#fff',
               borderRadius: '16px',
               padding: '20px',
               border: '2px solid #E5E7EB',
+              position: 'relative',
             }}>
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: '#EF4444',
+                color: '#fff',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '10px',
+                fontWeight: '700',
+              }}>
+                50% OFF
+              </div>
               <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>스타터</div>
+              <div style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through', marginBottom: '2px' }}>59,800원</div>
               <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
-                19,900원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
+                29,900원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
               </div>
               <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>월 1개 페이지</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['단건 모든 기능', '매월 1개 생성', '카톡 알림', '이메일 알림', '대시보드'].map((item, i) => (
+                {['AI 콘텐츠 생성', '매월 1개 생성', '카톡 알림', '이메일 알림', '대시보드'].map((item, i) => (
                   <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
                     <span style={{ color: '#10B981' }}>✓</span>{item}
                   </li>
@@ -1193,11 +1188,25 @@ export default function HomePage() {
               }}>
                 🔥 인기
               </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>프로</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>
-                49,500원<span style={{ fontSize: '12px', fontWeight: '500', opacity: 0.8 }}>/월</span>
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: '#EF4444',
+                color: '#fff',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '10px',
+                fontWeight: '700',
+              }}>
+                50% OFF
               </div>
-              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>월 3개 페이지 (17% 할인)</p>
+              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>프로</div>
+              <div style={{ fontSize: '14px', opacity: 0.7, textDecoration: 'line-through', marginBottom: '2px' }}>139,800원</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>
+                69,900원<span style={{ fontSize: '12px', fontWeight: '500', opacity: 0.8 }}>/월</span>
+              </div>
+              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>월 3개 페이지</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
                 {['스타터 모든 기능', '매월 3개 생성', 'A/B 테스트', '분석 리포트', '우선 지원'].map((item, i) => (
                   <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1226,8 +1235,23 @@ export default function HomePage() {
               borderRadius: '16px',
               padding: '20px',
               border: '2px solid #E5E7EB',
+              position: 'relative',
             }}>
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: '#EF4444',
+                color: '#fff',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '10px',
+                fontWeight: '700',
+              }}>
+                50% OFF
+              </div>
               <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>무제한</div>
+              <div style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through', marginBottom: '2px' }}>198,000원</div>
               <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
                 99,000원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
               </div>

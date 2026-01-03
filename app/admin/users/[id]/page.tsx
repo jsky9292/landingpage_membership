@@ -10,13 +10,13 @@ interface UserDetail {
   name: string | null;
   role: 'user' | 'admin';
   plan: string;
+  planExpiresAt: string | null;
   createdAt: string;
   lastLoginAt: string | null;
 }
 
 const PLANS = [
   { id: 'free', name: '무료', color: 'bg-gray-100 text-gray-600' },
-  { id: 'single', name: '단건 구매', color: 'bg-blue-100 text-blue-700' },
   { id: 'starter', name: '스타터', color: 'bg-green-100 text-green-700' },
   { id: 'pro', name: '프로', color: 'bg-[#E8F3FF] text-[#0064FF]' },
   { id: 'unlimited', name: '무제한', color: 'bg-purple-100 text-purple-700' },
@@ -52,6 +52,8 @@ export default function AdminUserDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [updatingRole, setUpdatingRole] = useState(false);
   const [updatingPlan, setUpdatingPlan] = useState(false);
+  const [updatingExpiry, setUpdatingExpiry] = useState(false);
+  const [expiryDate, setExpiryDate] = useState<string>('');
 
   useEffect(() => {
     fetchUserDetail();
@@ -75,6 +77,10 @@ export default function AdminUserDetailPage() {
       setUser(data.user);
       setStats(data.stats);
       setPages(data.pages);
+      // 만료일 설정
+      if (data.user.planExpiresAt) {
+        setExpiryDate(data.user.planExpiresAt.split('T')[0]);
+      }
     } catch (err) {
       setError('서버 오류가 발생했습니다.');
       console.error(err);
@@ -145,6 +151,42 @@ export default function AdminUserDetailPage() {
     } finally {
       setUpdatingPlan(false);
     }
+  };
+
+  // 플랜 만료일 변경
+  const handleExpiryChange = async () => {
+    if (!user) return;
+
+    try {
+      setUpdatingExpiry(true);
+      const res = await fetch(`/api/admin/users/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planExpiresAt: expiryDate ? new Date(expiryDate).toISOString() : null
+        }),
+      });
+
+      if (!res.ok) {
+        alert('만료일 변경에 실패했습니다.');
+        return;
+      }
+
+      setUser({ ...user, planExpiresAt: expiryDate ? new Date(expiryDate).toISOString() : null });
+      alert(expiryDate ? `만료일이 ${expiryDate}로 설정되었습니다.` : '만료일이 해제되었습니다.');
+    } catch (err) {
+      console.error(err);
+      alert('서버 오류가 발생했습니다.');
+    } finally {
+      setUpdatingExpiry(false);
+    }
+  };
+
+  // 빠른 만료일 설정 (1개월, 3개월, 6개월, 1년)
+  const setQuickExpiry = (months: number) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + months);
+    setExpiryDate(date.toISOString().split('T')[0]);
   };
 
   const formatDate = (dateString: string) => {
@@ -248,25 +290,99 @@ export default function AdminUserDetailPage() {
       {/* 플랜 변경 섹션 */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6">
         <h2 className="text-lg font-bold text-[#191F28] mb-4">플랜 관리</h2>
-        <div className="flex flex-wrap gap-2">
-          {PLANS.map((plan) => (
-            <button
-              key={plan.id}
-              onClick={() => handlePlanChange(plan.id)}
-              disabled={updatingPlan || user.plan === plan.id}
-              className={`px-4 py-2 text-sm rounded-lg transition-all ${
-                user.plan === plan.id
-                  ? `${plan.color} ring-2 ring-offset-2 ring-[#0064FF]`
-                  : 'bg-gray-100 text-[#4E5968] hover:bg-gray-200'
-              } disabled:opacity-50`}
-            >
-              {plan.name}
-              {user.plan === plan.id && ' ✓'}
-            </button>
-          ))}
+
+        {/* 플랜 선택 */}
+        <div className="mb-6">
+          <p className="text-sm text-[#4E5968] mb-3">플랜 선택</p>
+          <div className="flex flex-wrap gap-2">
+            {PLANS.map((plan) => (
+              <button
+                key={plan.id}
+                onClick={() => handlePlanChange(plan.id)}
+                disabled={updatingPlan || user.plan === plan.id}
+                className={`px-4 py-2 text-sm rounded-lg transition-all ${
+                  user.plan === plan.id
+                    ? `${plan.color} ring-2 ring-offset-2 ring-[#0064FF]`
+                    : 'bg-gray-100 text-[#4E5968] hover:bg-gray-200'
+                } disabled:opacity-50`}
+              >
+                {plan.name}
+                {user.plan === plan.id && ' ✓'}
+              </button>
+            ))}
+          </div>
         </div>
-        <p className="text-xs text-[#8B95A1] mt-3">
-          * 플랜을 변경하면 해당 사용자의 기능 제한이 즉시 적용됩니다.
+
+        {/* 만료일 설정 */}
+        <div className="border-t border-gray-100 pt-6">
+          <p className="text-sm text-[#4E5968] mb-3">플랜 만료일</p>
+
+          {/* 현재 만료일 표시 */}
+          {user.planExpiresAt && (
+            <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                ⏰ 현재 만료일: <strong>{formatDate(user.planExpiresAt)}</strong>
+                {new Date(user.planExpiresAt) < new Date() && (
+                  <span className="text-red-600 ml-2">(만료됨)</span>
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* 빠른 설정 버튼 */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              onClick={() => setQuickExpiry(1)}
+              className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              +1개월
+            </button>
+            <button
+              onClick={() => setQuickExpiry(3)}
+              className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              +3개월
+            </button>
+            <button
+              onClick={() => setQuickExpiry(6)}
+              className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              +6개월
+            </button>
+            <button
+              onClick={() => setQuickExpiry(12)}
+              className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              +1년
+            </button>
+            <button
+              onClick={() => setExpiryDate('')}
+              className="px-3 py-1.5 text-xs bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+            >
+              만료일 해제
+            </button>
+          </div>
+
+          {/* 날짜 직접 선택 */}
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0064FF]"
+            />
+            <button
+              onClick={handleExpiryChange}
+              disabled={updatingExpiry}
+              className="px-4 py-2 bg-[#0064FF] hover:bg-[#0050CC] text-white text-sm rounded-lg transition-colors disabled:opacity-50"
+            >
+              {updatingExpiry ? '저장중...' : '저장'}
+            </button>
+          </div>
+        </div>
+
+        <p className="text-xs text-[#8B95A1] mt-4">
+          * 플랜/만료일을 변경하면 해당 사용자의 기능 제한이 즉시 적용됩니다.
         </p>
       </div>
 

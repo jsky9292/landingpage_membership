@@ -32,7 +32,7 @@ export async function GET(
     // 페이지 소유권 확인
     const { data: page } = await supabase
       .from('landing_pages')
-      .select('id, user_id, title')
+      .select('id, user_id, title, slug, status, view_count')
       .eq('id', pageId)
       .single();
 
@@ -69,6 +69,9 @@ export async function GET(
       page: {
         id: (page as any).id,
         title: (page as any).title,
+        slug: (page as any).slug,
+        status: (page as any).status,
+        view_count: (page as any).view_count || 0,
       },
       submissions: submissions || [],
     });

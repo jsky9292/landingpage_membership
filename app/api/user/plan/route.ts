@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth/options';
 import { createServerClient } from '@/lib/supabase/client';
 
 // 사용 가능한 플랜 목록
-const validPlans = ['free', 'single', 'starter', 'pro', 'unlimited', 'agency'];
+const validPlans = ['free', 'starter', 'pro', 'unlimited', 'agency'];
 const validRoles = ['user', 'admin'];
 
 // 관리자용 - 자신의 플랜/역할 변경
