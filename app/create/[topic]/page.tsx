@@ -1519,6 +1519,18 @@ const topicData: Record<string, TopicGuide> = {
         ]
       },
       {
+        name: '마케팅/대행',
+        icon: '📈',
+        examples: [
+          { title: 'SNS 마케팅 대행', content: 'SNS 마케팅 대행 서비스. 인스타그램/페이스북/틱톡 운영. 월 50만원부터. 콘텐츠 기획, 제작, 관리. 월간 리포트 제공. 상담 무료.' },
+          { title: '블로그 마케팅', content: '네이버 블로그 마케팅. 체험단 운영, 포스팅 대행. 건당 5만원. 상위노출 보장. 월 패키지 할인. 7년 경력.' },
+          { title: '광고 운영 대행', content: '네이버/구글/메타 광고 운영 대행. 수수료 10%. 최소 집행 100만원. ROAS 200% 목표. 주간 리포트. 광고비 별도.' },
+          { title: '유튜브 채널 운영', content: '유튜브 채널 운영 대행. 기획, 촬영, 편집, 업로드. 영상당 30만원. 월 4회 패키지 100만원. 썸네일 포함.' },
+          { title: '콘텐츠 마케팅', content: '콘텐츠 마케팅 전략 컨설팅. 브랜드 스토리텔링, 콘텐츠 기획. 월 80만원. 마케팅 10년 경력. 첫 상담 무료.' },
+          { title: '인플루언서 마케팅', content: '인플루언서 섭외 및 협찬 대행. 팔로워 1만~100만. 캠페인 기획. 건당 20만원 수수료. 결과 리포트 제공.' },
+        ]
+      },
+      {
         name: '기타 서비스',
         icon: '✨',
         examples: [
@@ -2251,13 +2263,13 @@ export default function CreatePage() {
 
             {showExamples && (
               <>
-                {/* 카테고리 탭 - 더 예쁘게 */}
+                {/* 카테고리 탭 - 그리드 정렬 */}
                 <div style={{
-                  display: 'flex',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
                   gap: '8px',
                   marginBottom: '20px',
-                  flexWrap: 'wrap',
-                  padding: '4px',
+                  padding: '8px',
                   background: '#F8FAFC',
                   borderRadius: '12px',
                 }}>
@@ -2266,8 +2278,8 @@ export default function CreatePage() {
                       key={i}
                       onClick={() => setSelectedCategory(i)}
                       style={{
-                        padding: '10px 16px',
-                        fontSize: '13px',
+                        padding: '10px 8px',
+                        fontSize: '12px',
                         fontWeight: selectedCategory === i ? '600' : '500',
                         background: selectedCategory === i
                           ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
@@ -2278,14 +2290,16 @@ export default function CreatePage() {
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        justifyContent: 'center',
+                        gap: '4px',
                         transition: 'all 0.2s',
                         boxShadow: selectedCategory === i
                           ? '0 2px 8px rgba(99,102,241,0.3)'
                           : 'none',
+                        whiteSpace: 'nowrap',
                       }}
                     >
-                      <span style={{ fontSize: '15px' }}>{cat.icon}</span>
+                      <span style={{ fontSize: '14px' }}>{cat.icon}</span>
                       {cat.name}
                     </button>
                   ))}
