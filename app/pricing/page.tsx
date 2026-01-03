@@ -247,7 +247,7 @@ export default function PricingPage() {
             <button
               onClick={handlePayment}
               disabled={isLoading === selectedPlan.id}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold rounded-xl transition-colors"
+              className="w-full py-4 bg-[#3182F6] hover:bg-[#1E6DE8] disabled:bg-gray-400 text-white font-semibold rounded-xl transition-colors"
             >
               {isLoading === selectedPlan.id ? '처리 중...' : `${selectedPlan.priceLabel} 결제하기`}
             </button>
@@ -258,7 +258,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* 헤더 */}
       <header className="py-6 px-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
@@ -270,7 +270,7 @@ export default function PricingPage() {
               대시보드 →
             </Link>
           ) : (
-            <Link href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link href="/login" className="text-[#3182F6] hover:text-[#1E6DE8] font-medium">
               로그인
             </Link>
           )}
@@ -295,11 +295,11 @@ export default function PricingPage() {
             <div
               key={plan.id}
               className={`relative bg-white rounded-2xl shadow-lg overflow-hidden ${
-                plan.popular ? 'ring-2 ring-indigo-600' : ''
+                plan.popular ? 'ring-2 ring-[#3182F6]' : ''
               }`}
             >
               {plan.popular && (
-                <div className="absolute top-0 left-0 right-0 bg-indigo-600 text-white text-center py-1 text-sm font-medium">
+                <div className="absolute top-0 left-0 right-0 bg-[#3182F6] text-white text-center py-1 text-sm font-medium">
                   가장 인기
                 </div>
               )}
@@ -318,7 +318,7 @@ export default function PricingPage() {
                   disabled={plan.buttonDisabled || currentPlan === plan.id}
                   className={`w-full py-3 rounded-xl font-semibold transition-colors ${
                     plan.popular
-                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                      ? 'bg-[#3182F6] hover:bg-[#1E6DE8] text-white'
                       : plan.buttonDisabled
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
