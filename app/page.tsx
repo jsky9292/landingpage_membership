@@ -12,12 +12,12 @@ const categories = [
     icon: '🎓',
     color: '#3182F6',
     samples: [
-      { id: 'marketing-edu', name: '마케팅 교육', desc: 'SNS 마케팅, 퍼포먼스 마케팅, 브랜딩 강의', emoji: '📈' },
-      { id: 'it-edu', name: 'IT/개발 교육', desc: '코딩, 데이터분석, AI 활용 강의', emoji: '💻' },
-      { id: 'ai-edu', name: 'AI 활용 교육', desc: 'ChatGPT, 미드저니, 업무 자동화 강의', emoji: '🤖' },
-      { id: 'design-edu', name: '디자인 교육', desc: '포토샵, 피그마, UI/UX 강의', emoji: '🎨' },
-      { id: 'language-edu', name: '외국어 교육', desc: '영어, 중국어, 일본어 회화 강의', emoji: '🌍' },
-      { id: 'finance-edu', name: '재테크 교육', desc: '주식, 부동산, 가상화폐 투자 강의', emoji: '💰' },
+      { id: 'marketing-edu', name: '마케팅 교육', desc: 'SNS 마케팅, 퍼포먼스 마케팅, 브랜딩 강의', emoji: '📈', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=120&fit=crop' },
+      { id: 'it-edu', name: 'IT/개발 교육', desc: '코딩, 데이터분석, AI 활용 강의', emoji: '💻', thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=200&h=120&fit=crop' },
+      { id: 'ai-edu', name: 'AI 활용 교육', desc: 'ChatGPT, 미드저니, 업무 자동화 강의', emoji: '🤖', thumbnail: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=120&fit=crop' },
+      { id: 'design-edu', name: '디자인 교육', desc: '포토샵, 피그마, UI/UX 강의', emoji: '🎨', thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=200&h=120&fit=crop' },
+      { id: 'language-edu', name: '외국어 교육', desc: '영어, 중국어, 일본어 회화 강의', emoji: '🌍', thumbnail: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=200&h=120&fit=crop' },
+      { id: 'finance-edu', name: '재테크 교육', desc: '주식, 부동산, 가상화폐 투자 강의', emoji: '💰', thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=200&h=120&fit=crop' },
     ]
   },
   {
@@ -26,12 +26,12 @@ const categories = [
     icon: '💼',
     color: '#1E6DE8',
     samples: [
-      { id: 'insurance', name: '보험 상담', desc: '생명보험, 손해보험 무료 상담', emoji: '🛡️' },
-      { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗' },
-      { id: 'insurance-health', name: '건강보험', desc: '실비, 암보험, 건강검진 상담', emoji: '❤️' },
-      { id: 'tax-consult', name: '세무 상담', desc: '종합소득세, 부가세, 절세 상담', emoji: '📋' },
-      { id: 'legal-consult', name: '법률 상담', desc: '계약서, 분쟁, 소송 상담', emoji: '⚖️' },
-      { id: 'career-consult', name: '커리어 상담', desc: '이직, 면접, 포트폴리오 컨설팅', emoji: '🎯' },
+      { id: 'insurance', name: '보험 상담', desc: '생명보험, 손해보험 무료 상담', emoji: '🛡️', thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=200&h=120&fit=crop' },
+      { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗', thumbnail: 'https://images.unsplash.com/photo-1449965408869-ebd3fee29d6c?w=200&h=120&fit=crop' },
+      { id: 'insurance-health', name: '건강보험', desc: '실비, 암보험, 건강검진 상담', emoji: '❤️', thumbnail: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=200&h=120&fit=crop' },
+      { id: 'tax-consult', name: '세무 상담', desc: '종합소득세, 부가세, 절세 상담', emoji: '📋', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=200&h=120&fit=crop' },
+      { id: 'legal-consult', name: '법률 상담', desc: '계약서, 분쟁, 소송 상담', emoji: '⚖️', thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=200&h=120&fit=crop' },
+      { id: 'career-consult', name: '커리어 상담', desc: '이직, 면접, 포트폴리오 컨설팅', emoji: '🎯', thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=200&h=120&fit=crop' },
     ]
   },
   {
@@ -40,12 +40,12 @@ const categories = [
     icon: '🛠️',
     color: '#0052CC',
     samples: [
-      { id: 'web-dev', name: '웹사이트 제작', desc: '홈페이지, 쇼핑몰, 랜딩페이지 제작', emoji: '🌐' },
-      { id: 'design-service', name: '디자인 대행', desc: '로고, 명함, 상세페이지 제작', emoji: '✨' },
-      { id: 'video-service', name: '영상 제작', desc: '홍보영상, 유튜브, 쇼츠 제작', emoji: '🎬' },
-      { id: 'marketing-service', name: '마케팅 대행', desc: 'SNS 운영, 광고 대행', emoji: '📣' },
-      { id: 'writing-service', name: '글쓰기 대행', desc: '보도자료, 블로그, 카피라이팅', emoji: '✍️' },
-      { id: 'photo-service', name: '사진 촬영', desc: '제품, 프로필, 인테리어 촬영', emoji: '📷' },
+      { id: 'web-dev', name: '웹사이트 제작', desc: '홈페이지, 쇼핑몰, 랜딩페이지 제작', emoji: '🌐', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=120&fit=crop' },
+      { id: 'design-service', name: '디자인 대행', desc: '로고, 명함, 상세페이지 제작', emoji: '✨', thumbnail: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=200&h=120&fit=crop' },
+      { id: 'video-service', name: '영상 제작', desc: '홍보영상, 유튜브, 쇼츠 제작', emoji: '🎬', thumbnail: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=200&h=120&fit=crop' },
+      { id: 'marketing-service', name: '마케팅 대행', desc: 'SNS 운영, 광고 대행', emoji: '📣', thumbnail: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=200&h=120&fit=crop' },
+      { id: 'writing-service', name: '글쓰기 대행', desc: '보도자료, 블로그, 카피라이팅', emoji: '✍️', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=200&h=120&fit=crop' },
+      { id: 'photo-service', name: '사진 촬영', desc: '제품, 프로필, 인테리어 촬영', emoji: '📷', thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200&h=120&fit=crop' },
     ]
   },
   {
@@ -54,12 +54,12 @@ const categories = [
     icon: '🛒',
     color: '#10B981',
     samples: [
-      { id: 'digital-product', name: '디지털 상품', desc: '전자책, 템플릿, 프리셋 판매', emoji: '📱' },
-      { id: 'online-course', name: '온라인 강의', desc: 'VOD 강의, 클래스 판매', emoji: '🎥' },
-      { id: 'subscription', name: '구독 서비스', desc: '멤버십, 뉴스레터, 커뮤니티', emoji: '🔄' },
-      { id: 'handmade', name: '핸드메이드', desc: '수제 상품, 공예품 판매', emoji: '🎁' },
-      { id: 'food-product', name: '식품 판매', desc: '건강식품, 반찬, 베이커리', emoji: '🍽️' },
-      { id: 'beauty-product', name: '뷰티 상품', desc: '화장품, 스킨케어, 헤어케어', emoji: '💄' },
+      { id: 'digital-product', name: '디지털 상품', desc: '전자책, 템플릿, 프리셋 판매', emoji: '📱', thumbnail: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&h=120&fit=crop' },
+      { id: 'online-course', name: '온라인 강의', desc: 'VOD 강의, 클래스 판매', emoji: '🎥', thumbnail: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=200&h=120&fit=crop' },
+      { id: 'subscription', name: '구독 서비스', desc: '멤버십, 뉴스레터, 커뮤니티', emoji: '🔄', thumbnail: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=120&fit=crop' },
+      { id: 'handmade', name: '핸드메이드', desc: '수제 상품, 공예품 판매', emoji: '🎁', thumbnail: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=200&h=120&fit=crop' },
+      { id: 'food-product', name: '식품 판매', desc: '건강식품, 반찬, 베이커리', emoji: '🍽️', thumbnail: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=120&fit=crop' },
+      { id: 'beauty-product', name: '뷰티 상품', desc: '화장품, 스킨케어, 헤어케어', emoji: '💄', thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=120&fit=crop' },
     ]
   },
   {
@@ -68,12 +68,12 @@ const categories = [
     icon: '🎉',
     color: '#F59E0B',
     samples: [
-      { id: 'seminar', name: '세미나/웨비나', desc: '온오프라인 세미나 참가 모집', emoji: '🎤' },
-      { id: 'workshop', name: '워크숍', desc: '원데이클래스, 체험 프로그램', emoji: '🔧' },
-      { id: 'study-group', name: '스터디 모집', desc: '독서, 어학, 자격증 스터디', emoji: '📚' },
-      { id: 'community', name: '커뮤니티 모집', desc: '동호회, 네트워킹 모임', emoji: '👥' },
-      { id: 'early-bird', name: '얼리버드 모집', desc: '신제품, 서비스 사전 예약', emoji: '🐦' },
-      { id: 'waitlist', name: '대기자 모집', desc: '출시 전 관심고객 확보', emoji: '⏰' },
+      { id: 'seminar', name: '세미나/웨비나', desc: '온오프라인 세미나 참가 모집', emoji: '🎤', thumbnail: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200&h=120&fit=crop' },
+      { id: 'workshop', name: '워크숍', desc: '원데이클래스, 체험 프로그램', emoji: '🔧', thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&h=120&fit=crop' },
+      { id: 'study-group', name: '스터디 모집', desc: '독서, 어학, 자격증 스터디', emoji: '📚', thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=200&h=120&fit=crop' },
+      { id: 'community', name: '커뮤니티 모집', desc: '동호회, 네트워킹 모임', emoji: '👥', thumbnail: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=120&fit=crop' },
+      { id: 'early-bird', name: '얼리버드 모집', desc: '신제품, 서비스 사전 예약', emoji: '🐦', thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200&h=120&fit=crop' },
+      { id: 'waitlist', name: '대기자 모집', desc: '출시 전 관심고객 확보', emoji: '⏰', thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&h=120&fit=crop' },
     ]
   },
   {
@@ -82,12 +82,12 @@ const categories = [
     icon: '🏠',
     color: '#EF4444',
     samples: [
-      { id: 'apartment', name: '아파트 분양', desc: '신축 아파트 분양 홍보', emoji: '🏢' },
-      { id: 'officetel', name: '오피스텔 분양', desc: '수익형 오피스텔 분양', emoji: '🏨' },
-      { id: 'store', name: '상가 분양', desc: '상업시설, 상가 분양', emoji: '🏪' },
-      { id: 'land', name: '토지 매매', desc: '전원주택 부지, 농지 매매', emoji: '🌳' },
-      { id: 'interior', name: '인테리어', desc: '리모델링, 인테리어 상담', emoji: '🛋️' },
-      { id: 'moving', name: '이사 서비스', desc: '포장이사, 원룸이사', emoji: '🚚' },
+      { id: 'apartment', name: '아파트 분양', desc: '신축 아파트 분양 홍보', emoji: '🏢', thumbnail: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=200&h=120&fit=crop' },
+      { id: 'officetel', name: '오피스텔 분양', desc: '수익형 오피스텔 분양', emoji: '🏨', thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&h=120&fit=crop' },
+      { id: 'store', name: '상가 분양', desc: '상업시설, 상가 분양', emoji: '🏪', thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&h=120&fit=crop' },
+      { id: 'land', name: '토지 매매', desc: '전원주택 부지, 농지 매매', emoji: '🌳', thumbnail: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&h=120&fit=crop' },
+      { id: 'interior', name: '인테리어', desc: '리모델링, 인테리어 상담', emoji: '🛋️', thumbnail: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=200&h=120&fit=crop' },
+      { id: 'moving', name: '이사 서비스', desc: '포장이사, 원룸이사', emoji: '🚚', thumbnail: 'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=200&h=120&fit=crop' },
     ]
   },
 ];
@@ -882,37 +882,49 @@ export default function HomePage() {
                   style={{
                     background: '#fff',
                     borderRadius: '12px',
-                    padding: '20px',
+                    overflow: 'hidden',
                     cursor: 'pointer',
                     border: `2px solid ${hoveredSample === sample.id ? cat.color : '#F3F4F6'}`,
                     transition: 'all 0.2s',
-                    transform: hoveredSample === sample.id ? 'translateY(-2px)' : 'none',
+                    transform: hoveredSample === sample.id ? 'translateY(-4px)' : 'none',
+                    boxShadow: hoveredSample === sample.id ? '0 8px 24px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.04)',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                  {/* 썸네일 이미지 */}
+                  <div style={{
+                    height: '120px',
+                    background: `linear-gradient(to bottom, transparent 0%, ${cat.color}22 100%), url(${sample.thumbnail})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    position: 'relative',
+                  }}>
                     <div style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '10px',
-                      background: `${cat.color}15`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '22px',
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      padding: '4px 10px',
+                      background: cat.color,
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      color: '#fff',
                     }}>
-                      {sample.emoji}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#191919' }}>{sample.name}</div>
-                      <div style={{ fontSize: '11px', color: cat.color, fontWeight: '500' }}>{cat.name}</div>
+                      {cat.name}
                     </div>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.4 }}>
-                    {sample.desc}
-                  </p>
-                  <span style={{ fontSize: '12px', color: cat.color, fontWeight: '600' }}>
-                    이 템플릿으로 만들기 →
-                  </span>
+                  {/* 카드 내용 */}
+                  <div style={{ padding: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '18px' }}>{sample.emoji}</span>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#191919' }}>{sample.name}</div>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.4 }}>
+                      {sample.desc}
+                    </p>
+                    <span style={{ fontSize: '12px', color: cat.color, fontWeight: '600' }}>
+                      이 템플릿으로 만들기 →
+                    </span>
+                  </div>
                 </div>
               ))
             )}

@@ -169,7 +169,9 @@ export default function SamplesPage() {
               >
                 {/* 미리보기 영역 */}
                 <div style={{
-                  background: `linear-gradient(135deg, ${sample.themeColor} 0%, ${adjustColor(sample.themeColor, 30)} 100%)`,
+                  background: `linear-gradient(135deg, ${sample.themeColor}dd 0%, ${adjustColor(sample.themeColor, 30)}ee 100%), url(${sample.thumbnail})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
                   padding: '32px 24px',
                   position: 'relative',
                   height: '260px',

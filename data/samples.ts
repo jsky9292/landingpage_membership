@@ -8,6 +8,7 @@ export interface SamplePage {
   theme: string;
   themeColor: string;
   description: string;
+  thumbnail: string; // Unsplash 이미지 URL
   preview: {
     headline: string;
     subtext: string;
@@ -43,6 +44,7 @@ export const samplePages: SamplePage[] = [
     theme: 'indigo',
     themeColor: '#6366F1',
     description: '퍼포먼스 마케팅 전문가가 되는 8주 과정',
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
     preview: {
       headline: '월급보다 더 버는 마케터가 되세요',
       subtext: '현직 마케터가 알려주는 실전 퍼포먼스 마케팅 노하우',
@@ -62,6 +64,7 @@ export const samplePages: SamplePage[] = [
     theme: 'cyan',
     themeColor: '#0891B2',
     description: 'ChatGPT API를 활용한 서비스 개발',
+    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop',
     preview: {
       headline: 'AI 시대, 개발자의 무기를 장착하세요',
       subtext: '비전공자도 8주만에 AI 서비스를 만들 수 있습니다',
@@ -81,6 +84,7 @@ export const samplePages: SamplePage[] = [
     theme: 'pink',
     themeColor: '#EC4899',
     description: '피그마로 완성하는 실무 디자인',
+    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
     preview: {
       headline: '취업률 94%, 디자인 실력이 증명됩니다',
       subtext: '현직 디자이너와 함께하는 포트폴리오 완성 과정',
@@ -101,6 +105,7 @@ export const samplePages: SamplePage[] = [
     theme: 'purple',
     themeColor: '#8B5CF6',
     description: '당신에게 꼭 맞는 보험을 찾아드립니다',
+    thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=300&fit=crop',
     preview: {
       headline: '보험료는 낮추고, 보장은 높이는 방법',
       subtext: '10년차 보험 전문가가 무료로 상담해드립니다',
@@ -120,6 +125,7 @@ export const samplePages: SamplePage[] = [
     theme: 'slate',
     themeColor: '#475569',
     description: '합법적으로 세금을 줄이는 방법',
+    thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop',
     preview: {
       headline: '매년 수백만원씩 세금을 더 내고 계신가요?',
       subtext: '10년 경력 세무사가 절세 방법을 알려드립니다',
@@ -139,6 +145,7 @@ export const samplePages: SamplePage[] = [
     theme: 'emerald',
     themeColor: '#10B981',
     description: '연봉 30% 인상하는 이직 전략',
+    thumbnail: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400&h=300&fit=crop',
     preview: {
       headline: '같은 일을 해도 연봉은 다릅니다',
       subtext: '500+명의 이직 성공을 이끈 커리어 코치와 함께',
@@ -159,6 +166,7 @@ export const samplePages: SamplePage[] = [
     theme: 'rose',
     themeColor: '#F43F5E',
     description: '비즈니스를 위한 프리미엄 웹사이트',
+    thumbnail: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=400&h=300&fit=crop',
     preview: {
       headline: '검색 1페이지에 뜨는 홈페이지를 만들어드립니다',
       subtext: '300개+ 기업이 선택한 웹사이트 전문 제작사',
@@ -178,6 +186,7 @@ export const samplePages: SamplePage[] = [
     theme: 'amber',
     themeColor: '#F59E0B',
     description: '브랜드를 빛나게 하는 영상',
+    thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop',
     preview: {
       headline: '조회수 100만을 만드는 영상의 비밀',
       subtext: '기획부터 편집까지, 올인원 영상 제작 서비스',
@@ -197,6 +206,7 @@ export const samplePages: SamplePage[] = [
     theme: 'orange',
     themeColor: '#F97316',
     description: 'SNS 마케팅 전문 대행사',
+    thumbnail: 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=400&h=300&fit=crop',
     preview: {
       headline: '인스타 팔로워 0에서 10만까지',
       subtext: '100개+ 브랜드의 SNS를 성장시킨 노하우',
@@ -217,6 +227,7 @@ export const samplePages: SamplePage[] = [
     theme: 'teal',
     themeColor: '#14B8A6',
     description: '노하우를 담은 전자책',
+    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop',
     preview: {
       headline: '3년의 노하우를 3시간에 얻으세요',
       subtext: '1,000명이 선택한 실전 가이드북',
@@ -236,6 +247,7 @@ export const samplePages: SamplePage[] = [
     theme: 'blue',
     themeColor: '#3B82F6',
     description: '언제 어디서나 배우는 온라인 강의',
+    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop',
     preview: {
       headline: '출퇴근 시간에 완성하는 부업',
       subtext: '하루 30분, 3개월이면 월 100만원 추가 수입',
@@ -255,6 +267,7 @@ export const samplePages: SamplePage[] = [
     theme: 'violet',
     themeColor: '#8B5CF6',
     description: '함께 성장하는 커뮤니티',
+    thumbnail: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop',
     preview: {
       headline: '혼자 공부하면 한계가 있습니다',
       subtext: '500명의 동료와 함께하는 성장 커뮤니티',
@@ -275,6 +288,7 @@ export const samplePages: SamplePage[] = [
     theme: 'yellow',
     themeColor: '#EAB308',
     description: '업계 전문가와 함께하는 세미나',
+    thumbnail: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop',
     preview: {
       headline: '2026년 트렌드를 먼저 알려드립니다',
       subtext: '업계 TOP 10 전문가가 모였습니다',
@@ -294,6 +308,7 @@ export const samplePages: SamplePage[] = [
     theme: 'lime',
     themeColor: '#84CC16',
     description: '하루만에 배우는 실전 스킬',
+    thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
     preview: {
       headline: '토요일 하루, 인생이 바뀝니다',
       subtext: '소수 정예 10명, 밀착 코칭',
@@ -313,6 +328,7 @@ export const samplePages: SamplePage[] = [
     theme: 'sky',
     themeColor: '#0EA5E9',
     description: '함께 공부하는 스터디 그룹',
+    thumbnail: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=300&fit=crop',
     preview: {
       headline: '혼자 하면 작심삼일, 함께하면 끝까지',
       subtext: '8주 완주율 94%의 스터디 시스템',
@@ -333,6 +349,7 @@ export const samplePages: SamplePage[] = [
     theme: 'red',
     themeColor: '#EF4444',
     description: '프리미엄 아파트 분양 안내',
+    thumbnail: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop',
     preview: {
       headline: '강남 10분, 초역세권 프리미엄',
       subtext: '2024년 가장 주목받는 분양 단지',
@@ -352,6 +369,7 @@ export const samplePages: SamplePage[] = [
     theme: 'zinc',
     themeColor: '#71717A',
     description: '수익형 오피스텔 투자',
+    thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop',
     preview: {
       headline: '월세 수익 보장, 안정적인 투자처',
       subtext: '역세권 프리미엄 오피스텔 분양',
@@ -372,6 +390,7 @@ export const samplePages: SamplePage[] = [
     theme: 'orange',
     themeColor: '#EA580C',
     description: '전국 500호점 돌파 치킨 브랜드',
+    thumbnail: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop',
     preview: {
       headline: '월 순수익 1,200만원, 가능합니다',
       subtext: '본사 직영 물류, 마케팅 100% 지원',
@@ -391,6 +410,7 @@ export const samplePages: SamplePage[] = [
     theme: 'amber',
     themeColor: '#D97706',
     description: '2030이 가장 좋아하는 디저트 카페',
+    thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop',
     preview: {
       headline: '하루 매출 200만원, 비결이 있습니다',
       subtext: '인스타 핫플 브랜드, 본사 인테리어 지원',
@@ -410,6 +430,7 @@ export const samplePages: SamplePage[] = [
     theme: 'red',
     themeColor: '#DC2626',
     description: '무인 24시 피트니스 창업',
+    thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop',
     preview: {
       headline: '인건비 0원, 월 순수익 800만원',
       subtext: '무인 시스템으로 운영 부담 최소화',
@@ -429,6 +450,7 @@ export const samplePages: SamplePage[] = [
     theme: 'rose',
     themeColor: '#E11D48',
     description: '배달 전문 한식 프랜차이즈',
+    thumbnail: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
     preview: {
       headline: '배달앱 리뷰 4.9점, 비결을 공개합니다',
       subtext: '주방 경험 없어도 OK, 본사 레시피 100% 제공',
@@ -449,6 +471,7 @@ export const samplePages: SamplePage[] = [
     theme: 'stone',
     themeColor: '#78716C',
     description: '감각적인 주거 공간 인테리어',
+    thumbnail: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop',
     preview: {
       headline: '당신의 공간을 호텔처럼',
       subtext: '1,000세대 시공 경험, 5년 AS 보장',
@@ -468,6 +491,7 @@ export const samplePages: SamplePage[] = [
     theme: 'slate',
     themeColor: '#475569',
     description: '생산성을 높이는 오피스 공간',
+    thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop',
     preview: {
       headline: '직원 만족도 200% 높이는 사무실',
       subtext: '스타트업부터 대기업까지 300개+ 시공',
@@ -487,6 +511,7 @@ export const samplePages: SamplePage[] = [
     theme: 'neutral',
     themeColor: '#525252',
     description: '매출을 올리는 상가 디자인',
+    thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop',
     preview: {
       headline: '인테리어 바꾸니 매출이 2배',
       subtext: '고객 동선 분석 기반 공간 설계',
@@ -506,6 +531,7 @@ export const samplePages: SamplePage[] = [
     theme: 'zinc',
     themeColor: '#71717A',
     description: '요리가 즐거워지는 주방',
+    thumbnail: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop',
     preview: {
       headline: '20년 된 주방, 새집처럼 바꿔드립니다',
       subtext: '싱크대+가전+시공 올인원 패키지',
