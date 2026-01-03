@@ -27,7 +27,7 @@ const categories = [
     color: '#1E6DE8',
     samples: [
       { id: 'insurance', name: '보험 상담', desc: '생명보험, 손해보험 무료 상담', emoji: '🛡️', thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=240&fit=crop' },
-      { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗', thumbnail: 'https://images.unsplash.com/photo-1449965408869-ebd3fee29d6c?w=400&h=240&fit=crop' },
+      { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=240&fit=crop' },
       { id: 'insurance-health', name: '건강보험', desc: '실비, 암보험, 건강검진 상담', emoji: '❤️', thumbnail: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&h=240&fit=crop' },
       { id: 'tax-consult', name: '세무 상담', desc: '종합소득세, 부가세, 절세 상담', emoji: '📋', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=240&fit=crop' },
       { id: 'legal-consult', name: '법률 상담', desc: '계약서, 분쟁, 소송 상담', emoji: '⚖️', thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=240&fit=crop' },
