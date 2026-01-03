@@ -529,6 +529,51 @@ export default function HomePage() {
             </button>
           </div>
 
+          {/* 로그인/회원가입 버튼 */}
+          {status !== 'authenticated' && (
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: '16px',
+            }}>
+              <span style={{ fontSize: '14px', color: '#6B7280' }}>
+                이미 계정이 있으신가요?
+              </span>
+              <button
+                onClick={() => router.push('/login')}
+                style={{
+                  padding: '10px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  background: '#fff',
+                  color: '#6366F1',
+                  border: '2px solid #6366F1',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                로그인
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                style={{
+                  padding: '10px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  background: '#6366F1',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                회원가입
+              </button>
+            </div>
+          )}
+
           <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
             카드 등록 없이 7일 무료 • 30초면 첫 페이지 완성
           </p>
