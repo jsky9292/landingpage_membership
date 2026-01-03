@@ -312,7 +312,7 @@ export default function HomePage() {
           .hero-buttons { flex-direction: column !important; gap: 12px !important; }
           .hero-button { width: 100% !important; padding: 18px 24px !important; font-size: 17px !important; border-radius: 16px !important; }
           .nav-links { display: none !important; }
-          .mobile-menu { display: block !important; }
+          .mobile-nav { display: flex !important; }
           .stats-grid { flex-direction: column !important; gap: 20px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
           .pricing-card-featured { transform: none !important; }
@@ -363,6 +363,7 @@ export default function HomePage() {
           <span style={{ fontSize: '18px', fontWeight: '800', color: '#191919' }}>
             랜딩메이커
           </span>
+          {/* PC 네비게이션 */}
           <nav className="nav-links" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <a href="/samples" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>샘플</a>
             <a href="#cases" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>성공사례</a>
@@ -391,6 +392,41 @@ export default function HomePage() {
               무료로 만들기
             </button>
           </nav>
+          {/* 모바일 네비게이션 */}
+          <div className="mobile-nav" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
+            {status === 'authenticated' ? (
+              <a href="/dashboard" style={{
+                padding: '8px 14px',
+                background: '#F3F4F6',
+                color: '#374151',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '600',
+                textDecoration: 'none',
+              }}>내 페이지</a>
+            ) : (
+              <>
+                <a href="/login" style={{
+                  padding: '8px 14px',
+                  background: '#F3F4F6',
+                  color: '#374151',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                }}>로그인</a>
+                <a href="/signup" style={{
+                  padding: '8px 14px',
+                  background: '#3182F6',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                }}>회원가입</a>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -1335,7 +1371,8 @@ export default function HomePage() {
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>고객지원</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <a href="#faq" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>자주 묻는 질문</a>
-              <a href="#pricing" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>요금 안내</a>
+              <a href="/pricing" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>요금 안내</a>
+              <a href="/samples" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>샘플 보기</a>
             </div>
           </div>
           <div>
