@@ -169,7 +169,7 @@ export default function SamplesPage() {
               >
                 {/* 미리보기 영역 */}
                 <div style={{
-                  background: `linear-gradient(135deg, ${sample.themeColor}dd 0%, ${adjustColor(sample.themeColor, 30)}ee 100%), url(${sample.thumbnail})`,
+                  backgroundImage: `url(${sample.thumbnail})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   padding: '32px 24px',
@@ -178,14 +178,26 @@ export default function SamplesPage() {
                   display: 'flex',
                   flexDirection: 'column',
                 }}>
+                {/* 텍스트 가독성을 위한 반투명 오버레이 */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: `linear-gradient(135deg, ${sample.themeColor}88 0%, ${sample.themeColor}aa 100%)`,
+                  zIndex: 1,
+                }} />
                   {/* 배지 */}
                   <div style={{
                     display: 'inline-block',
                     padding: '5px 12px',
-                    background: 'rgba(255,255,255,0.2)',
+                    background: 'rgba(255,255,255,0.25)',
                     borderRadius: '20px',
                     marginBottom: '16px',
                     alignSelf: 'flex-start',
+                    position: 'relative',
+                    zIndex: 2,
                   }}>
                     <span style={{ color: '#fff', fontSize: '12px', fontWeight: '600' }}>
                       {sample.preview.badge}
@@ -203,6 +215,9 @@ export default function SamplesPage() {
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical' as const,
+                    position: 'relative',
+                    zIndex: 2,
+                    textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                   }}>
                     {sample.preview.headline}
                   </h2>
@@ -210,7 +225,7 @@ export default function SamplesPage() {
                   {/* 서브텍스트 */}
                   <p style={{
                     fontSize: '14px',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: 'rgba(255,255,255,0.95)',
                     lineHeight: 1.5,
                     marginBottom: '16px',
                     overflow: 'hidden',
@@ -218,6 +233,9 @@ export default function SamplesPage() {
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical' as const,
                     flex: 1,
+                    position: 'relative',
+                    zIndex: 2,
+                    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
                   }}>
                     {sample.preview.subtext}
                   </p>
@@ -234,6 +252,9 @@ export default function SamplesPage() {
                     cursor: 'pointer',
                     alignSelf: 'flex-start',
                     marginTop: 'auto',
+                    position: 'relative',
+                    zIndex: 2,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                   }}>
                     {sample.preview.cta}
                   </button>
@@ -250,6 +271,8 @@ export default function SamplesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    zIndex: 2,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                   }}>
                     <div style={{
                       width: '20px',
