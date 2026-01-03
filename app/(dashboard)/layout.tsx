@@ -24,10 +24,16 @@ export default function DashboardLayout({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-2" title="홈으로 이동">
                 <span className="text-2xl">🚀</span>
                 <span className="text-xl font-bold text-[#191F28]">랜딩AI</span>
+              </Link>
+              <Link
+                href="/"
+                className="text-xs text-[#6B7280] hover:text-[#0064FF] transition-colors hidden sm:block"
+              >
+                ← 홈으로
               </Link>
             </div>
 
