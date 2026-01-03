@@ -1657,6 +1657,18 @@ export default function CreatePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#FFFFFF' }}>
+      {/* 모바일 반응형 스타일 */}
+      <style>{`
+        @media (max-width: 768px) {
+          .create-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .create-hero { padding: 24px 16px !important; }
+          .create-hero h1 { font-size: 24px !important; }
+          .create-hero p { font-size: 15px !important; }
+          .create-main { padding: 16px !important; }
+          .create-card { padding: 20px !important; }
+          .create-header { padding: 0 16px !important; }
+        }
+      `}</style>
       {/* 사용량 제한 모달 */}
       {showLimitModal && (
         <div style={{
@@ -1787,7 +1799,7 @@ export default function CreatePage() {
       )}
 
       {/* 헤더 - 모던 디자인 v2.1 */}
-      <header style={{
+      <header className="create-header" style={{
         padding: '0 24px',
         height: '64px',
         borderBottom: '1px solid #E5E8EB',
@@ -1886,7 +1898,7 @@ export default function CreatePage() {
       </header>
 
       {/* 메인 */}
-      <main style={{
+      <main className="create-main" style={{
         maxWidth: '1200px',
         margin: '0 auto',
         padding: '32px 24px 60px',
@@ -1894,14 +1906,14 @@ export default function CreatePage() {
         minHeight: 'calc(100vh - 64px)',
       }}>
         {/* 히어로 섹션 v2.1 */}
-        <div style={{
+        <div className="create-hero" style={{
           textAlign: 'center',
           marginBottom: '40px',
           padding: '40px 32px',
-          background: 'linear-gradient(135deg, #0EA5E9 0%, #6366F1 50%, #8B5CF6 100%)',
+          background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 50%, #0052CC 100%)',
           borderRadius: '24px',
           color: '#fff',
-          boxShadow: '0 20px 40px rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 20px 40px rgba(49, 130, 246, 0.3)',
         }}>
           <div style={{
             display: 'inline-block',
@@ -1935,9 +1947,9 @@ export default function CreatePage() {
         </div>
 
         {/* 2컬럼 레이아웃 - 더 넓게 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
+        <div className="create-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
           {/* 왼쪽: 입력 영역 */}
-          <div style={{
+          <div className="create-card" style={{
             background: '#fff',
             borderRadius: '20px',
             padding: '28px',

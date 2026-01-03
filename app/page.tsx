@@ -10,7 +10,7 @@ const categories = [
     id: 'education',
     name: '교육/강의',
     icon: '🎓',
-    color: '#6366F1',
+    color: '#3182F6',
     samples: [
       { id: 'marketing-edu', name: '마케팅 교육', desc: 'SNS 마케팅, 퍼포먼스 마케팅, 브랜딩 강의', emoji: '📈' },
       { id: 'it-edu', name: 'IT/개발 교육', desc: '코딩, 데이터분석, AI 활용 강의', emoji: '💻' },
@@ -24,7 +24,7 @@ const categories = [
     id: 'consulting',
     name: '상담/컨설팅',
     icon: '💼',
-    color: '#8B5CF6',
+    color: '#1E6DE8',
     samples: [
       { id: 'insurance', name: '보험 상담', desc: '생명보험, 손해보험 무료 상담', emoji: '🛡️' },
       { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗' },
@@ -38,7 +38,7 @@ const categories = [
     id: 'service',
     name: '서비스/대행',
     icon: '🛠️',
-    color: '#EC4899',
+    color: '#0052CC',
     samples: [
       { id: 'web-dev', name: '웹사이트 제작', desc: '홈페이지, 쇼핑몰, 랜딩페이지 제작', emoji: '🌐' },
       { id: 'design-service', name: '디자인 대행', desc: '로고, 명함, 상세페이지 제작', emoji: '✨' },
@@ -102,7 +102,7 @@ const successCases = [
     revenue: '월 수강신청 247건 확보',
     period: '런칭 2주 만에',
     image: '💻',
-    color: '#6366F1',
+    color: '#3182F6',
   },
   {
     id: 2,
@@ -112,7 +112,7 @@ const successCases = [
     revenue: '월 상담신청 89건 확보',
     period: '페이지 오픈 후',
     image: '🛡️',
-    color: '#8B5CF6',
+    color: '#1E6DE8',
   },
   {
     id: 3,
@@ -122,7 +122,7 @@ const successCases = [
     revenue: '월 프로젝트 문의 45건',
     period: '1개월 만에',
     image: '🎨',
-    color: '#EC4899',
+    color: '#0052CC',
   },
   {
     id: 4,
@@ -317,7 +317,7 @@ export default function HomePage() {
           .mobile-auth-buttons span { display: none !important; }
           .mobile-auth-buttons button { flex: 1 !important; padding: 16px !important; font-size: 16px !important; border-radius: 14px !important; }
           .stats-grid { flex-direction: column !important; gap: 20px !important; }
-          .pricing-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .pricing-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
           .pricing-card-featured { transform: none !important; }
           .pain-grid { grid-template-columns: 1fr !important; }
           .value-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
@@ -335,7 +335,7 @@ export default function HomePage() {
 
       {/* 상단 띠배너 */}
       <div style={{
-        background: 'linear-gradient(90deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
+        background: 'linear-gradient(90deg, #3182F6 0%, #1E6DE8 50%, #0052CC 100%)',
         padding: '10px 16px',
         textAlign: 'center',
       }}>
@@ -372,14 +372,14 @@ export default function HomePage() {
             ) : (
               <>
                 <a href="/login" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>로그인</a>
-                <a href="/signup" style={{ color: '#6366F1', fontSize: '14px', textDecoration: 'none', fontWeight: '600' }}>회원가입</a>
+                <a href="/signup" style={{ color: '#3182F6', fontSize: '14px', textDecoration: 'none', fontWeight: '600' }}>회원가입</a>
               </>
             )}
             <button
               onClick={() => handleCreateClick()}
               style={{
                 padding: '10px 20px',
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                background: '#3182F6',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '8px',
@@ -444,7 +444,7 @@ export default function HomePage() {
           }}>
             2줄만 입력하면<br/>
             <span style={{
-              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+              background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>
@@ -506,12 +506,12 @@ export default function HomePage() {
                 padding: '16px 40px',
                 fontSize: '16px',
                 fontWeight: '700',
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                background: '#3182F6',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)',
+                boxShadow: '0 8px 24px rgba(49, 130, 246, 0.4)',
               }}
             >
               지금 바로 만들기
@@ -628,7 +628,7 @@ export default function HomePage() {
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: '#6366F1',
+                  background: '#3182F6',
                   color: '#fff',
                   fontSize: '12px',
                   fontWeight: '700',
@@ -1043,7 +1043,7 @@ export default function HomePage() {
               padding: '14px 24px',
               fontSize: '14px',
               fontWeight: '600',
-              background: '#6366F1',
+              background: '#3182F6',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
@@ -1060,7 +1060,7 @@ export default function HomePage() {
 
       {/* 가격 */}
       <section id="pricing" style={{ padding: '60px 16px', background: '#fff' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <h2 className="section-title" style={{
               fontSize: '24px',
@@ -1068,36 +1068,36 @@ export default function HomePage() {
               color: '#191919',
               marginBottom: '8px',
             }}>
-              외주 100만원 vs 여기 9,900원
+              합리적인 가격으로 시작하세요
             </h2>
             <p style={{ fontSize: '14px', color: '#6B7280' }}>
-              7일 무료 체험 후 결정하세요
+              필요에 맞는 플랜을 선택하세요
             </p>
           </div>
 
           <div className="pricing-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '16px',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gap: '14px',
           }}>
-            {/* 무료 */}
+            {/* 단건 구매 */}
             <div style={{
               background: '#F9FAFB',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px',
               border: '2px solid #E5E7EB',
             }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>무료 체험</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>0원</div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>7일간 전체 기능</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '13px' }}>
-                {['AI 카피 생성', '모든 템플릿', 'DB 수집 폼', '워터마크 포함'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>단건 구매</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>99,000원</div>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>1개 페이지 (1회성)</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
+                {['AI 카피 생성', '모든 템플릿', 'DB 수집 폼', '워터마크 제거', '평생 이용'].map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
                     <span style={{ color: '#10B981' }}>✓</span>{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handleCreateClick()} style={{
+              <button onClick={() => router.push('/pricing')} style={{
                 width: '100%',
                 padding: '12px',
                 fontSize: '14px',
@@ -1108,30 +1108,30 @@ export default function HomePage() {
                 borderRadius: '8px',
                 cursor: 'pointer',
               }}>
-                무료 시작
+                구매하기
               </button>
             </div>
 
-            {/* 베이직 */}
+            {/* 월 1개 */}
             <div style={{
               background: '#fff',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px',
               border: '2px solid #E5E7EB',
             }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>베이직</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
-                9,900원<span style={{ fontSize: '13px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>스타터</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
+                19,900원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
               </div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>1개 페이지</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '13px' }}>
-                {['무료 전체 기능', '워터마크 제거', '커스텀 도메인', '카톡 알림'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>월 1개 페이지</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
+                {['단건 모든 기능', '매월 1개 생성', '카톡 알림', '이메일 알림', '대시보드'].map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
                     <span style={{ color: '#10B981' }}>✓</span>{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handleCreateClick()} style={{
+              <button onClick={() => router.push('/pricing')} style={{
                 width: '100%',
                 padding: '12px',
                 fontSize: '14px',
@@ -1146,11 +1146,11 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* 프로 */}
+            {/* 월 3개 - 인기 */}
             <div className="pricing-card-featured" style={{
-              background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+              background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px',
               color: '#fff',
               position: 'relative',
               transform: 'scale(1.02)',
@@ -1170,25 +1170,25 @@ export default function HomePage() {
               }}>
                 🔥 인기
               </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>프로 (3개월)</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', marginBottom: '4px' }}>
-                49,900원<span style={{ fontSize: '13px', fontWeight: '500', opacity: 0.8 }}>/3개월</span>
+              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>프로</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>
+                49,500원<span style={{ fontSize: '12px', fontWeight: '500', opacity: 0.8 }}>/월</span>
               </div>
-              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>월 16,633원 (25% 할인)</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '13px' }}>
-                {['베이직 전체', '3개 페이지', 'A/B 테스트', '분석 리포트', '우선 지원'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>월 3개 페이지 (17% 할인)</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
+                {['스타터 모든 기능', '매월 3개 생성', 'A/B 테스트', '분석 리포트', '우선 지원'].map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span>✓</span>{item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handleCreateClick()} style={{
+              <button onClick={() => router.push('/pricing')} style={{
                 width: '100%',
                 padding: '12px',
                 fontSize: '14px',
                 fontWeight: '600',
                 background: '#fff',
-                color: '#6366F1',
+                color: '#3182F6',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -1197,20 +1197,54 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* 비즈니스 */}
+            {/* 무제한 */}
             <div style={{
               background: '#fff',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px',
               border: '2px solid #E5E7EB',
             }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>비즈니스/제휴</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>별도 협의</div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>무제한 or 맞춤</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '13px' }}>
-                {['무제한 페이지', '화이트라벨', 'API 연동', '전담 매니저'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
-                    <span style={{ color: '#8B5CF6' }}>✓</span>{item}
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>무제한</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
+                99,000원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
+              </div>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>페이지 무제한</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
+                {['프로 모든 기능', '무제한 생성', '화이트라벨', 'API 연동', '전담 매니저'].map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
+                    <span style={{ color: '#1E6DE8' }}>✓</span>{item}
+                  </li>
+                ))}
+              </ul>
+              <button onClick={() => router.push('/pricing')} style={{
+                width: '100%',
+                padding: '12px',
+                fontSize: '14px',
+                fontWeight: '600',
+                background: '#191919',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}>
+                시작하기
+              </button>
+            </div>
+
+            {/* 대행사 문의 */}
+            <div style={{
+              background: 'linear-gradient(135deg, #1F2937 0%, #374151 100%)',
+              borderRadius: '16px',
+              padding: '20px',
+              color: '#fff',
+            }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>대행사/제휴</div>
+              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>별도 문의</div>
+              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>맞춤 견적 제공</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
+                {['대량 할인', '맞춤 기능 개발', '전용 서버', 'SLA 보장', '교육 지원'].map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ color: '#FBBF24' }}>✓</span>{item}
                   </li>
                 ))}
               </ul>
@@ -1219,13 +1253,13 @@ export default function HomePage() {
                 padding: '12px',
                 fontSize: '14px',
                 fontWeight: '600',
-                background: '#F3F4F6',
-                color: '#374151',
+                background: '#FBBF24',
+                color: '#191919',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
               }}>
-                💬 문의하기
+                💬 대행 문의
               </button>
             </div>
           </div>
@@ -1238,7 +1272,7 @@ export default function HomePage() {
             borderRadius: '8px',
           }}>
             <span style={{ fontSize: '13px', color: '#6B7280' }}>
-              🛡️ <strong>7일 환불 보장</strong> - 불만족시 전액 환불
+              🛡️ <strong>7일 환불 보장</strong> - 불만족시 전액 환불 | 💳 토스페이먼츠 안전결제
             </span>
           </div>
         </div>
@@ -1283,7 +1317,7 @@ export default function HomePage() {
       {/* 최종 CTA */}
       <section style={{
         padding: '60px 16px',
-        background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+        background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
         textAlign: 'center',
       }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -1310,7 +1344,7 @@ export default function HomePage() {
               fontSize: '16px',
               fontWeight: '700',
               background: '#fff',
-              color: '#6366F1',
+              color: '#3182F6',
               border: 'none',
               borderRadius: '12px',
               cursor: 'pointer',
@@ -1403,7 +1437,7 @@ export default function HomePage() {
         }}>
           {/* 챗봇 헤더 */}
           <div style={{
-            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+            background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
             padding: '16px 20px',
             display: 'flex',
             justifyContent: 'space-between',
@@ -1466,7 +1500,7 @@ export default function HomePage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    background: chatName ? '#6366F1' : '#E5E7EB',
+                    background: chatName ? '#3182F6' : '#E5E7EB',
                     color: chatName ? '#fff' : '#9CA3AF',
                     border: 'none',
                     borderRadius: '8px',
@@ -1513,7 +1547,7 @@ export default function HomePage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    background: chatCompany ? '#6366F1' : '#E5E7EB',
+                    background: chatCompany ? '#3182F6' : '#E5E7EB',
                     color: chatCompany ? '#fff' : '#9CA3AF',
                     border: 'none',
                     borderRadius: '8px',
@@ -1560,7 +1594,7 @@ export default function HomePage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    background: chatContact ? '#6366F1' : '#E5E7EB',
+                    background: chatContact ? '#3182F6' : '#E5E7EB',
                     color: chatContact ? '#fff' : '#9CA3AF',
                     border: 'none',
                     borderRadius: '8px',
@@ -1613,7 +1647,7 @@ export default function HomePage() {
           width: '60px',
           height: '60px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+          background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
           color: '#fff',
           border: 'none',
           boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
