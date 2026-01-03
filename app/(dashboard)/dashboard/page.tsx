@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface PageStats {
   id: string;
@@ -28,6 +28,15 @@ interface PlanInfo {
   pagesRemaining: number;
 }
 
+// 사용 가능한 플랜 목록
+const availablePlans = [
+  { id: 'free', name: '무료', pages: 1 },
+  { id: 'starter', name: '스타터', pages: 1 },
+  { id: 'pro', name: '프로', pages: 3 },
+  { id: 'unlimited', name: '무제한', pages: -1 },
+  { id: 'agency', name: '대행사', pages: -1 },
+];
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalPages: 0,
@@ -43,9 +52,24 @@ export default function DashboardPage() {
     pagesRemaining: 1,
   });
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showPlanDropdown, setShowPlanDropdown] = useState(false);
+  const [changingPlan, setChangingPlan] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowPlanDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchDashboardData = async () => {
@@ -64,10 +88,43 @@ export default function DashboardPage() {
       if (data.plan) {
         setPlan(data.plan);
       }
+      if (data.isAdmin !== undefined) {
+        setIsAdmin(data.isAdmin);
+      }
     } catch (error) {
       console.error('Dashboard fetch error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 관리자용 플랜 변경 함수
+  const handlePlanChange = async (newPlanId: string) => {
+    if (changingPlan) return;
+
+    try {
+      setChangingPlan(true);
+      const res = await fetch('/api/user/plan', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: newPlanId }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.error || '플랜 변경에 실패했습니다.');
+        return;
+      }
+
+      // 성공 시 대시보드 새로고침
+      await fetchDashboardData();
+      setShowPlanDropdown(false);
+      alert('플랜이 변경되었습니다.');
+    } catch (error) {
+      console.error('Plan change error:', error);
+      alert('플랜 변경 중 오류가 발생했습니다.');
+    } finally {
+      setChangingPlan(false);
     }
   };
 
@@ -93,7 +150,9 @@ export default function DashboardPage() {
         <div className="bg-white border border-gray-200 rounded-2xl px-6 py-4">
           <div className="flex items-center gap-4">
             <div>
-              <p className="text-sm text-[#4E5968]">현재 플랜</p>
+              <p className="text-sm text-[#4E5968]">
+                현재 플랜 {isAdmin && <span className="text-[#0064FF]">(관리자)</span>}
+              </p>
               <p className="text-lg font-bold text-[#191F28]">
                 {plan.name}
                 <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
@@ -106,15 +165,60 @@ export default function DashboardPage() {
                 </span>
               </p>
             </div>
-            {plan.id === 'free' && (
+
+            {/* 관리자: 플랜 변경 드롭다운 */}
+            {isAdmin ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowPlanDropdown(!showPlanDropdown)}
+                  className="text-sm bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  disabled={changingPlan}
+                >
+                  {changingPlan ? '변경 중...' : '플랜 변경'}
+                  <span className="text-xs">▼</span>
+                </button>
+
+                {showPlanDropdown && (
+                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[160px]">
+                    {availablePlans.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => handlePlanChange(p.id)}
+                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 first:rounded-t-xl last:rounded-b-xl transition-colors ${
+                          plan.id === p.id ? 'bg-[#E8F3FF] text-[#0064FF] font-medium' : 'text-[#191F28]'
+                        }`}
+                      >
+                        {p.name}
+                        <span className="text-xs text-[#4E5968] ml-2">
+                          ({p.pages === -1 ? '무제한' : `${p.pages}개`})
+                        </span>
+                        {plan.id === p.id && <span className="ml-2">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : plan.id === 'free' ? (
               <Link
                 href="/pricing"
                 className="text-sm bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 업그레이드
               </Link>
-            )}
+            ) : null}
           </div>
+
+          {/* 관리자 바로가기 */}
+          {isAdmin && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <Link
+                href="/admin"
+                className="text-sm text-[#0064FF] hover:underline flex items-center gap-2"
+              >
+                👑 관리자 대시보드로 이동 →
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
