@@ -91,6 +91,7 @@ export async function GET(
         email: user.email,
         name: user.name,
         role: user.role,
+        plan: user.plan || 'free',
         createdAt: user.created_at,
         lastLoginAt: user.last_login_at,
       },
@@ -116,7 +117,7 @@ export async function GET(
   }
 }
 
-// 관리자용 - 사용자 역할 변경
+// 관리자용 - 사용자 역할/플랜 변경
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -130,10 +131,22 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { role } = body;
+    const { role, plan } = body;
 
-    if (!role || !['user', 'admin'].includes(role)) {
+    // role 또는 plan 중 하나는 있어야 함
+    if (!role && !plan) {
+      return NextResponse.json({ error: 'role or plan required' }, { status: 400 });
+    }
+
+    // role 유효성 검사
+    if (role && !['user', 'admin'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    }
+
+    // plan 유효성 검사
+    const validPlans = ['free', 'single', 'starter', 'pro', 'unlimited', 'agency'];
+    if (plan && !validPlans.includes(plan)) {
+      return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
     const supabase = createServerClient() as any;
@@ -149,15 +162,20 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
-    // 자기 자신의 역할은 변경 불가
-    if (currentUser.id === userId) {
+    // 자기 자신의 역할은 변경 불가 (플랜은 가능)
+    if (role && currentUser.id === userId) {
       return NextResponse.json({ error: 'Cannot change own role' }, { status: 400 });
     }
 
-    // 역할 업데이트
+    // 업데이트할 필드 구성
+    const updateData: { role?: string; plan?: string } = {};
+    if (role) updateData.role = role;
+    if (plan) updateData.plan = plan;
+
+    // 업데이트
     const { data: updated, error } = await supabase
       .from('users')
-      .update({ role })
+      .update(updateData)
       .eq('id', userId)
       .select()
       .single();

@@ -28,7 +28,7 @@ export async function GET() {
     // 전체 사용자 목록 조회
     const { data: users, error: usersError } = await supabase
       .from('users')
-      .select('id, email, name, role, created_at, last_login_at')
+      .select('id, email, name, role, plan, created_at, last_login_at')
       .order('created_at', { ascending: false });
 
     if (usersError) {
@@ -100,6 +100,7 @@ export async function GET() {
         email: user.email,
         name: user.name,
         role: user.role,
+        plan: user.plan || 'free',
         createdAt: user.created_at,
         lastLoginAt: user.last_login_at,
         ...stats,

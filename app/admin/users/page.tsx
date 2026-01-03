@@ -8,6 +8,7 @@ interface UserStats {
   email: string;
   name: string | null;
   role: 'user' | 'admin';
+  plan: string;
   createdAt: string;
   lastLoginAt: string | null;
   totalPages: number;
@@ -17,6 +18,15 @@ interface UserStats {
   newSubmissions: number;
   conversionRate: number;
 }
+
+const PLANS: Record<string, { name: string; color: string }> = {
+  free: { name: '무료', color: 'bg-gray-100 text-gray-600' },
+  single: { name: '단건', color: 'bg-blue-100 text-blue-700' },
+  starter: { name: '스타터', color: 'bg-green-100 text-green-700' },
+  pro: { name: '프로', color: 'bg-[#E8F3FF] text-[#0064FF]' },
+  unlimited: { name: '무제한', color: 'bg-purple-100 text-purple-700' },
+  agency: { name: '대행사', color: 'bg-yellow-100 text-yellow-700' },
+};
 
 interface AdminStats {
   totalUsers: number;
@@ -153,9 +163,10 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
           <div className="col-span-3">사용자</div>
           <div className="col-span-1 text-center">역할</div>
+          <div className="col-span-1 text-center">플랜</div>
           <div className="col-span-2 text-center">페이지</div>
           <div className="col-span-2 text-center">신청</div>
-          <div className="col-span-2 text-center">조회수</div>
+          <div className="col-span-1 text-center">조회수</div>
           <div className="col-span-2 text-center">가입일</div>
         </div>
 
@@ -220,6 +231,8 @@ function UserRow({ user }: { user: UserStats }) {
     });
   };
 
+  const planInfo = PLANS[user.plan] || PLANS.free;
+
   return (
     <Link
       href={`/admin/users/${user.id}`}
@@ -244,6 +257,13 @@ function UserRow({ user }: { user: UserStats }) {
         )}
       </div>
 
+      {/* 플랜 */}
+      <div className="col-span-1 text-center">
+        <span className={`text-xs px-2 py-1 rounded-full ${planInfo.color}`}>
+          {planInfo.name}
+        </span>
+      </div>
+
       {/* 페이지 수 */}
       <div className="col-span-2 text-center">
         <p className="font-medium text-[#191F28]">{user.totalPages}개</p>
@@ -254,14 +274,13 @@ function UserRow({ user }: { user: UserStats }) {
       <div className="col-span-2 text-center">
         <p className="font-medium text-[#191F28]">{user.totalSubmissions}건</p>
         {user.newSubmissions > 0 && (
-          <p className="text-xs text-red-500">새 신청 {user.newSubmissions}건</p>
+          <p className="text-xs text-red-500">새 {user.newSubmissions}건</p>
         )}
       </div>
 
       {/* 조회수 */}
-      <div className="col-span-2 text-center">
+      <div className="col-span-1 text-center">
         <p className="font-medium text-[#191F28]">{user.totalViews.toLocaleString()}</p>
-        <p className="text-xs text-[#4E5968]">전환율 {user.conversionRate}%</p>
       </div>
 
       {/* 가입일 */}

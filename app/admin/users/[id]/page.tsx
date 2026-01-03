@@ -9,9 +9,19 @@ interface UserDetail {
   email: string;
   name: string | null;
   role: 'user' | 'admin';
+  plan: string;
   createdAt: string;
   lastLoginAt: string | null;
 }
+
+const PLANS = [
+  { id: 'free', name: '무료', color: 'bg-gray-100 text-gray-600' },
+  { id: 'single', name: '단건 구매', color: 'bg-blue-100 text-blue-700' },
+  { id: 'starter', name: '스타터', color: 'bg-green-100 text-green-700' },
+  { id: 'pro', name: '프로', color: 'bg-[#E8F3FF] text-[#0064FF]' },
+  { id: 'unlimited', name: '무제한', color: 'bg-purple-100 text-purple-700' },
+  { id: 'agency', name: '대행사', color: 'bg-yellow-100 text-yellow-700' },
+] as const;
 
 interface PageStats {
   id: string;
@@ -41,6 +51,7 @@ export default function AdminUserDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingRole, setUpdatingRole] = useState(false);
+  const [updatingPlan, setUpdatingPlan] = useState(false);
 
   useEffect(() => {
     fetchUserDetail();
@@ -102,6 +113,37 @@ export default function AdminUserDetailPage() {
       alert('서버 오류가 발생했습니다.');
     } finally {
       setUpdatingRole(false);
+    }
+  };
+
+  const handlePlanChange = async (newPlan: string) => {
+    if (!user || user.plan === newPlan) return;
+
+    const planName = PLANS.find(p => p.id === newPlan)?.name || newPlan;
+    const confirmed = confirm(`이 사용자의 플랜을 "${planName}"(으)로 변경하시겠습니까?`);
+
+    if (!confirmed) return;
+
+    try {
+      setUpdatingPlan(true);
+      const res = await fetch(`/api/admin/users/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: newPlan }),
+      });
+
+      if (!res.ok) {
+        alert('플랜 변경에 실패했습니다.');
+        return;
+      }
+
+      setUser({ ...user, plan: newPlan });
+      alert(`플랜이 "${planName}"(으)로 변경되었습니다.`);
+    } catch (err) {
+      console.error(err);
+      alert('서버 오류가 발생했습니다.');
+    } finally {
+      setUpdatingPlan(false);
     }
   };
 
@@ -169,6 +211,11 @@ export default function AdminUserDetailPage() {
                   일반 사용자
                 </span>
               )}
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                PLANS.find(p => p.id === user.plan)?.color || 'bg-gray-100 text-gray-600'
+              }`}>
+                {PLANS.find(p => p.id === user.plan)?.name || '무료'}
+              </span>
             </div>
             <p className="text-[#4E5968] mt-1">{user.email}</p>
             <p className="text-sm text-[#8B95A1] mt-1">
@@ -196,6 +243,31 @@ export default function AdminUserDetailPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 플랜 변경 섹션 */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <h2 className="text-lg font-bold text-[#191F28] mb-4">플랜 관리</h2>
+        <div className="flex flex-wrap gap-2">
+          {PLANS.map((plan) => (
+            <button
+              key={plan.id}
+              onClick={() => handlePlanChange(plan.id)}
+              disabled={updatingPlan || user.plan === plan.id}
+              className={`px-4 py-2 text-sm rounded-lg transition-all ${
+                user.plan === plan.id
+                  ? `${plan.color} ring-2 ring-offset-2 ring-[#0064FF]`
+                  : 'bg-gray-100 text-[#4E5968] hover:bg-gray-200'
+              } disabled:opacity-50`}
+            >
+              {plan.name}
+              {user.plan === plan.id && ' ✓'}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-[#8B95A1] mt-3">
+          * 플랜을 변경하면 해당 사용자의 기능 제한이 즉시 적용됩니다.
+        </p>
       </div>
 
       {/* 통계 카드 */}
