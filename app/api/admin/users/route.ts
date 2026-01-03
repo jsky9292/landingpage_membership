@@ -16,19 +16,46 @@ export async function GET() {
     // 세션에서 role 확인 (데모 계정용)
     const sessionRole = (session.user as any).role;
 
-    const supabase = createServerClient() as any;
-
-    // 현재 사용자가 관리자인지 확인 (세션 또는 DB에서)
+    // 현재 사용자가 관리자인지 확인 (세션에서 먼저 체크)
     let isAdmin = sessionRole === 'admin';
 
-    if (!isAdmin) {
-      const { data: currentUser } = await supabase
-        .from('users')
-        .select('id, role')
-        .eq('email', session.user.email)
-        .single();
+    // Supabase 연결 시도
+    let supabase: any;
+    try {
+      supabase = createServerClient();
+    } catch (e) {
+      console.error('Supabase client error:', e);
+      // DB 연결 실패 시 데모 관리자면 빈 데이터 반환
+      if (isAdmin) {
+        return NextResponse.json({
+          stats: {
+            totalUsers: 0,
+            totalPages: 0,
+            totalSubmissions: 0,
+            newSubmissions: 0,
+            totalViews: 0,
+            conversionRate: 0,
+          },
+          users: [],
+          message: 'Database not configured',
+        });
+      }
+      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
+    }
 
-      isAdmin = currentUser?.role === 'admin';
+    // DB에서 관리자 확인 (세션에서 확인 안 된 경우만)
+    if (!isAdmin) {
+      try {
+        const { data: currentUser } = await supabase
+          .from('users')
+          .select('id, role')
+          .eq('email', session.user.email)
+          .single();
+
+        isAdmin = currentUser?.role === 'admin';
+      } catch (e) {
+        console.error('Admin check error:', e);
+      }
     }
 
     if (!isAdmin) {
@@ -43,7 +70,19 @@ export async function GET() {
 
     if (usersError) {
       console.error('Users fetch error:', usersError);
-      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+      // DB 오류 시 빈 데이터 반환 (관리자인 경우)
+      return NextResponse.json({
+        stats: {
+          totalUsers: 0,
+          totalPages: 0,
+          totalSubmissions: 0,
+          newSubmissions: 0,
+          totalViews: 0,
+          conversionRate: 0,
+        },
+        users: [],
+        message: 'Database query failed: ' + usersError.message,
+      });
     }
 
     // 각 사용자별 페이지 수와 신청 수 조회
