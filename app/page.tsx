@@ -361,9 +361,14 @@ export default function HomePage() {
           <nav className="nav-links" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <a href="/samples" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>샘플</a>
             <a href="#cases" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>성공사례</a>
-            <a href="#pricing" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>가격</a>
-            {status === 'authenticated' && (
+            <a href="/pricing" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>가격</a>
+            {status === 'authenticated' ? (
               <a href="/dashboard" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>내 페이지</a>
+            ) : (
+              <>
+                <a href="/login" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>로그인</a>
+                <a href="/signup" style={{ color: '#6366F1', fontSize: '14px', textDecoration: 'none', fontWeight: '600' }}>회원가입</a>
+              </>
             )}
             <button
               onClick={() => handleCreateClick()}
