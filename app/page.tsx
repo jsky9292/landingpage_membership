@@ -313,9 +313,6 @@ export default function HomePage() {
           .hero-button { width: 100% !important; padding: 18px 24px !important; font-size: 17px !important; border-radius: 16px !important; }
           .nav-links { display: none !important; }
           .mobile-menu { display: block !important; }
-          .mobile-auth-buttons { flex-direction: column !important; gap: 12px !important; width: 100% !important; }
-          .mobile-auth-buttons span { display: none !important; }
-          .mobile-auth-buttons button { flex: 1 !important; padding: 16px !important; font-size: 16px !important; border-radius: 14px !important; }
           .stats-grid { flex-direction: column !important; gap: 20px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
           .pricing-card-featured { transform: none !important; }
@@ -323,6 +320,9 @@ export default function HomePage() {
           .value-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
           .value-grid > div { padding: 14px 10px !important; }
           .footer-grid { grid-template-columns: 1fr !important; text-align: center !important; }
+          .newsletter-form { flex-direction: column !important; }
+          .newsletter-form input { width: 100% !important; }
+          .newsletter-form button { width: 100% !important; white-space: nowrap !important; }
           .template-grid { grid-template-columns: 1fr !important; }
           .blog-grid { grid-template-columns: 1fr !important; }
           .category-tabs { overflow-x: auto !important; justify-content: flex-start !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch !important; }
@@ -533,55 +533,6 @@ export default function HomePage() {
               샘플 보기
             </button>
           </div>
-
-          {/* 로그인/회원가입 버튼 - 토스 스타일 */}
-          {status !== 'authenticated' && (
-            <div
-              className="mobile-auth-buttons"
-              style={{
-                display: 'flex',
-                gap: '12px',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: '20px',
-                marginTop: '8px',
-              }}
-            >
-              <span style={{ fontSize: '15px', color: '#6B7280' }}>
-                이미 계정이 있으신가요?
-              </span>
-              <button
-                onClick={() => router.push('/login')}
-                style={{
-                  padding: '14px 28px',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  background: '#F3F4F6',
-                  color: '#374151',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                }}
-              >
-                로그인
-              </button>
-              <button
-                onClick={() => router.push('/signup')}
-                style={{
-                  padding: '14px 28px',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  background: '#191919',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                }}
-              >
-                무료 회원가입
-              </button>
-            </div>
-          )}
 
           <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
             카드 등록 없이 7일 무료 • 30초면 첫 페이지 완성
@@ -1023,7 +974,7 @@ export default function HomePage() {
           <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
             매주 화요일, 전환율 높이는 팁을 보내드려요
           </p>
-          <form onSubmit={handleNewsletterSubmit} style={{ display: 'flex', gap: '8px' }}>
+          <form onSubmit={handleNewsletterSubmit} className="newsletter-form" style={{ display: 'flex', gap: '8px' }}>
             <input
               type="email"
               value={email}
@@ -1048,8 +999,9 @@ export default function HomePage() {
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}>
-              구독
+              구독하기
             </button>
           </form>
           <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '8px' }}>
@@ -1279,7 +1231,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section style={{ padding: '60px 16px', background: '#F9FAFB' }}>
+      <section id="faq" style={{ padding: '60px 16px', background: '#F9FAFB' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <h2 className="section-title" style={{
             fontSize: '24px',
@@ -1380,33 +1332,16 @@ export default function HomePage() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>리소스</div>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>고객지원</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {['블로그', '가이드', '도움말'].map((item, i) => (
-                <a key={i} href="#" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{item}</a>
-              ))}
+              <a href="#faq" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>자주 묻는 질문</a>
+              <a href="#pricing" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>요금 안내</a>
             </div>
           </div>
           <div>
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>문의</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>support@landingmaker.kr</span>
-              <button
-                onClick={() => setIsChatOpen(true)}
-                style={{
-                  padding: '8px 16px',
-                  background: '#FEE500',
-                  color: '#191919',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  width: 'fit-content',
-                }}
-              >
-                💬 카톡 문의
-              </button>
             </div>
           </div>
         </div>
