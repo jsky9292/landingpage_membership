@@ -80,14 +80,14 @@ function LoginForm() {
             lineHeight: 1.4,
             marginBottom: '12px',
           }}>
-            다시 오셨군요!
+            로그인
           </h1>
           <p style={{
             fontSize: '16px',
             color: '#6B7280',
             lineHeight: 1.6,
           }}>
-            로그인하고 랜딩페이지를 관리하세요
+            계정에 로그인하고 랜딩페이지를 관리하세요
           </p>
         </div>
 

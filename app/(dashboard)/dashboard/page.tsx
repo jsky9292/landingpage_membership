@@ -21,6 +21,13 @@ interface DashboardStats {
   conversionRate: number;
 }
 
+interface PlanInfo {
+  id: string;
+  name: string;
+  pageLimit: number;
+  pagesRemaining: number;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalPages: 0,
@@ -29,6 +36,12 @@ export default function DashboardPage() {
     conversionRate: 0,
   });
   const [pages, setPages] = useState<PageStats[]>([]);
+  const [plan, setPlan] = useState<PlanInfo>({
+    id: 'free',
+    name: '무료',
+    pageLimit: 1,
+    pagesRemaining: 1,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +61,9 @@ export default function DashboardPage() {
       const data = await res.json();
       setStats(data.stats);
       setPages(data.pages || []);
+      if (data.plan) {
+        setPlan(data.plan);
+      }
     } catch (error) {
       console.error('Dashboard fetch error:', error);
     } finally {
@@ -68,10 +84,38 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* 환영 메시지 */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#191F28]">내 대시보드 📊</h1>
-        <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요.</p>
+      {/* 환영 메시지 + 플랜 정보 */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#191F28]">내 대시보드 📊</h1>
+          <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요.</p>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-2xl px-6 py-4">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-sm text-[#4E5968]">현재 플랜</p>
+              <p className="text-lg font-bold text-[#191F28]">
+                {plan.name}
+                <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                  plan.id === 'free' ? 'bg-gray-100 text-gray-600' :
+                  plan.id === 'pro' ? 'bg-[#E8F3FF] text-[#0064FF]' :
+                  plan.id === 'unlimited' ? 'bg-purple-100 text-purple-600' :
+                  'bg-green-100 text-green-600'
+                }`}>
+                  {plan.pageLimit === -1 ? '무제한' : `${stats.totalPages}/${plan.pageLimit}개`}
+                </span>
+              </p>
+            </div>
+            {plan.id === 'free' && (
+              <Link
+                href="/pricing"
+                className="text-sm bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                업그레이드
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 통계 카드 */}

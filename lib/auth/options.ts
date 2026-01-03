@@ -74,6 +74,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.provider = account?.provider;
+        token.role = (user as any).role || 'user';
       }
       return token;
     },
@@ -82,11 +83,22 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).provider = token.provider;
+        (session.user as any).role = token.role || 'user';
       }
       return session;
     },
     async signIn({ user, account, profile }) {
       try {
+        // 데모 계정은 Supabase 저장 건너뛰기
+        if (account?.provider === 'demo-login') {
+          console.log('[Auth] Demo user signed in:', {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          });
+          return true;
+        }
+
         // Supabase에 사용자 정보 저장/업데이트
         if (user.email) {
           const { error } = await supabaseAdmin

@@ -16,7 +16,7 @@ export async function GET() {
     // 현재 사용자 조회
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('id, role')
+      .select('id, role, plan')
       .eq('email', session.user.email)
       .single();
 
@@ -25,6 +25,18 @@ export async function GET() {
     }
 
     const isAdmin = (user as any).role === 'admin';
+    const userPlan = (user as any).plan || 'free';
+
+    // 플랜별 페이지 제한
+    const planLimits: Record<string, { pages: number; name: string }> = {
+      free: { pages: 1, name: '무료' },
+      single: { pages: 1, name: '단건 구매' },
+      starter: { pages: 1, name: '스타터' },
+      pro: { pages: 3, name: '프로' },
+      unlimited: { pages: -1, name: '무제한' },
+      agency: { pages: -1, name: '대행사' },
+    };
+    const planInfo = planLimits[userPlan] || planLimits.free;
 
     // 페이지 목록 조회 (관리자는 전체, 일반 유저는 본인 것만)
     let pagesQuery = supabase
@@ -100,6 +112,12 @@ export async function GET() {
       },
       pages: pagesWithStats,
       isAdmin,
+      plan: {
+        id: userPlan,
+        name: planInfo.name,
+        pageLimit: planInfo.pages,
+        pagesRemaining: planInfo.pages === -1 ? -1 : Math.max(0, planInfo.pages - totalPages),
+      },
     });
   } catch (error) {
     console.error('Dashboard API error:', error);
