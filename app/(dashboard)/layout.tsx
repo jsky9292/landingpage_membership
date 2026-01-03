@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 
 const navigation = [
@@ -53,14 +54,20 @@ export default function DashboardLayout({
               })}
             </nav>
 
-            {/* 새 페이지 만들기 버튼 */}
-            <div className="flex items-center">
+            {/* 새 페이지 만들기 버튼 + 로그아웃 */}
+            <div className="flex items-center gap-3">
               <Link
                 href="/"
                 className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 + 새 페이지 만들기
               </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="hidden md:block text-[#4E5968] hover:text-[#191F28] text-sm font-medium transition-colors"
+              >
+                로그아웃
+              </button>
             </div>
           </div>
         </div>
@@ -87,6 +94,13 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="flex flex-col items-center px-4 py-2 text-xs font-medium text-[#4E5968] transition-colors"
+            >
+              <span className="text-xl mb-1">🚪</span>
+              로그아웃
+            </button>
           </div>
         </nav>
       </header>

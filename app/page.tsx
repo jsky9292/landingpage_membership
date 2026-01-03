@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 // 카테고리별 샘플들
 const categories = [
@@ -369,7 +369,15 @@ export default function HomePage() {
             <a href="#cases" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>성공사례</a>
             <a href="/pricing" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>가격</a>
             {status === 'authenticated' ? (
-              <a href="/dashboard" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>내 페이지</a>
+              <>
+                <a href="/dashboard" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>내 페이지</a>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  style={{ color: '#666', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  로그아웃
+                </button>
+              </>
             ) : (
               <>
                 <a href="/login" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>로그인</a>
@@ -395,15 +403,30 @@ export default function HomePage() {
           {/* 모바일 네비게이션 */}
           <div className="mobile-nav" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
             {status === 'authenticated' ? (
-              <a href="/dashboard" style={{
-                padding: '8px 14px',
-                background: '#F3F4F6',
-                color: '#374151',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '600',
-                textDecoration: 'none',
-              }}>내 페이지</a>
+              <>
+                <a href="/dashboard" style={{
+                  padding: '8px 14px',
+                  background: '#F3F4F6',
+                  color: '#374151',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                }}>내 페이지</a>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  style={{
+                    padding: '8px 14px',
+                    background: '#EF4444',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >로그아웃</button>
+              </>
             ) : (
               <>
                 <a href="/login" style={{

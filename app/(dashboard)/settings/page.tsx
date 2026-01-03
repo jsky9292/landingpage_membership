@@ -696,15 +696,15 @@ export default function SettingsPage() {
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlanCard
-            name="Starter"
-            price="29,000"
-            features={['페이지 3개', '알림톡 무제한', '이메일 알림', '통계 대시보드']}
+            name="스타터"
+            price="19,900"
+            features={['월 1개 페이지', '카톡 알림', '이메일 알림', '대시보드']}
             recommended
           />
           <PlanCard
-            name="Pro"
-            price="59,000"
-            features={['페이지 10개', '알림톡 무제한', '프리미엄 테마', '우선 지원']}
+            name="프로"
+            price="49,500"
+            features={['월 3개 페이지', 'A/B 테스트', '분석 리포트', '우선 지원']}
           />
         </div>
       </section>
