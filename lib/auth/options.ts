@@ -2,6 +2,7 @@ import { AuthOptions } from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 데모 계정 (개발/테스트용)
 const DEMO_USERS = [
@@ -85,29 +86,41 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      // TODO: Supabase에 사용자 정보 저장/업데이트
-      // const { data, error } = await supabaseAdmin
-      //   .from('profiles')
-      //   .upsert({
-      //     id: user.id,
-      //     email: user.email,
-      //     name: user.name,
-      //     image: user.image,
-      //     provider: account?.provider,
-      //     kakao_id: account?.provider === 'kakao' ? account.providerAccountId : null,
-      //     google_id: account?.provider === 'google' ? account.providerAccountId : null,
-      //   })
-      //   .select()
-      //   .single();
+      try {
+        // Supabase에 사용자 정보 저장/업데이트
+        if (user.email) {
+          const { error } = await supabaseAdmin
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              email: user.email,
+              name: user.name || null,
+              avatar_url: user.image || null,
+              kakao_linked: account?.provider === 'kakao',
+              kakao_id: account?.provider === 'kakao' ? account.providerAccountId : null,
+              plan: 'free', // 신규 가입 시 무료 플랜
+            }, {
+              onConflict: 'email',
+              ignoreDuplicates: false,
+            });
 
-      console.log('[Auth] User signed in:', {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        provider: account?.provider,
-      });
+          if (error) {
+            console.error('[Auth] Error saving user to Supabase:', error);
+          }
+        }
 
-      return true;
+        console.log('[Auth] User signed in:', {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          provider: account?.provider,
+        });
+
+        return true;
+      } catch (error) {
+        console.error('[Auth] Sign in error:', error);
+        return true; // 에러가 발생해도 로그인은 허용
+      }
     },
   },
   session: {

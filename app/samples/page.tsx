@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { samplePages, categoryToTopic } from '@/data/samples';
 
 // 카테고리 필터
@@ -19,6 +20,7 @@ const categories = [
 
 export default function SamplesPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [hoveredSample, setHoveredSample] = useState<string | null>(null);
 
@@ -26,10 +28,18 @@ export default function SamplesPage() {
     ? samplePages
     : samplePages.filter(s => s.category === selectedCategory);
 
-  // 샘플로 만들기 클릭 - 샘플 ID를 URL 파라미터로 전달
+  // 샘플로 만들기 클릭 - 로그인 확인 후 샘플 ID를 URL 파라미터로 전달
   const handleUseSample = (sample: typeof samplePages[0]) => {
     const topic = categoryToTopic[sample.category] || 'free';
-    router.push(`/create/${topic}?sample=${sample.id}`);
+    const targetUrl = `/create/${topic}?sample=${sample.id}`;
+
+    if (!session) {
+      // 로그인 안 됨 - 로그인 페이지로 이동 (콜백 URL 포함)
+      router.push(`/login?callbackUrl=${encodeURIComponent(targetUrl)}`);
+      return;
+    }
+
+    router.push(targetUrl);
   };
 
   return (
