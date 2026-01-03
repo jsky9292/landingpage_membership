@@ -52,7 +52,7 @@ export default function SamplesPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <a href="/" style={{ fontSize: '20px', fontWeight: '800', color: '#191919', textDecoration: 'none' }}>
-              랜딩메이커 <span style={{ fontSize: '10px', color: '#6366F1', marginLeft: '4px' }}>v2.1</span>
+              랜딩메이커 <span style={{ fontSize: '10px', color: '#6366F1', marginLeft: '4px' }}>v2.2</span>
             </a>
             <span style={{ color: '#E5E7EB' }}>|</span>
             <span style={{ fontSize: '16px', fontWeight: '600', color: '#6B7280' }}>샘플 갤러리</span>
@@ -236,73 +236,68 @@ export default function SamplesPage() {
 
                 {/* 정보 영역 */}
                 <div style={{ padding: '24px' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <span style={{
+                      fontSize: '12px',
+                      color: sample.themeColor,
+                      fontWeight: '600',
+                    }}>
+                      {sample.categoryName}
+                    </span>
+                    <h3 style={{
+                      fontSize: '18px',
+                      fontWeight: '700',
+                      color: '#191919',
+                      margin: '4px 0 8px',
+                    }}>
+                      {sample.name}
+                    </h3>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#6B7280',
+                      margin: 0,
+                    }}>
+                      {sample.description}
+                    </p>
+                  </div>
                   <div style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '12px',
+                    gap: '8px',
                   }}>
-                    <div>
-                      <span style={{
-                        fontSize: '12px',
-                        color: sample.themeColor,
+                    <button
+                      onClick={() => router.push(`/samples/${sample.id}`)}
+                      style={{
+                        padding: '10px 20px',
+                        background: '#F3F4F6',
+                        color: '#374151',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '13px',
                         fontWeight: '600',
-                      }}>
-                        {sample.categoryName}
-                      </span>
-                      <h3 style={{
-                        fontSize: '18px',
-                        fontWeight: '700',
-                        color: '#191919',
-                        margin: '4px 0 0',
-                      }}>
-                        {sample.name}
-                      </h3>
-                    </div>
-                    <div style={{
-                      display: 'flex',
-                      gap: '8px',
-                    }}>
-                      <button
-                        onClick={() => router.push(`/samples/${sample.id}`)}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#F3F4F6',
-                          color: '#374151',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        미리보기
-                      </button>
-                      <button
-                        onClick={() => handleUseSample(sample)}
-                        style={{
-                          padding: '10px 20px',
-                          background: `linear-gradient(135deg, ${sample.themeColor} 0%, ${adjustColor(sample.themeColor, -20)} 100%)`,
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          boxShadow: `0 4px 12px ${sample.themeColor}40`,
-                        }}
-                      >
-                        ✨ 이 샘플로 시작하기
-                      </button>
-                    </div>
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      미리보기
+                    </button>
+                    <button
+                      onClick={() => handleUseSample(sample)}
+                      style={{
+                        padding: '10px 20px',
+                        background: `linear-gradient(135deg, ${sample.themeColor} 0%, ${adjustColor(sample.themeColor, -20)} 100%)`,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        boxShadow: `0 4px 12px ${sample.themeColor}40`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      이 샘플로 시작
+                    </button>
                   </div>
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#6B7280',
-                    margin: 0,
-                  }}>
-                    {sample.description}
-                  </p>
                 </div>
               </div>
             ))}
