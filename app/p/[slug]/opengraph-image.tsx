@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
+import { createServerClient } from '@/lib/supabase/client';
 
 export const alt = '랜딩페이지';
 export const size = {
@@ -8,9 +9,39 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image() {
-  const title = '랜딩페이지';
-  const subtitle = '지금 바로 확인해보세요';
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function Image({ params }: Props) {
+  const { slug } = await params;
+
+  let title = '랜딩페이지';
+  let subtitle = '지금 바로 확인해보세요';
+
+  try {
+    const supabase = createServerClient() as any;
+    const { data: page } = await supabase
+      .from('landing_pages')
+      .select('title, sections')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single();
+
+    if (page) {
+      title = page.title || '랜딩페이지';
+
+      // hero 섹션에서 subtext 가져오기
+      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
+      if (heroSection?.content?.subtext) {
+        subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 100);
+      } else if (heroSection?.content?.headline) {
+        subtitle = heroSection.content.headline.replace(/\\n/g, ' ').slice(0, 100);
+      }
+    }
+  } catch (e) {
+    console.error('OG Image generation error:', e);
+  }
 
   return new ImageResponse(
     (
