@@ -1763,6 +1763,91 @@ export default function CreatePage() {
           .create-header { padding: 0 16px !important; }
         }
       `}</style>
+      {/* AI 생성 중 로딩 모달 */}
+      {isLoading && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 200,
+          padding: '20px',
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '24px',
+            padding: '48px 40px',
+            maxWidth: '420px',
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 24px',
+              position: 'relative',
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                border: '4px solid #E5E8EB',
+                borderTopColor: '#0064FF',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }} />
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontSize: '32px',
+              }}>
+                ✨
+              </div>
+            </div>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#191F28',
+              marginBottom: '12px',
+            }}>
+              AI가 열심히 만들고 있어요
+            </h2>
+            <p style={{
+              fontSize: '16px',
+              color: '#6B7280',
+              lineHeight: 1.6,
+              marginBottom: '24px',
+            }}>
+              맞춤형 랜딩페이지를 생성 중입니다.<br/>
+              잠시만 기다려주세요... (약 10~20초)
+            </p>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '8px',
+            }}>
+              <span style={{ width: '8px', height: '8px', background: '#0064FF', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }} />
+              <span style={{ width: '8px', height: '8px', background: '#0064FF', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }} />
+              <span style={{ width: '8px', height: '8px', background: '#0064FF', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes bounce {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1); }
+        }
+      `}</style>
+
       {/* 사용량 제한 모달 */}
       {showLimitModal && (
         <div style={{

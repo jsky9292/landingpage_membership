@@ -25,61 +25,80 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServerClient() as any;
+    const userEmail = session.user.email;
 
-    console.log('=== PAGE CREATE DEBUG ===');
-    console.log('Email:', session.user.email);
-    console.log('Title:', title);
-    console.log('Slug:', slug);
-
-    // 현재 사용자 조회
-    let { data: user, error: userError } = await supabase
-      .from('users')
+    // 1. profiles 테이블에서 사용자 조회 (auth에서 사용)
+    let { data: profile } = await supabase
+      .from('profiles')
       .select('id')
-      .eq('email', session.user.email)
+      .eq('email', userEmail)
       .single();
 
-    console.log('User lookup result:', user, 'Error:', userError);
-
-    // 사용자가 없으면 자동 생성
-    if (!user) {
-      console.log('User not found, creating new user...');
-      const userId = crypto.randomUUID();
-      const { data: newUser, error: createUserError } = await supabase
+    // 2. profiles에 없으면 users 테이블에서 조회
+    if (!profile) {
+      const { data: user } = await supabase
         .from('users')
+        .select('id')
+        .eq('email', userEmail)
+        .single();
+
+      if (user) {
+        profile = user;
+      }
+    }
+
+    // 3. 둘 다 없으면 profiles에 생성 시도
+    if (!profile) {
+      const userId = crypto.randomUUID();
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
         .insert({
           id: userId,
-          email: session.user.email,
+          email: userEmail,
           name: session.user.name || '',
           avatar_url: session.user.image || null,
-          role: 'user',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          plan: 'free',
         })
         .select('id')
         .single();
 
-      console.log('User create result:', newUser, 'Error:', createUserError);
+      if (createError) {
+        // profiles 실패하면 users에 생성 시도
+        const { data: newUser, error: userCreateError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            email: userEmail,
+            name: session.user.name || '',
+            avatar_url: session.user.image || null,
+            role: 'user',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select('id')
+          .single();
 
-      if (createUserError || !newUser) {
-        console.error('User create error:', JSON.stringify(createUserError));
-        return NextResponse.json({
-          error: 'Failed to create user',
-          details: JSON.stringify(createUserError) || 'Unknown error',
-          code: createUserError?.code,
-          hint: createUserError?.hint
-        }, { status: 500 });
+        if (userCreateError || !newUser) {
+          console.error('User create error:', userCreateError);
+          return NextResponse.json({
+            error: 'Failed to create user',
+            details: JSON.stringify(userCreateError),
+          }, { status: 500 });
+        }
+        profile = newUser;
+      } else {
+        profile = newProfile;
       }
-      user = newUser;
     }
 
-    // 고유 슬러그 생성 (전달받은 것 또는 새로 생성)
+    // 고유 슬러그 생성
     const pageSlug = slug || `page-${Date.now().toString(36)}`;
 
     // 페이지 생성
-    const { data: newPage, error: createError } = await supabase
+    const { data: newPage, error: pageError } = await supabase
       .from('landing_pages')
       .insert({
-        user_id: user.id,
+        user_id: profile.id,
         title,
         slug: pageSlug,
         topic: topic || 'free',
@@ -95,18 +114,13 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    console.log('Page create result:', newPage, 'Error:', createError);
-
-    if (createError) {
-      console.error('Page create error:', createError);
+    if (pageError) {
+      console.error('Page create error:', pageError);
       return NextResponse.json(
-        { error: 'Failed to create page', details: createError.message },
+        { error: 'Failed to create page', details: pageError.message },
         { status: 500 }
       );
     }
-
-    console.log('=== PAGE CREATE SUCCESS ===');
-    console.log('Created page ID:', newPage.id, 'Slug:', newPage.slug);
 
     return NextResponse.json({
       success: true,
@@ -133,23 +147,33 @@ export async function GET() {
     }
 
     const supabase = createServerClient() as any;
+    const userEmail = session.user.email;
 
-    // 현재 사용자 조회
-    const { data: user } = await supabase
-      .from('users')
+    // profiles 또는 users에서 사용자 조회
+    let { data: profile } = await supabase
+      .from('profiles')
       .select('id')
-      .eq('email', session.user.email)
+      .eq('email', userEmail)
       .single();
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (!profile) {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', userEmail)
+        .single();
+      profile = user;
+    }
+
+    if (!profile) {
+      return NextResponse.json({ pages: [] });
     }
 
     // 사용자의 페이지 목록
     const { data: pages, error: pagesError } = await supabase
       .from('landing_pages')
       .select('id, title, slug, status, view_count, created_at, updated_at')
-      .eq('user_id', user.id)
+      .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
 
     if (pagesError) {
