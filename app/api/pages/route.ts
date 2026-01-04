@@ -43,10 +43,9 @@ export async function POST(request: NextRequest) {
           id: userId,
           email: userEmail,
           name: session.user.name || '',
-          avatar_url: session.user.image || null,
           role: 'user',
+          plan: 'free',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         })
         .select('id')
         .single();
