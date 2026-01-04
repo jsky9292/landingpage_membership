@@ -1642,6 +1642,7 @@ export default function CreatePage() {
   const topic = params.topic as string;
   const config = topicData[topic] || topicData.free;
   const sampleId = searchParams.get('sample');
+  const urlPrompt = searchParams.get('prompt');
 
   const [answers, setAnswers] = useState<string[]>([]);
   const [additionalPrompt, setAdditionalPrompt] = useState('');
@@ -1677,6 +1678,20 @@ export default function CreatePage() {
       }
     }
   }, [sampleId, config.questions, loadedFromSample]);
+
+  // URL 스크래퍼에서 온 prompt 파라미터 처리
+  useEffect(() => {
+    if (urlPrompt && !loadedFromSample) {
+      // URL에서 온 프롬프트를 첫 번째 답변에 채우기
+      const newAnswers = new Array(config.questions?.length || 4).fill('');
+      if (config.questions && config.questions.length >= 1) {
+        newAnswers[0] = decodeURIComponent(urlPrompt);
+      }
+      setAnswers(newAnswers);
+      setLoadedFromSample(true);
+      setShowExamples(false); // 예시 패널 닫기
+    }
+  }, [urlPrompt, config.questions, loadedFromSample]);
 
   // 사용량 체크 - 무료 1개 초과시 로그인 또는 결제 필요
   useEffect(() => {

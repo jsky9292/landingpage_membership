@@ -59,14 +59,27 @@ export default function CreateFromUrlPage() {
         return;
       }
 
+      // 세션에서 admin role 확인 (DB 조회 없이)
+      const sessionRole = (session.user as any)?.role;
+      if (sessionRole === 'admin') {
+        setIsPro(true);
+        setCheckingPlan(false);
+        return;
+      }
+
       try {
         const res = await fetch('/api/users/me');
         if (res.ok) {
           const data = await res.json();
           setIsPro(data.plan === 'pro' || data.plan === 'premium' || data.role === 'admin');
+        } else {
+          // API 실패해도 세션 role로 판단
+          setIsPro(sessionRole === 'admin');
         }
       } catch (err) {
         console.error('Failed to check user plan:', err);
+        // API 실패해도 세션 role로 판단
+        setIsPro(sessionRole === 'admin');
       }
       setCheckingPlan(false);
     }
