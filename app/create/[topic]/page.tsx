@@ -2476,6 +2476,51 @@ export default function CreatePage() {
 
             {showExamples && (
               <>
+                {/* 업종별 샘플 갤러리 */}
+                <div style={{
+                  marginBottom: '20px',
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                  borderRadius: '12px',
+                  border: '1px solid #F59E0B',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#92400E', margin: 0 }}>
+                      🎯 업종별 샘플 (보험, 마케팅, 인테리어 등 36개)
+                    </p>
+                    <button
+                      onClick={() => router.push('/samples')}
+                      style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      전체 보기 →
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px' }}>
+                    {samplePages.slice(0, 10).map((sample) => (
+                      <button
+                        key={sample.id}
+                        onClick={() => {
+                          if (sample.formData) {
+                            const contentParts = sample.formData.content.split('. ').filter(Boolean);
+                            const newAnswers = new Array(config.questions?.length || 6).fill('');
+                            newAnswers[0] = sample.formData.title;
+                            if (contentParts.length > 0) newAnswers[1] = contentParts.slice(0, 2).join('. ');
+                            if (contentParts.length > 2) newAnswers[2] = contentParts.find(p => p.includes('원') || p.includes('무료')) || contentParts[2] || '';
+                            if (contentParts.length > 3) newAnswers[3] = contentParts.slice(-2).join('. ');
+                            setAnswers(newAnswers);
+                          }
+                        }}
+                        style={{ minWidth: '130px', padding: '10px', background: '#fff', border: '2px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}
+                      >
+                        <span style={{ display: 'inline-block', padding: '2px 6px', background: sample.themeColor + '20', color: sample.themeColor, borderRadius: '4px', fontSize: '10px', fontWeight: '600', marginBottom: '4px' }}>
+                          {sample.categoryName}
+                        </span>
+                        <p style={{ fontSize: '12px', fontWeight: '600', color: '#111', margin: 0 }}>{sample.name}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* 카테고리 탭 - 그리드 정렬 */}
                 <div style={{
                   display: 'grid',
