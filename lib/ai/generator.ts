@@ -13,6 +13,8 @@ interface GenerateOptions {
   tone?: string;
   emojis?: Record<string, string>;
   ctaButtonText?: string;
+  geminiApiKey?: string;
+  claudeApiKey?: string;
 }
 
 // AI가 반환하는 원시 응답 타입
@@ -41,12 +43,13 @@ function parseJSONResponse(response: string): unknown {
 // AI로 콘텐츠 생성
 async function generateContent(
   prompt: string,
-  provider: AIProvider
+  provider: AIProvider,
+  apiKey?: string
 ): Promise<string> {
   if (provider === 'gemini') {
-    return generateWithGemini(prompt);
+    return generateWithGemini(prompt, apiKey);
   } else {
-    return generateWithClaude(prompt);
+    return generateWithClaude(prompt, apiKey);
   }
 }
 
@@ -61,15 +64,16 @@ export async function generateLandingPage(
   userPrompt: string,
   options: GenerateOptions = {}
 ): Promise<GeneratedPage> {
-  const { provider = 'gemini', fallback = true, tone = 'professional', emojis, ctaButtonText } = options;
+  const { provider = 'gemini', fallback = true, tone = 'professional', emojis, ctaButtonText, geminiApiKey, claudeApiKey } = options;
   const toneStyle = getToneStyle(tone);
 
   async function tryGenerate(currentProvider: AIProvider): Promise<GeneratedPage> {
+    const apiKey = currentProvider === 'gemini' ? geminiApiKey : claudeApiKey;
     try {
       // 1단계: 분석
       console.log(`[${currentProvider}] Starting analysis...`);
       const analysisPrompt = createAnalysisPrompt(topic, userPrompt);
-      const analysisResponse = await generateContent(analysisPrompt, currentProvider);
+      const analysisResponse = await generateContent(analysisPrompt, currentProvider, apiKey);
       const analysis = parseJSONResponse(analysisResponse);
       console.log(`[${currentProvider}] Analysis complete`);
 
@@ -119,7 +123,7 @@ export async function generateLandingPage(
         JSON.stringify(analysis, null, 2)
       ) + toneGuide + emojiGuide + ctaGuide;
 
-      const copywritingResponse = await generateContent(copywritingPrompt, currentProvider);
+      const copywritingResponse = await generateContent(copywritingPrompt, currentProvider, apiKey);
       const result = parseJSONResponse(copywritingResponse) as AIRawResponse;
       console.log(`[${currentProvider}] Copywriting complete`);
 

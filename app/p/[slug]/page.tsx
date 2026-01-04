@@ -168,41 +168,50 @@ export default function PublicPage() {
       return;
     }
 
-    // localStorage에서 배포된 페이지 데이터 가져오기
-    const deployedPages = JSON.parse(localStorage.getItem('deployedPages') || '{}');
-    const pageData = deployedPages[slug];
+    // DB에서 페이지 데이터 가져오기
+    const fetchPage = async () => {
+      try {
+        const response = await fetch(`/api/public/pages/${slug}`);
+        const result = await response.json();
 
-    if (pageData) {
-      setData({
-        title: pageData.title,
-        sections: pageData.sections || [],
-        formFields: pageData.formFields || [],
-        theme: pageData.theme || 'toss',
-      });
-    }
-    setIsLoading(false);
+        if (response.ok && result.page) {
+          setData({
+            title: result.page.title,
+            sections: result.page.sections || [],
+            formFields: result.page.formFields || [],
+            theme: result.page.theme || 'toss',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch page:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPage();
   }, [slug]);
 
   const handleFormSubmit = async (formData: Record<string, string>) => {
     setIsSubmitting(true);
     try {
-      console.log('Form submitted:', formData);
-
-      // 신청 데이터 localStorage에 저장
-      const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-      submissions.push({
-        id: `sub-${Date.now()}`,
-        pageSlug: slug,
-        data: formData,
-        submittedAt: new Date().toISOString(),
-        status: 'new'
+      // DB에 신청 데이터 저장
+      const response = await fetch(`/api/submit/${slug}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: formData }),
       });
-      localStorage.setItem('submissions', JSON.stringify(submissions));
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '제출에 실패했습니다.');
+      }
 
       setSubmitted(true);
     } catch (error) {
       console.error('Submit failed:', error);
-      alert('제출에 실패했습니다. 다시 시도해주세요.');
+      alert(error instanceof Error ? error.message : '제출에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }

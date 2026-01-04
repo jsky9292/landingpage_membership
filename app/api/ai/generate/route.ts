@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLandingPage } from '@/lib/ai/generator';
 import { TopicType } from '@/types/page';
+import { getGeminiApiKey, getClaudeApiKey } from '@/lib/user/get-api-key';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,6 +29,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 사용자 API 키 가져오기 (없으면 시스템 키 사용)
+    const geminiApiKey = await getGeminiApiKey();
+    const claudeApiKey = await getClaudeApiKey();
+
     // AI 생성
     const result = await generateLandingPage(topic, prompt, {
       provider: 'gemini',
@@ -35,6 +40,8 @@ export async function POST(request: NextRequest) {
       tone: tone || 'professional',
       emojis: emojis,
       ctaButtonText: ctaButtonText,
+      geminiApiKey,
+      claudeApiKey,
     });
 
     return NextResponse.json({

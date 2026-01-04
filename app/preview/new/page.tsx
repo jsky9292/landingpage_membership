@@ -95,20 +95,32 @@ export default function PreviewNewPage() {
       // 고유 슬러그 생성
       const slug = `page-${Date.now().toString(36)}`;
 
-      // 페이지 데이터 저장 (localStorage에 임시 저장, 실제로는 DB에 저장)
-      const deployedPages = JSON.parse(localStorage.getItem('deployedPages') || '{}');
-      deployedPages[slug] = {
-        ...data,
-        slug,
-        publishedAt: new Date().toISOString(),
-      };
-      localStorage.setItem('deployedPages', JSON.stringify(deployedPages));
+      // DB에 페이지 저장
+      const response = await fetch('/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: data.title,
+          topic: data.topic,
+          prompt: data.prompt,
+          sections: data.sections,
+          formFields: data.formFields,
+          theme: data.theme,
+          slug,
+        }),
+      });
 
-      const url = `${window.location.origin}/p/${slug}`;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '배포에 실패했습니다');
+      }
+
+      const url = `${window.location.origin}/p/${result.page.slug}`;
       setDeployedUrl(url);
     } catch (error) {
       console.error('Deploy failed:', error);
-      alert('배포에 실패했습니다');
+      alert(error instanceof Error ? error.message : '배포에 실패했습니다');
     } finally {
       setIsDeploying(false);
     }
