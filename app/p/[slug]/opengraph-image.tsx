@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
-import { createServerClient } from '@/lib/supabase/client';
 
-export const runtime = 'edge';
 export const alt = '랜딩페이지';
 export const size = {
   width: 1200,
@@ -10,33 +8,9 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
-
-  // DB에서 페이지 정보 가져오기
-  let title = '랜딩페이지';
-  let subtitle = '';
-
-  try {
-    const supabase = createServerClient() as any;
-    const { data: page } = await supabase
-      .from('landing_pages')
-      .select('title, sections')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
-
-    if (page) {
-      title = page.title || '랜딩페이지';
-      // hero 섹션에서 subtext 가져오기
-      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
-      if (heroSection?.content?.subtext) {
-        subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 80);
-      }
-    }
-  } catch (e) {
-    console.error('OG image error:', e);
-  }
+export default async function Image() {
+  const title = '랜딩페이지';
+  const subtitle = '지금 바로 확인해보세요';
 
   return new ImageResponse(
     (
