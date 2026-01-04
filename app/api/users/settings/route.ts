@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { createServerClient } from '@/lib/supabase/client';
+import { authOptions } from '@/lib/auth/options';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 사용자 API 설정 조회
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
     const { data: user, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, api_settings')
       .eq('email', session.user.email)
       .single();
@@ -51,7 +52,7 @@ export async function GET() {
 // 사용자 API 설정 저장
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -61,11 +62,11 @@ export async function POST(request: NextRequest) {
     const { useOwnKey, geminiApiKey, claudeApiKey, imageModel, textModel } = body;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user, error: userError } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, api_settings')
       .eq('email', session.user.email)
       .single();
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // API 설정 업데이트
     const { error: updateError } = await supabase
-      .from('users')
+      .from('profiles')
       .update({ api_settings: newSettings })
       .eq('id', user.id);
 

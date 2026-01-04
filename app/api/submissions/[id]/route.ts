@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { createServerClient } from '@/lib/supabase/client';
+import { authOptions } from '@/lib/auth/options';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 신청 상태 업데이트
 export async function PATCH(
@@ -10,7 +11,7 @@ export async function PATCH(
 ) {
   try {
     const { id: submissionId } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,11 +20,11 @@ export async function PATCH(
     const body = await request.json();
     const { status, memo } = body;
 
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
       .single();

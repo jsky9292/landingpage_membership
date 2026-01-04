@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { createServerClient } from '@/lib/supabase/client';
+import { authOptions } from '@/lib/auth/options';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 특정 페이지의 신청 목록 조회
 export async function GET(
@@ -10,17 +11,17 @@ export async function GET(
 ) {
   try {
     const { id: pageId } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
       .single();

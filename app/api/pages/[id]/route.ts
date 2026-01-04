@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
-import { createServerClient } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 특정 페이지 상세 조회
 export async function GET(
@@ -17,11 +17,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
       .single();
@@ -84,11 +84,11 @@ export async function PUT(
     const body = await request.json();
     const { title, sections, formFields, theme, status } = body;
 
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
       .single();
@@ -169,11 +169,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServerClient() as any;
+    const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
       .single();
