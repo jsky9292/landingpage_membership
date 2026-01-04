@@ -323,22 +323,28 @@ export default function PricingPage() {
 
         {/* 월간/연간 토글 */}
         <div className="flex items-center justify-center gap-4 mb-8">
-          <span className={`text-sm font-medium ${billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
+          <span
+            className={`text-sm font-medium cursor-pointer ${billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}
+            onClick={() => setBillingPeriod('monthly')}
+          >
             월간 결제
           </span>
           <button
             onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
-            className={`relative w-14 h-7 rounded-full transition-colors ${
+            className={`relative w-14 h-7 rounded-full transition-colors flex-shrink-0 ${
               billingPeriod === 'yearly' ? 'bg-[#3182F6]' : 'bg-gray-300'
             }`}
           >
             <span
-              className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                billingPeriod === 'yearly' ? 'translate-x-8' : 'translate-x-1'
+              className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                billingPeriod === 'yearly' ? 'translate-x-7' : 'translate-x-0'
               }`}
             />
           </button>
-          <span className={`text-sm font-medium ${billingPeriod === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}>
+          <span
+            className={`text-sm font-medium cursor-pointer ${billingPeriod === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}
+            onClick={() => setBillingPeriod('yearly')}
+          >
             연간 결제
           </span>
           {billingPeriod === 'yearly' && (
