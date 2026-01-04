@@ -27,11 +27,11 @@ export interface ThemeConfig {
 export const THEMES: Record<ThemeType, ThemeConfig> = {
   toss: {
     id: 'toss',
-    name: '토스 스타일',
-    description: '깔끔하고 신뢰감 있는 파란색 테마',
+    name: '시안',
+    description: '깔끔하고 신뢰감 있는 시안 테마',
     colors: {
-      primary: '#0064FF',
-      primaryLight: '#E8F3FF',
+      primary: '#0891B2',
+      primaryLight: '#ECFEFF',
       background: '#FFFFFF',
       backgroundAlt: '#F2F4F6',
       text: '#191F28',
@@ -61,13 +61,13 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
   },
   warm: {
     id: 'warm',
-    name: '웜 감성',
-    description: '따뜻하고 친근한 오렌지 테마',
+    name: '에메랄드',
+    description: '상쾌하고 자연스러운 에메랄드 테마',
     colors: {
-      primary: '#F97316',
-      primaryLight: '#FFF7ED',
-      background: '#FFFBF5',
-      backgroundAlt: '#FEF3E2',
+      primary: '#10B981',
+      primaryLight: '#ECFDF5',
+      background: '#F0FDF9',
+      backgroundAlt: '#D1FAE5',
       text: '#1C1917',
       textSecondary: '#44403C',
       textMuted: '#78716C',
@@ -78,11 +78,11 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
   },
   luxury: {
     id: 'luxury',
-    name: '럭셔리',
-    description: '격조 있는 골드 & 블랙 테마',
+    name: '앰버',
+    description: '따뜻하고 고급스러운 앰버 테마',
     colors: {
-      primary: '#D4AF37',
-      primaryLight: '#FDF6E3',
+      primary: '#F59E0B',
+      primaryLight: '#FFFBEB',
       background: '#0A0A0A',
       backgroundAlt: '#171717',
       text: '#FAFAFA',
@@ -95,11 +95,11 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
   },
   peach: {
     id: 'peach',
-    name: '피치 그라데이션',
-    description: '따뜻한 복숭아빛 그라데이션 테마',
+    name: '로즈',
+    description: '세련되고 감각적인 로즈 테마',
     colors: {
-      primary: '#FF6B35',
-      primaryLight: '#FFF3ED',
+      primary: '#F43F5E',
+      primaryLight: '#FFF1F2',
       background: '#FFFFFF',
       backgroundAlt: '#FFF8F5',
       text: '#1C1917',
