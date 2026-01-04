@@ -2126,7 +2126,7 @@ export default function CreatePage() {
         </div>
 
         {/* 2컬럼 레이아웃 - 더 넓게 */}
-        <div className="create-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
+        <div className="create-grid" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '40px' }}>
           {/* 왼쪽: 입력 영역 */}
           <div className="create-card" style={{
             background: '#fff',
