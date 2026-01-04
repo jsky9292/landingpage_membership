@@ -48,44 +48,53 @@ export default async function Image({ params }: { params: { slug: string } }) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: '#F8FAFC',
           fontFamily: 'sans-serif',
         }}
       >
-        {/* 메인 카드 */}
+        {/* 상단 악센트 바 */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '8px',
+            background: '#0064FF',
+          }}
+        />
+
+        {/* 메인 컨텐츠 */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'white',
-            borderRadius: '24px',
             padding: '60px 80px',
             maxWidth: '1000px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           }}
         >
           {/* 제목 */}
           <div
             style={{
-              fontSize: 52,
+              fontSize: 56,
               fontWeight: 'bold',
               color: '#191F28',
               textAlign: 'center',
               lineHeight: 1.3,
-              marginBottom: subtitle ? 20 : 0,
+              marginBottom: subtitle ? 24 : 0,
             }}
           >
-            {title.length > 40 ? title.slice(0, 40) + '...' : title}
+            {title.length > 35 ? title.slice(0, 35) + '...' : title}
           </div>
 
           {/* 부제목 */}
           {subtitle && (
             <div
               style={{
-                fontSize: 24,
-                color: '#6B7280',
+                fontSize: 26,
+                color: '#4E5968',
                 textAlign: 'center',
                 lineHeight: 1.5,
               }}
@@ -98,15 +107,15 @@ export default async function Image({ params }: { params: { slug: string } }) {
         {/* 하단 브랜딩 */}
         <div
           style={{
+            position: 'absolute',
+            bottom: 40,
             display: 'flex',
             alignItems: 'center',
-            marginTop: 40,
-            color: 'white',
-            fontSize: 20,
-            opacity: 0.9,
+            color: '#8B95A1',
+            fontSize: 18,
           }}
         >
-          Powered by 랜딩AI
+          랜딩AI
         </div>
       </div>
     ),
