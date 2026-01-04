@@ -12,6 +12,7 @@ interface GenerateOptions {
   fallback?: boolean;
   tone?: string;
   emojis?: Record<string, string>;
+  ctaButtonText?: string;
 }
 
 // AI가 반환하는 원시 응답 타입
@@ -60,7 +61,7 @@ export async function generateLandingPage(
   userPrompt: string,
   options: GenerateOptions = {}
 ): Promise<GeneratedPage> {
-  const { provider = 'gemini', fallback = true, tone = 'professional', emojis } = options;
+  const { provider = 'gemini', fallback = true, tone = 'professional', emojis, ctaButtonText } = options;
   const toneStyle = getToneStyle(tone);
 
   async function tryGenerate(currentProvider: AIProvider): Promise<GeneratedPage> {
@@ -103,11 +104,20 @@ export async function generateLandingPage(
 - 미니멀: 간결하고 핵심적인 표현
 `;
 
+      // CTA 버튼 문구 가이드 추가
+      const ctaGuide = ctaButtonText ? `
+## CTA 버튼 문구 지정
+사용자가 지정한 CTA 버튼 문구입니다. 반드시 이 문구를 사용해주세요:
+- hero 섹션의 cta: "${ctaButtonText}"
+- cta 섹션의 buttonText: "${ctaButtonText}"
+- form 섹션의 buttonText: "${ctaButtonText}"
+` : '';
+
       const copywritingPrompt = createCopywritingPrompt(
         topic,
         userPrompt,
         JSON.stringify(analysis, null, 2)
-      ) + toneGuide + emojiGuide;
+      ) + toneGuide + emojiGuide + ctaGuide;
 
       const copywritingResponse = await generateContent(copywritingPrompt, currentProvider);
       const result = parseJSONResponse(copywritingResponse) as AIRawResponse;

@@ -272,7 +272,7 @@ export default function HomePage() {
     if (sampleId) {
       router.push(`/create/${sampleId}`);
     } else {
-      router.push('/create/free');
+      router.push('/create/course');
     }
   };
 

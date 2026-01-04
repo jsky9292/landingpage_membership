@@ -5,11 +5,12 @@ import { TopicType } from '@/types/page';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { topic, prompt, tone, emojis } = body as {
+    const { topic, prompt, tone, emojis, ctaButtonText } = body as {
       topic: TopicType;
       prompt: string;
       tone?: string;
       emojis?: Record<string, string>;
+      ctaButtonText?: string;
     };
 
     // 유효성 검사
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       fallback: true,
       tone: tone || 'professional',
       emojis: emojis,
+      ctaButtonText: ctaButtonText,
     });
 
     return NextResponse.json({

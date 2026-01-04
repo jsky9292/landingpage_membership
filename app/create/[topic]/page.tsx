@@ -26,6 +26,8 @@ const topicData: Record<string, TopicGuide> = {
     questions: [
       { q: '무엇을 가르치나요?', placeholder: '예: 엑셀, 영어회화, 요가, 그림...' },
       { q: '누구를 위한 강의인가요?', placeholder: '예: 직장인, 대학생, 주부, 초보자...' },
+      { q: '언제 진행되나요?', placeholder: '예: 매주 토요일 오후 2시, 평일 저녁 7시...' },
+      { q: '어디서 진행되나요?', placeholder: '예: 강남역 5분, 온라인 줌, 홍대 스터디카페...' },
       { q: '수강료와 기간은?', placeholder: '예: 4주 20만원, 8회 30만원...' },
       { q: '특별한 혜택이 있나요?', placeholder: '예: 수료증, 자료 제공, 1:1 피드백...' },
     ],
@@ -1267,6 +1269,66 @@ const topicData: Record<string, TopicGuide> = {
     ],
     categories: [
       {
+        name: '마케팅/교육',
+        icon: '📈',
+        examples: [
+          {
+            title: '마케팅 실전 부트캠프',
+            answers: [
+              '퍼포먼스 마케팅 전문가가 되는 8주 과정입니다. 구글/메타/네이버 광고 실습.',
+              '마케팅 커리어를 원하는 직장인, 창업자, 취준생',
+              '8주 89만원, 런칭 기념 36% 할인 중',
+              '온라인 줌 라이브 + 녹화 영상 제공. 1:1 피드백.'
+            ]
+          },
+          {
+            title: 'SNS 마케팅 클래스',
+            answers: [
+              '인스타그램/틱톡으로 매출 올리는 실전 노하우. 릴스 제작부터 광고까지.',
+              '자영업자, 1인 창업자, 인플루언서 지망생',
+              '4주 49만원, 소수정원 10명',
+              '온라인 진행. 실제 계정으로 실습. 팔로워 1만 달성 사례 다수.'
+            ]
+          },
+          {
+            title: '블로그 수익화 강의',
+            answers: [
+              '네이버 블로그로 월 100만원 부수입 만드는 방법. 상위노출 비법 공개.',
+              '부업을 찾는 직장인, 주부, 프리랜서',
+              '6주 39만원, 수익 인증 시 50% 환급',
+              '온라인 줌 진행. 블로그 1:1 컨설팅 포함.'
+            ]
+          },
+          {
+            title: '콘텐츠 마케팅 마스터',
+            answers: [
+              '바이럴 콘텐츠 기획법. 브랜드 스토리텔링으로 광고비 0원 마케팅.',
+              '마케터, 브랜드 담당자, 1인 기업가',
+              '8주 79만원, 포트폴리오 3개 완성',
+              '온라인 진행. 현직 대기업 마케터 멘토링.'
+            ]
+          },
+          {
+            title: '유튜브 채널 성장 클래스',
+            answers: [
+              '구독자 0에서 1만까지. 알고리즘 분석과 콘텐츠 기획 전략.',
+              '유튜브 시작하고 싶은 분, 성장이 멈춘 채널 운영자',
+              '4주 59만원, 채널 분석 리포트 제공',
+              '온라인 줌 진행. 채널 성장 보장제.'
+            ]
+          },
+          {
+            title: '퍼포먼스 광고 실무',
+            answers: [
+              '구글/메타 광고 세팅부터 최적화까지. ROAS 200% 달성 노하우.',
+              '광고 담당자, 마케팅 에이전시 취업 희망자',
+              '6주 69만원, 실제 광고비 10만원 지원',
+              '온라인 진행. 실습 중심 커리큘럼.'
+            ]
+          },
+        ]
+      },
+      {
         name: '생활 서비스',
         icon: '🏡',
         examples: [
@@ -1583,6 +1645,7 @@ export default function CreatePage() {
 
   const [answers, setAnswers] = useState<string[]>([]);
   const [additionalPrompt, setAdditionalPrompt] = useState('');
+  const [ctaButtonText, setCtaButtonText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showExamples, setShowExamples] = useState(true); // 기본으로 열기
@@ -1632,7 +1695,7 @@ export default function CreatePage() {
         return `${q.q} ${answers[i]}`;
       }
       return null;
-    }).filter(Boolean).join(". ") + (additionalPrompt ? `. 추가사항: ${additionalPrompt}` : "");
+    }).filter(Boolean).join(". ") + (additionalPrompt ? `. 추가사항: ${additionalPrompt}` : "") + (ctaButtonText ? `. CTA 버튼 문구: "${ctaButtonText}"` : "");
 
     // 사용량 체크
     if (!canCreatePage) {
@@ -1647,7 +1710,7 @@ export default function CreatePage() {
       const res = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, prompt: combinedPrompt, tone: selectedTone, emojis: customEmojis }),
+        body: JSON.stringify({ topic, prompt: combinedPrompt, tone: selectedTone, emojis: customEmojis, ctaButtonText }),
       });
 
       const data = await res.json();
@@ -2111,6 +2174,52 @@ export default function CreatePage() {
                   e.currentTarget.style.background = '#FAFBFC';
                 }}
               />
+            </div>
+
+            {/* CTA 버튼 텍스트 입력 */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151',
+                marginBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                <span style={{ fontSize: '16px' }}>🎯</span>
+                CTA 버튼 문구 (선택)
+              </label>
+              <input
+                type="text"
+                value={ctaButtonText}
+                onChange={(e) => setCtaButtonText(e.target.value)}
+                placeholder="예: 지금 신청하기, 무료 상담 받기, 자세히 알아보기..."
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  fontSize: '14px',
+                  border: '2px solid #E5E8EB',
+                  borderRadius: '10px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  background: '#FAFBFC',
+                  transition: 'all 0.2s',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#6366F1';
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#E5E8EB';
+                  e.currentTarget.style.background = '#FAFBFC';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              />
+              <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '6px' }}>
+                비워두면 AI가 자동으로 적절한 문구를 생성해요
+              </p>
             </div>
 
             {/* 에러 */}
