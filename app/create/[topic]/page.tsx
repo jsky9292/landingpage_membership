@@ -1722,7 +1722,11 @@ export default function CreatePage() {
       // 페이지 생성 성공시 사용량 증가
       incrementPages();
 
-      localStorage.setItem('generatedPage', JSON.stringify({ topic, prompt: combinedPrompt, ...data.data }));
+      try {
+        localStorage.setItem('generatedPage', JSON.stringify({ topic, prompt: combinedPrompt, ...data.data }));
+      } catch (e) {
+        console.error('localStorage failed:', e);
+      }
       router.push('/preview/new');
     } catch (err: any) {
       setError(err.message || '오류가 발생했습니다');

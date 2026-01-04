@@ -9,6 +9,15 @@ import { ThemeSelector } from '@/components/builder/ThemeSelector';
 import { Section, FormField, SectionContent, SectionStyle, ThemeType } from '@/types/page';
 import html2canvas from 'html2canvas';
 
+// 안전한 localStorage 접근
+const safeSetStorage = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.error('localStorage setItem failed:', e);
+  }
+};
+
 interface GeneratedData {
   topic: string;
   prompt: string;
@@ -34,7 +43,14 @@ export default function PreviewNewPage() {
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('generatedPage');
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem('generatedPage');
+    } catch (e) {
+      console.error('localStorage access failed:', e);
+      setIsLoading(false);
+      return;
+    }
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -149,7 +165,7 @@ export default function PreviewNewPage() {
     );
     const newData = { ...data, sections: newSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
   };
 
   const handleSectionStyleChange = (sectionId: string, style: SectionStyle) => {
@@ -159,7 +175,7 @@ export default function PreviewNewPage() {
     );
     const newData = { ...data, sections: newSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
   };
 
   const handleAddSection = (newSection: Section) => {
@@ -174,7 +190,7 @@ export default function PreviewNewPage() {
       .map((s, i) => ({ ...s, order: i }));
     const newData = { ...data, sections: newSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
     setEditingSection(newSection.id);
     setShowAddSection(false);
   };
@@ -206,7 +222,7 @@ export default function PreviewNewPage() {
       .map((s, i) => ({ ...s, order: i }));
     const newData = { ...data, sections: newSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
   };
 
   const handleDeleteSection = (sectionId: string) => {
@@ -218,7 +234,7 @@ export default function PreviewNewPage() {
       .map((s, i) => ({ ...s, order: i }));
     const newData = { ...data, sections: newSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
     setEditingSection(null);
   };
 
@@ -226,14 +242,14 @@ export default function PreviewNewPage() {
     if (!data) return;
     const newData = { ...data, sections: reorderedSections };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
   };
 
   const handleThemeChange = (theme: ThemeType) => {
     if (!data) return;
     const newData = { ...data, theme };
     setData(newData);
-    localStorage.setItem('generatedPage', JSON.stringify(newData));
+    safeSetStorage('generatedPage', JSON.stringify(newData));
   };
 
   const getSelectedSection = (): Section | null => {
