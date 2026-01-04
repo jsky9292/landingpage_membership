@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Section, SectionContent, SectionStyle, SectionType, VideoContent, HeroContent, PainContent, SolutionContent, BenefitsContent, ProcessContent, PhilosophyContent, CTAContent, FormContent, FormField, ContactInfo, ImageContent, TimerContent, InlineCTAContent, InlineImageContent, InlineVideoContent, DividerContent } from '@/types/page';
+import { Section, SectionContent, SectionStyle, SectionType, VideoContent, HeroContent, PainContent, SolutionContent, BenefitsContent, ProcessContent, PhilosophyContent, CTAContent, FormContent, FormField, ContactInfo, ImageContent, CalendarContent, TimerContent, InlineCTAContent, InlineImageContent, InlineVideoContent, DividerContent } from '@/types/page';
 
 // 카테고리별 추천 이모지 (대폭 확장)
 const EMOJI_CATEGORIES = {
@@ -550,6 +550,109 @@ export function SectionEditor({
                 </div>
               ))}
             </div>
+          </>
+        );
+
+      case 'process':
+        const processContent = localContent as ProcessContent;
+        return (
+          <>
+            {renderTextField('라벨', processContent.label || '', (v) => handleContentUpdate({ label: v }))}
+            {renderTextField('제목', processContent.title, (v) => handleContentUpdate({ title: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '10px' }}>
+                진행 단계
+              </label>
+              {processContent.steps?.map((step, index) => (
+                <div key={index} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#0064FF', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '16px' }}>
+                      {step.number || index + 1}
+                    </div>
+                    <input type="text" value={step.title} onChange={(e) => { const newSteps = [...(processContent.steps || [])]; newSteps[index] = { ...newSteps[index], title: e.target.value }; handleContentUpdate({ steps: newSteps }); }} placeholder="단계 제목" style={{ flex: 1, padding: '10px 12px', border: '1px solid #E5E8EB', borderRadius: '8px', fontSize: '14px', fontWeight: '600', boxSizing: 'border-box' }} />
+                  </div>
+                  <textarea value={step.description} onChange={(e) => { const newSteps = [...(processContent.steps || [])]; newSteps[index] = { ...newSteps[index], description: e.target.value }; handleContentUpdate({ steps: newSteps }); }} placeholder="단계 설명" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E5E8EB', borderRadius: '8px', fontSize: '14px', minHeight: '60px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                </div>
+              ))}
+            </div>
+          </>
+        );
+
+      case 'philosophy':
+        const philosophyContent = localContent as PhilosophyContent;
+        return (
+          <>
+            {renderTextField('라벨', philosophyContent.label || '', (v) => handleContentUpdate({ label: v }))}
+            {renderTextField('제목', philosophyContent.title, (v) => handleContentUpdate({ title: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '10px' }}>
+                철학 항목
+              </label>
+              {philosophyContent.items?.map((item, index) => (
+                <div key={index} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    {renderEmojiPicker(item.icon, (emoji) => { const newItems = [...(philosophyContent.items || [])]; newItems[index] = { ...newItems[index], icon: emoji }; handleContentUpdate({ items: newItems }); }, 200 + index, 'philosophy')}
+                    <input type="text" value={item.title} onChange={(e) => { const newItems = [...(philosophyContent.items || [])]; newItems[index] = { ...newItems[index], title: e.target.value }; handleContentUpdate({ items: newItems }); }} placeholder="철학 제목" style={{ flex: 1, padding: '12px', border: '1px solid #E5E8EB', borderRadius: '8px', fontSize: '14px', fontWeight: '600', boxSizing: 'border-box' }} />
+                  </div>
+                  <textarea value={item.description} onChange={(e) => { const newItems = [...(philosophyContent.items || [])]; newItems[index] = { ...newItems[index], description: e.target.value }; handleContentUpdate({ items: newItems }); }} placeholder="철학 설명" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E5E8EB', borderRadius: '8px', fontSize: '14px', minHeight: '60px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                </div>
+              ))}
+            </div>
+          </>
+        );
+
+      case 'image':
+        const imageContent = localContent as ImageContent;
+        return (
+          <>
+            {renderTextField('라벨', imageContent.label || '', (v) => handleContentUpdate({ label: v }))}
+            {renderTextField('제목', imageContent.title || '', (v) => handleContentUpdate({ title: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '6px' }}>이미지 URL</label>
+              <input type="url" value={imageContent.imageUrl || ''} onChange={(e) => handleContentUpdate({ imageUrl: e.target.value })} placeholder="https://example.com/image.jpg" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E5E8EB', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }} />
+            </div>
+            {imageContent.imageUrl && (
+              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                <img src={imageContent.imageUrl} alt="미리보기" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', border: '1px solid #E5E8EB' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              </div>
+            )}
+            {renderTextField('대체 텍스트', imageContent.alt || '', (v) => handleContentUpdate({ alt: v }))}
+            {renderTextField('캡션', imageContent.caption || '', (v) => handleContentUpdate({ caption: v }))}
+          </>
+        );
+
+      case 'calendar':
+        const calendarContent = localContent as CalendarContent;
+        return (
+          <>
+            {renderTextField('라벨', calendarContent.label || '', (v) => handleContentUpdate({ label: v }))}
+            {renderTextField('제목', calendarContent.title, (v) => handleContentUpdate({ title: v }))}
+            {renderTextField('부제목', calendarContent.subtitle || '', (v) => handleContentUpdate({ subtitle: v }))}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '6px' }}>예약 가능 요일</label>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {['월', '화', '수', '목', '금', '토', '일'].map((day) => (
+                  <button key={day} onClick={() => { const currentDays = calendarContent.availableDays || []; const newDays = currentDays.includes(day) ? currentDays.filter(d => d !== day) : [...currentDays, day]; handleContentUpdate({ availableDays: newDays }); }} style={{ padding: '8px 12px', borderRadius: '6px', border: calendarContent.availableDays?.includes(day) ? '2px solid #0064FF' : '1px solid #E5E8EB', background: calendarContent.availableDays?.includes(day) ? '#E8F3FF' : '#fff', color: calendarContent.availableDays?.includes(day) ? '#0064FF' : '#333D4B', fontSize: '14px', fontWeight: calendarContent.availableDays?.includes(day) ? '600' : '400', cursor: 'pointer' }}>{day}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '6px' }}>예약 가능 시간</label>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map((time) => (
+                  <button key={time} onClick={() => { const currentTimes = calendarContent.availableTimes || []; const newTimes = currentTimes.includes(time) ? currentTimes.filter(t => t !== time) : [...currentTimes, time]; handleContentUpdate({ availableTimes: newTimes }); }} style={{ padding: '6px 10px', borderRadius: '6px', border: calendarContent.availableTimes?.includes(time) ? '2px solid #0064FF' : '1px solid #E5E8EB', background: calendarContent.availableTimes?.includes(time) ? '#E8F3FF' : '#fff', color: calendarContent.availableTimes?.includes(time) ? '#0064FF' : '#333D4B', fontSize: '13px', fontWeight: calendarContent.availableTimes?.includes(time) ? '600' : '400', cursor: 'pointer' }}>{time}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#333D4B', marginBottom: '6px' }}>상담 시간 (분)</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {[15, 30, 45, 60].map((dur) => (
+                  <button key={dur} onClick={() => handleContentUpdate({ duration: dur })} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: calendarContent.duration === dur ? '2px solid #0064FF' : '1px solid #E5E8EB', background: calendarContent.duration === dur ? '#E8F3FF' : '#fff', fontSize: '14px', fontWeight: calendarContent.duration === dur ? '600' : '400', cursor: 'pointer' }}>{dur}분</button>
+                ))}
+              </div>
+            </div>
+            {renderTextField('안내 문구', calendarContent.note || '', (v) => handleContentUpdate({ note: v }))}
           </>
         );
 
