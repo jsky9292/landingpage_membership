@@ -43,20 +43,29 @@ export async function POST(request: NextRequest) {
     // 사용자가 없으면 자동 생성
     if (!user) {
       console.log('User not found, creating new user...');
+      const userId = crypto.randomUUID();
       const { data: newUser, error: createUserError } = await supabase
         .from('users')
         .insert({
+          id: userId,
           email: session.user.email,
           name: session.user.name || '',
           avatar_url: session.user.image || null,
           role: 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select('id')
         .single();
 
+      console.log('User create result:', newUser, 'Error:', createUserError);
+
       if (createUserError || !newUser) {
         console.error('User create error:', createUserError);
-        return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+        return NextResponse.json({
+          error: 'Failed to create user',
+          details: createUserError?.message || 'Unknown error'
+        }, { status: 500 });
       }
       user = newUser;
     }
