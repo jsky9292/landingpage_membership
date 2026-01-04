@@ -27,14 +27,30 @@ export async function POST(request: NextRequest) {
     const supabase = createServerClient() as any;
 
     // 현재 사용자 조회
-    const { data: user, error: userError } = await supabase
+    let { data: user } = await supabase
       .from('users')
       .select('id')
       .eq('email', session.user.email)
       .single();
 
-    if (userError || !user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    // 사용자가 없으면 자동 생성
+    if (!user) {
+      const { data: newUser, error: createUserError } = await supabase
+        .from('users')
+        .insert({
+          email: session.user.email,
+          name: session.user.name || '',
+          avatar_url: session.user.image || null,
+          role: 'user',
+        })
+        .select('id')
+        .single();
+
+      if (createUserError || !newUser) {
+        console.error('User create error:', createUserError);
+        return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+      }
+      user = newUser;
     }
 
     // 고유 슬러그 생성 (전달받은 것 또는 새로 생성)
