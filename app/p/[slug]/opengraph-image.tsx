@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
-import { createServerClient } from '@/lib/supabase/client';
 
 export const alt = '랜딩페이지';
 export const size = {
@@ -20,27 +19,35 @@ export default async function Image({ params }: Props) {
   let subtitle = '지금 바로 확인해보세요';
 
   try {
-    const supabase = createServerClient() as any;
-    const { data: page } = await supabase
-      .from('landing_pages')
-      .select('title, sections')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
+    // API를 통해 페이지 데이터 가져오기
+    let baseUrl = 'http://localhost:3000';
+    if (process.env.NEXTAUTH_URL) {
+      baseUrl = process.env.NEXTAUTH_URL;
+    } else if (process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
 
-    if (page) {
-      title = page.title || '랜딩페이지';
+    const res = await fetch(`${baseUrl}/api/public/pages/${slug}`, {
+      cache: 'no-store',
+    });
 
-      // hero 섹션에서 subtext 가져오기
-      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
-      if (heroSection?.content?.subtext) {
-        subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 100);
-      } else if (heroSection?.content?.headline) {
-        subtitle = heroSection.content.headline.replace(/\\n/g, ' ').slice(0, 100);
+    if (res.ok) {
+      const page = await res.json();
+
+      if (page && page.title) {
+        title = page.title;
+
+        // hero 섹션에서 subtext 가져오기
+        const heroSection = page.sections?.find((s: any) => s.type === 'hero');
+        if (heroSection?.content?.subtext) {
+          subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 100);
+        } else if (heroSection?.content?.headline) {
+          subtitle = heroSection.content.headline.replace(/\\n/g, ' ').slice(0, 100);
+        }
       }
     }
   } catch (e) {
-    console.error('OG Image generation error:', e);
+    console.error('OG Image fetch error:', e);
   }
 
   return new ImageResponse(
