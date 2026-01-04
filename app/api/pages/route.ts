@@ -26,15 +26,23 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServerClient() as any;
 
+    console.log('=== PAGE CREATE DEBUG ===');
+    console.log('Email:', session.user.email);
+    console.log('Title:', title);
+    console.log('Slug:', slug);
+
     // 현재 사용자 조회
-    let { data: user } = await supabase
+    let { data: user, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('email', session.user.email)
       .single();
 
+    console.log('User lookup result:', user, 'Error:', userError);
+
     // 사용자가 없으면 자동 생성
     if (!user) {
+      console.log('User not found, creating new user...');
       const { data: newUser, error: createUserError } = await supabase
         .from('users')
         .insert({
@@ -76,6 +84,8 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
+    console.log('Page create result:', newPage, 'Error:', createError);
+
     if (createError) {
       console.error('Page create error:', createError);
       return NextResponse.json(
@@ -83,6 +93,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log('=== PAGE CREATE SUCCESS ===');
+    console.log('Created page ID:', newPage.id, 'Slug:', newPage.slug);
 
     return NextResponse.json({
       success: true,

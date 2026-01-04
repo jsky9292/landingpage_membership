@@ -127,9 +127,11 @@ export default function PreviewNewPage() {
       });
 
       const result = await response.json();
+      console.log('Deploy response:', response.status, result);
 
       if (!response.ok) {
-        throw new Error(result.error || '배포에 실패했습니다');
+        console.error('Deploy failed:', result);
+        throw new Error(result.details || result.error || '배포에 실패했습니다');
       }
 
       const url = `${window.location.origin}/p/${result.page.slug}`;
