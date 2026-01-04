@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
+import { createClient } from '@supabase/supabase-js';
 
 export const alt = '랜딩페이지';
 export const size = {
@@ -16,39 +17,31 @@ export default async function Image({ params }: Props) {
   const { slug } = await params;
 
   let title = '랜딩페이지';
-  let subtitle = '지금 바로 확인해보세요';
+  let subtitle = '';
 
   try {
-    // API를 통해 페이지 데이터 가져오기
-    let baseUrl = 'http://localhost:3000';
-    if (process.env.NEXTAUTH_URL) {
-      baseUrl = process.env.NEXTAUTH_URL;
-    } else if (process.env.VERCEL_URL) {
-      baseUrl = `https://${process.env.VERCEL_URL}`;
-    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-    const res = await fetch(`${baseUrl}/api/public/pages/${slug}`, {
-      cache: 'no-store',
-    });
+    const { data: page } = await supabase
+      .from('landing_pages')
+      .select('title, sections')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single();
 
-    if (res.ok) {
-      const data = await res.json();
-      const page = data.page;
+    if (page?.title) {
+      title = page.title;
 
-      if (page && page.title) {
-        title = page.title;
-
-        // hero 섹션에서 subtext 가져오기
-        const heroSection = page.sections?.find((s: any) => s.type === 'hero');
-        if (heroSection?.content?.subtext) {
-          subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 100);
-        } else if (heroSection?.content?.headline) {
-          subtitle = heroSection.content.headline.replace(/\\n/g, ' ').slice(0, 100);
-        }
+      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
+      if (heroSection?.content?.subtext) {
+        subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 80);
       }
     }
   } catch (e) {
-    console.error('OG Image fetch error:', e);
+    // 에러 시 기본값 사용
   }
 
   return new ImageResponse(
@@ -65,7 +58,6 @@ export default async function Image({ params }: Props) {
           fontFamily: 'sans-serif',
         }}
       >
-        {/* 상단 악센트 바 */}
         <div
           style={{
             position: 'absolute',
@@ -77,7 +69,6 @@ export default async function Image({ params }: Props) {
           }}
         />
 
-        {/* 메인 컨텐츠 */}
         <div
           style={{
             display: 'flex',
@@ -88,7 +79,6 @@ export default async function Image({ params }: Props) {
             maxWidth: '1000px',
           }}
         >
-          {/* 제목 */}
           <div
             style={{
               fontSize: 56,
@@ -99,10 +89,9 @@ export default async function Image({ params }: Props) {
               marginBottom: subtitle ? 24 : 0,
             }}
           >
-            {title.length > 35 ? title.slice(0, 35) + '...' : title}
+            {title.length > 30 ? title.slice(0, 30) + '...' : title}
           </div>
 
-          {/* 부제목 */}
           {subtitle && (
             <div
               style={{
@@ -117,7 +106,6 @@ export default async function Image({ params }: Props) {
           )}
         </div>
 
-        {/* 하단 브랜딩 */}
         <div
           style={{
             position: 'absolute',
