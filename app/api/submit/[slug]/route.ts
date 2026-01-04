@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { sendKakaoAlimtalk } from '@/lib/notifications/kakao';
+import { createServerClient } from '@/lib/supabase/client';
 import { sendEmailNotification } from '@/lib/notifications/email';
 
 export async function POST(
@@ -9,7 +10,7 @@ export async function POST(
   try {
     const { slug } = await params;
     const body = await request.json();
-    const { data, pageId } = body;
+    const { data } = body;
 
     // 유효성 검사
     if (!data || !data.name || !data.phone) {
@@ -19,86 +20,70 @@ export async function POST(
       );
     }
 
-    // TODO: Supabase에서 페이지 정보 조회
-    // const { data: page, error } = await supabaseAdmin
-    //   .from('pages')
-    //   .select('*, user:profiles(*)')
-    //   .eq('slug', slug)
-    //   .single();
+    const supabase = createServerClient() as any;
 
-    // 임시 페이지 정보
-    const page = {
-      id: pageId || 'demo',
-      title: '데모 페이지',
-      user: {
-        email: 'test@example.com',
-        phone: '010-1234-5678',
-        kakao_linked: true,
-        notify_kakao: true,
-        notify_email: true,
-      },
-    };
+    // 페이지 조회 (slug로)
+    const { data: page, error: pageError } = await supabase
+      .from('landing_pages')
+      .select('id, title, user_id, users!inner(email, name)')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single();
 
-    // TODO: Supabase에 신청 데이터 저장
-    // const { data: submission, error: submitError } = await supabaseAdmin
-    //   .from('submissions')
-    //   .insert({
-    //     page_id: page.id,
-    //     data,
-    //     status: 'new',
-    //     ip_address: request.ip,
-    //     user_agent: request.headers.get('user-agent'),
-    //   })
-    //   .select()
-    //   .single();
+    if (pageError || !page) {
+      console.error('Page not found:', slug, pageError);
+      return NextResponse.json(
+        { error: '페이지를 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
 
-    const submission = {
-      id: `sub_${Date.now()}`,
-      page_id: page.id,
-      data,
-      created_at: new Date().toISOString(),
-    };
+    // 신청 데이터 저장
+    const { data: submission, error: submitError } = await supabase
+      .from('submissions')
+      .insert({
+        page_id: page.id,
+        name: data.name,
+        phone: data.phone,
+        email: data.email || null,
+        message: data.goal || data.current || data.message || null,
+        status: 'new',
+      })
+      .select()
+      .single();
 
-    console.log('[Submission] New submission received:', {
+    if (submitError) {
+      console.error('Submit error:', submitError);
+      return NextResponse.json(
+        { error: '신청 저장에 실패했습니다.' },
+        { status: 500 }
+      );
+    }
+
+    console.log('[Submission] New submission saved:', {
       pageId: page.id,
       submissionId: submission.id,
       name: data.name,
       phone: data.phone,
     });
 
+    // 페이지 소유자 정보 (알림용)
+    const pageOwner = page.users;
+
     // 알림 발송 (비동기로 처리)
     const notificationPromises: Promise<any>[] = [];
 
-    // 카카오 알림톡 발송
-    if (page.user.notify_kakao && page.user.kakao_linked) {
-      notificationPromises.push(
-        sendKakaoAlimtalk({
-          recipientPhone: page.user.phone,
-          pageName: page.title,
-          submissionData: {
-            name: data.name,
-            phone: data.phone,
-            company: data.company,
-            message: data.message,
-          },
-          submittedAt: new Date(),
-        }).catch((err) => {
-          console.error('[Kakao Alimtalk] Failed to send:', err);
-        })
-      );
-    }
-
-    // 이메일 알림 발송
-    if (page.user.notify_email && page.user.email) {
+    // 이메일 알림 발송 (소유자 이메일이 있는 경우)
+    if (pageOwner?.email) {
       notificationPromises.push(
         sendEmailNotification({
-          recipientEmail: page.user.email,
+          recipientEmail: pageOwner.email,
           pageName: page.title,
           submissionData: {
             name: data.name,
             phone: data.phone,
             company: data.company,
-            message: data.message,
+            message: data.goal || data.current || data.message,
           },
           submittedAt: new Date(),
         }).catch((err) => {
