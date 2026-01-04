@@ -34,18 +34,13 @@ export async function POST(request: NextRequest) {
       .eq('email', userEmail)
       .single();
 
-    // 없으면 users에 생성
+    // 없으면 users에 생성 (email만 필수, 나머지는 DB 기본값 사용)
     if (!user) {
-      const userId = crypto.randomUUID();
       const { data: newUser, error: createError } = await supabase
         .from('users')
         .insert({
-          id: userId,
           email: userEmail,
-          name: session.user.name || '',
-          role: 'user',
-          plan: 'free',
-          created_at: new Date().toISOString(),
+          name: session.user.name || null,
         })
         .select('id')
         .single();
@@ -54,7 +49,7 @@ export async function POST(request: NextRequest) {
         console.error('User create error:', createError);
         return NextResponse.json({
           error: 'Failed to create user',
-          details: JSON.stringify(createError),
+          details: createError?.message || JSON.stringify(createError),
         }, { status: 500 });
       }
       user = newUser;
