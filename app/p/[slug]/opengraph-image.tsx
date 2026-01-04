@@ -32,7 +32,8 @@ export default async function Image({ params }: Props) {
     });
 
     if (res.ok) {
-      const page = await res.json();
+      const data = await res.json();
+      const page = data.page;
 
       if (page && page.title) {
         title = page.title;
