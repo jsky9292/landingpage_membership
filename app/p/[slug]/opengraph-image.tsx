@@ -13,11 +13,22 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// 테마별 프라이머리 색상 매핑
+const themeColors: Record<string, string> = {
+  toss: '#0891B2',     // 시안
+  dark: '#6366F1',     // 인디고
+  warm: '#10B981',     // 에메랄드
+  peach: '#F43F5E',    // 로즈
+  luxury: '#F59E0B',   // 앰버
+  slate: '#475569',    // 슬레이트
+};
+
 export default async function Image({ params }: Props) {
   const { slug } = await params;
 
   let title = '랜딩페이지';
   let subtitle = '';
+  let primaryColor = '#0891B2'; // 기본값: 시안
 
   try {
     const supabase = createClient(
@@ -27,7 +38,7 @@ export default async function Image({ params }: Props) {
 
     const { data: page } = await supabase
       .from('landing_pages')
-      .select('title, sections')
+      .select('title, sections, theme')
       .eq('slug', slug)
       .eq('status', 'published')
       .single();
@@ -35,9 +46,15 @@ export default async function Image({ params }: Props) {
     if (page?.title) {
       title = page.title;
 
+      // 테마 색상 적용
+      if (page.theme && themeColors[page.theme]) {
+        primaryColor = themeColors[page.theme];
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const heroSection = page.sections?.find((s: any) => s.type === 'hero');
       if (heroSection?.content?.subtext) {
-        subtitle = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 80);
+        subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 80);
       }
     }
   } catch (e) {
@@ -65,7 +82,7 @@ export default async function Image({ params }: Props) {
             left: 0,
             right: 0,
             height: '8px',
-            background: '#0064FF',
+            background: primaryColor,
           }}
         />
 

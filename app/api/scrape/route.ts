@@ -1,41 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/options';
 import { scrapeWebsite } from '@/lib/scrape';
-import { createServerClient } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
-// Pro 사용자만 사용 가능한 스크래핑 API
+// Pro only scraping API
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
+        { error: 'Login required' },
         { status: 401 }
       );
     }
 
-    // 사용자 플랜 확인
+    // Check admin role from session first
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
-    const { data: user } = await supabase
-      .from('users')
-      .select('id, plan, role')
-      .eq('email', session.user.email)
-      .single();
+    const sessionRole = (session.user as any)?.role;
+    let isPro = sessionRole === 'admin';
 
-    if (!user) {
-      return NextResponse.json(
-        { error: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+    // If not admin, check plan from DB
+    if (!isPro) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('id, plan')
+        .eq('email', session.user.email)
+        .single();
+
+      if (profile) {
+        isPro = profile.plan === 'pro' || profile.plan === 'premium' || profile.plan === 'starter';
+      }
     }
 
-    // Pro 또는 Admin만 사용 가능
-    const isPro = user.plan === 'pro' || user.plan === 'premium' || user.role === 'admin';
+    // Only Pro or Admin allowed
     if (!isPro) {
       return NextResponse.json(
-        { error: 'Pro 플랜 이상에서만 사용 가능한 기능입니다.' },
+        { error: 'Pro plan required' },
         { status: 403 }
       );
     }
@@ -43,10 +45,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { url } = body as { url: string };
 
-    // URL 유효성 검사
+    // URL validation
     if (!url) {
       return NextResponse.json(
-        { error: 'URL을 입력해주세요.' },
+        { error: 'URL is required' },
         { status: 400 }
       );
     }
@@ -55,23 +57,23 @@ export async function POST(request: NextRequest) {
       new URL(url);
     } catch {
       return NextResponse.json(
-        { error: '올바른 URL 형식이 아닙니다.' },
+        { error: 'Invalid URL format' },
         { status: 400 }
       );
     }
 
-    // 스크래핑 실행
+    // Execute scraping
     console.log(`[Scrape API] Starting scrape for: ${url}`);
     const result = await scrapeWebsite({ url });
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || '스크래핑 중 오류가 발생했습니다.' },
+        { error: result.error || 'Scraping failed' },
         { status: 500 }
       );
     }
 
-    // 결과 반환 (outputDir을 상대 경로로 변환)
+    // Return result (convert outputDir to relative path)
     const publicDir = process.cwd() + '/public';
     const relativePath = result.outputDir.replace(publicDir, '').replace(/\\/g, '/');
 
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
     console.error('Scrape API Error:', error);
     return NextResponse.json(
       {
-        error: '스크래핑 중 오류가 발생했습니다.',
+        error: 'Scraping failed',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
