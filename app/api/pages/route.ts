@@ -61,10 +61,12 @@ export async function POST(request: NextRequest) {
       console.log('User create result:', newUser, 'Error:', createUserError);
 
       if (createUserError || !newUser) {
-        console.error('User create error:', createUserError);
+        console.error('User create error:', JSON.stringify(createUserError));
         return NextResponse.json({
           error: 'Failed to create user',
-          details: createUserError?.message || 'Unknown error'
+          details: JSON.stringify(createUserError) || 'Unknown error',
+          code: createUserError?.code,
+          hint: createUserError?.hint
         }, { status: 500 });
       }
       user = newUser;

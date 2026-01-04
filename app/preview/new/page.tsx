@@ -131,7 +131,8 @@ export default function PreviewNewPage() {
 
       if (!response.ok) {
         console.error('Deploy failed:', result);
-        throw new Error(result.details || result.error || '배포에 실패했습니다');
+        const errorMsg = `${result.error}\n\n상세: ${result.details || 'N/A'}\n코드: ${result.code || 'N/A'}`;
+        throw new Error(errorMsg);
       }
 
       const url = `${window.location.origin}/p/${result.page.slug}`;
