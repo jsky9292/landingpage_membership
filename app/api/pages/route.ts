@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
-import { createServerClient } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 페이지 생성 (배포)
 export async function POST(request: NextRequest) {
@@ -24,11 +24,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createServerClient() as any;
     const userEmail = session.user.email;
 
     // profiles 테이블에서 사용자 조회
-    let { data: profile } = await supabase
+    let { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('email', userEmail)
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // 없으면 profiles에 생성
     if (!profile) {
-      const { data: newProfile, error: createError } = await supabase
+      const { data: newProfile, error: createError } = await supabaseAdmin
         .from('profiles')
         .insert({
           email: userEmail,
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
     const pageSlug = slug || `page-${Date.now().toString(36)}`;
 
     // 페이지 생성
-    const { data: newPage, error: pageError } = await supabase
+    const { data: newPage, error: pageError } = await supabaseAdmin
       .from('landing_pages')
       .insert({
         user_id: profile.id,
@@ -110,11 +109,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServerClient() as any;
     const userEmail = session.user.email;
 
     // profiles에서 사용자 조회
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('email', userEmail)
@@ -125,7 +123,7 @@ export async function GET() {
     }
 
     // 사용자의 페이지 목록
-    const { data: pages, error: pagesError } = await supabase
+    const { data: pages, error: pagesError } = await supabaseAdmin
       .from('landing_pages')
       .select('id, title, slug, status, view_count, created_at, updated_at')
       .eq('user_id', profile.id)
