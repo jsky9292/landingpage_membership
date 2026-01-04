@@ -5,7 +5,21 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { toneStyles, customEmojis } from '@/lib/config/emojis';
-import { getSampleById } from '@/data/samples';
+import { getSampleById, samplePages, categoryToTopic } from '@/data/samples';
+
+
+// 샘플 카테고리 (samples.ts와 일관성 유지)
+const sampleCategories = [
+  { id: 'all', name: '전체', icon: '🏠' },
+  { id: 'education', name: '교육/강의', icon: '🎓' },
+  { id: 'consulting', name: '상담/컨설팅', icon: '💼' },
+  { id: 'service', name: '서비스/대행', icon: '🛠️' },
+  { id: 'product', name: '상품/판매', icon: '🛒' },
+  { id: 'event', name: '이벤트/모집', icon: '🎉' },
+  { id: 'realestate', name: '부동산/분양', icon: '🏢' },
+  { id: 'franchise', name: '프랜차이즈', icon: '🍗' },
+  { id: 'interior', name: '인테리어', icon: '🏠' },
+];
 
 // 질문-답변 형식 가이드
 interface TopicGuide {
@@ -1651,6 +1665,7 @@ export default function CreatePage() {
   const [error, setError] = useState('');
   const [showExamples, setShowExamples] = useState(true); // 기본으로 열기
   const [selectedCategory, setSelectedCategory] = useState(0);
+  const [selectedSampleCategory, setSelectedSampleCategory] = useState('all');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [selectedTone, setSelectedTone] = useState('professional');
   const [loadedFromSample, setLoadedFromSample] = useState(false);
@@ -2476,37 +2491,36 @@ export default function CreatePage() {
 
             {showExamples && (
               <>
-                {/* 카테고리 탭 - 그리드 정렬 */}
+                {/* 샘플 카테고리 탭 - samples.ts 기반 */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  display: 'flex',
+                  flexWrap: 'wrap',
                   gap: '8px',
                   marginBottom: '20px',
                   padding: '8px',
                   background: '#F8FAFC',
                   borderRadius: '12px',
                 }}>
-                  {config.categories.map((cat, i) => (
+                  {sampleCategories.map((cat) => (
                     <button
-                      key={i}
-                      onClick={() => setSelectedCategory(i)}
+                      key={cat.id}
+                      onClick={() => setSelectedSampleCategory(cat.id)}
                       style={{
-                        padding: '10px 8px',
+                        padding: '8px 14px',
                         fontSize: '12px',
-                        fontWeight: selectedCategory === i ? '600' : '500',
-                        background: selectedCategory === i
+                        fontWeight: selectedSampleCategory === cat.id ? '600' : '500',
+                        background: selectedSampleCategory === cat.id
                           ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
                           : 'transparent',
-                        color: selectedCategory === i ? '#fff' : '#4B5563',
+                        color: selectedSampleCategory === cat.id ? '#fff' : '#4B5563',
                         border: 'none',
-                        borderRadius: '8px',
+                        borderRadius: '20px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
                         gap: '4px',
                         transition: 'all 0.2s',
-                        boxShadow: selectedCategory === i
+                        boxShadow: selectedSampleCategory === cat.id
                           ? '0 2px 8px rgba(99,102,241,0.3)'
                           : 'none',
                         whiteSpace: 'nowrap',
@@ -2518,36 +2532,32 @@ export default function CreatePage() {
                   ))}
                 </div>
 
-                {/* 예시 그리드 - 3열 */}
+                {/* 샘플 그리드 - samples.ts 기반 */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: '14px',
-                  maxHeight: '480px',
+                  maxHeight: '520px',
                   overflowY: 'auto',
                   padding: '4px',
                 }}>
-                  {config.categories[selectedCategory]?.examples.map((example, index) => (
+                  {samplePages
+                    .filter(sample => selectedSampleCategory === 'all' || sample.category === selectedSampleCategory)
+                    .map((sample) => (
                     <button
-                      key={index}
+                      key={sample.id}
                       onClick={() => {
-                        if (example.answers && Array.isArray(example.answers)) {
-                          setAnswers(example.answers);
-                        } else if (example.content) {
-                          const parts = example.content.split('. ').filter(Boolean);
-                          const newAnswers = config.questions.map((_, i) => {
-                            if (i === 0) return parts.slice(0, 2).join('. ') + '.';
-                            if (i === 1) return '';
-                            if (i === 2) return parts.find(p => p.includes('원') || p.includes('무료')) || '';
-                            if (i === 3) return parts.find(p => p.includes('지역') || p.includes('전역') || p.includes('출장') || p.includes('온라인')) || parts[parts.length - 1] || '';
-                            return '';
-                          });
+                        // 샘플 formData로 폼 채우기
+                        if (sample.formData) {
+                          const newAnswers = new Array(config.questions?.length || 4).fill('');
+                          newAnswers[0] = sample.formData.title;
+                          newAnswers[1] = sample.formData.content;
                           setAnswers(newAnswers);
                         }
                       }}
                       style={{
                         textAlign: 'left',
-                        padding: '18px',
+                        padding: '16px',
                         background: '#FAFBFC',
                         border: '2px solid #E5E8EB',
                         borderRadius: '14px',
@@ -2555,9 +2565,9 @@ export default function CreatePage() {
                         transition: 'all 0.2s',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#6366F1';
+                        e.currentTarget.style.borderColor = sample.themeColor;
                         e.currentTarget.style.background = '#fff';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.15)';
+                        e.currentTarget.style.boxShadow = `0 4px 12px ${sample.themeColor}25`;
                         e.currentTarget.style.transform = 'translateY(-2px)';
                       }}
                       onMouseLeave={(e) => {
@@ -2574,43 +2584,43 @@ export default function CreatePage() {
                         marginBottom: '10px',
                       }}>
                         <span style={{
-                          background: '#EEF2FF',
-                          color: '#6366F1',
+                          background: `${sample.themeColor}15`,
+                          color: sample.themeColor,
                           padding: '4px 8px',
                           borderRadius: '6px',
                           fontSize: '11px',
                           fontWeight: '600',
                         }}>
-                          예시 {index + 1}
+                          {sample.categoryName}
                         </span>
                       </div>
                       <h4 style={{
                         fontSize: '15px',
                         fontWeight: '700',
                         color: '#191919',
-                        marginBottom: '8px',
+                        marginBottom: '6px',
                         lineHeight: 1.3,
                       }}>
-                        {example.title}
+                        {sample.name}
                       </h4>
                       <p style={{
                         fontSize: '13px',
                         color: '#6B7280',
-                        lineHeight: 1.6,
+                        lineHeight: 1.5,
                         display: '-webkit-box',
-                        WebkitLineClamp: 3,
+                        WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                         margin: 0,
                       }}>
-                        {example.answers ? example.answers[0] : example.content}
+                        {sample.preview.headline}
                       </p>
                       <div style={{
-                        marginTop: '12px',
+                        marginTop: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        color: '#6366F1',
+                        color: sample.themeColor,
                         fontSize: '12px',
                         fontWeight: '600',
                       }}>
@@ -2638,7 +2648,7 @@ export default function CreatePage() {
                   🎨 더 다양한 샘플이 필요하신가요?
                 </p>
                 <p style={{ fontSize: '12px', color: '#6366F1', marginTop: '4px' }}>
-                  26개의 업종별 샘플을 확인해보세요
+                  36개의 업종별 샘플을 확인해보세요
                 </p>
               </div>
               <button
