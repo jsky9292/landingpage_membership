@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
-import { Section, FormField, SectionType } from '@/types/page';
+import { Section, FormField, SectionType, ThemeType } from '@/types/page';
 
 interface PageData {
   title: string;
@@ -312,6 +312,7 @@ export default function PublicPage() {
       <SectionRenderer
         sections={data.sections}
         formFields={data.formFields}
+        theme={(data.theme || 'toss') as ThemeType}
         isEditable={false}
         onFormSubmit={handleFormSubmit}
         isSubmitting={isSubmitting}

@@ -25,7 +25,7 @@ interface PresetTheme {
 }
 
 const presetThemes: PresetTheme[] = [
-  { id: 'toss', name: '시안', colors: ['#0891B2', '#06B6D4'] },
+  { id: 'toss', name: '토스 블루', colors: ['#0064FF', '#3B82F6'] },
   { id: 'dark', name: '인디고', colors: ['#6366F1', '#8B5CF6'] },
   { id: 'warm', name: '에메랄드', colors: ['#10B981', '#34D399'] },
   { id: 'peach', name: '로즈', colors: ['#F43F5E', '#FB7185'] },

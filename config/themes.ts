@@ -27,11 +27,11 @@ export interface ThemeConfig {
 export const THEMES: Record<ThemeType, ThemeConfig> = {
   toss: {
     id: 'toss',
-    name: '시안',
-    description: '깔끔하고 신뢰감 있는 시안 테마',
+    name: '토스 블루',
+    description: '깔끔하고 신뢰감 있는 토스 블루 테마',
     colors: {
-      primary: '#0891B2',
-      primaryLight: '#ECFEFF',
+      primary: '#0064FF',
+      primaryLight: '#E8F3FF',
       background: '#FFFFFF',
       backgroundAlt: '#F2F4F6',
       text: '#191F28',

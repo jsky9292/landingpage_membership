@@ -15,7 +15,7 @@ type Props = {
 
 // 테마별 프라이머리 색상 매핑 (config/themes.ts와 동일)
 const themeColors: Record<string, string> = {
-  toss: '#0891B2',     // 시안
+  toss: '#0064FF',     // 토스 블루
   dark: '#6366F1',     // 인디고
   warm: '#10B981',     // 에메랄드
   peach: '#F43F5E',    // 로즈
@@ -28,7 +28,7 @@ export default async function Image({ params }: Props) {
 
   let title = '랜딩페이지';
   let subtitle = '';
-  let primaryColor = '#0891B2'; // 기본값: 시안
+  let primaryColor = '#0064FF'; // 기본값: 토스 블루
 
   try {
     const supabase = createClient(
