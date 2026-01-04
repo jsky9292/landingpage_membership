@@ -399,6 +399,25 @@ export default function HomePage() {
             >
               무료로 만들기
             </button>
+            <a
+              href="/create/url"
+              style={{
+                padding: '10px 20px',
+                background: 'linear-gradient(135deg, #9333EA 0%, #3182F6 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <span style={{ fontSize: '12px' }}>⭐</span> URL로 만들기
+            </a>
           </nav>
           {/* 모바일 네비게이션 */}
           <div className="mobile-nav" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
