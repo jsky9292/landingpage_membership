@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { toneStyles, customEmojis } from '@/lib/config/emojis';
-import { getSampleById, samplePages } from '@/data/samples';
+import { getSampleById } from '@/data/samples';
 
 // 질문-답변 형식 가이드
 interface TopicGuide {
@@ -174,6 +174,54 @@ const topicData: Record<string, TopicGuide> = {
           { title: '스피치 훈련', content: '떨리지 않는 발표의 기술. 발성, 제스처, 시선처리. 4주 25만원. 영상 피드백. 실전 발표 3회.' },
           { title: '재테크 기초', content: '사회초년생 재테크 첫걸음. 저축, 투자, 보험 기초. 2주 10만원. 가계부 템플릿. 개인 상담 1회.' },
           { title: '명상 클래스', content: '마음챙김 명상 입문. 호흡법, 바디스캔, 일상 명상. 4주 12만원. 온라인 진행. 명상 앱 구독권.' },
+        ]
+      },
+      {
+        name: '보험/재무',
+        icon: '🛡️',
+        examples: [
+          { title: '맞춤 보험 설계', content: '보험전문가 1:1 맞춤 보험 설계. 생명보험, 손해보험, 연금 분석. 무료 상담.' },
+          { title: '보험 리모델링', content: '기존 보험 점검 및 리모델링. 중복 보장 제거, 보험료 절감. 무료 분석.' },
+          { title: '변액보험 컨설팅', content: '변액보험 펀드 변경 컨설팅. 수익률 분석, 포트폴리오 조정. 1회 5만원.' },
+          { title: '퇴직연금 상담', content: 'DC형/IRP 퇴직연금 운용 상담. 펀드 선택, 세제혜택 안내. 무료 상담.' },
+          { title: '보험금 청구 대행', content: '보험금 청구 서류 작성 대행. 실손보험, 진단금, 수술비. 성공시 10%.' },
+          { title: '법인보험 설계', content: '법인 대표/임원 보험 설계. 퇴직금, 가업승계, 절세. CEO 맞춤 플랜.' },
+        ]
+      },
+      {
+        name: '마케팅/광고',
+        icon: '📢',
+        examples: [
+          { title: '퍼포먼스 마케팅', content: '페이스북/인스타 광고 대행. ROAS 200% 목표. 월 50만원부터.' },
+          { title: '블로그 마케팅', content: '네이버 블로그 상위노출 마케팅. 체험단 운영, 포스팅 대행. 월 30만원.' },
+          { title: '인플루언서 마케팅', content: '인스타/유튜브 인플루언서 섭외 대행. 브랜드 협찬 연결. 건당 10만원.' },
+          { title: '바이럴 마케팅', content: '카페/커뮤니티 바이럴 마케팅. 자연스러운 입소문. 월 20만원.' },
+          { title: '콘텐츠 마케팅', content: '브랜드 콘텐츠 기획/제작. 카드뉴스, 숏폼, 블로그. 월 80만원.' },
+          { title: 'SNS 운영대행', content: '인스타그램 계정 운영 대행. 피드 기획, 게시물 제작. 월 50만원.' },
+        ]
+      },
+      {
+        name: '인테리어/시공',
+        icon: '🏠',
+        examples: [
+          { title: '아파트 인테리어', content: '30평대 아파트 풀 인테리어. 디자인부터 시공까지. 평당 80만원.' },
+          { title: '부분 인테리어', content: '주방/욕실/거실 부분 인테리어. 저렴하게 분위기 전환. 200만원부터.' },
+          { title: '사무실 인테리어', content: '사무실/오피스 인테리어 전문. 파티션, 조명, 가구. 평당 50만원.' },
+          { title: '상가 인테리어', content: '카페/음식점 상가 인테리어. 컨셉 기획부터 준공까지. 평당 100만원.' },
+          { title: '셀프 인테리어 컨설팅', content: '셀프 인테리어 1:1 컨설팅. 자재 선택, 시공 순서 안내. 2시간 10만원.' },
+          { title: '홈스타일링', content: '가구 재배치, 소품 연출 홈스타일링. 이사 없이 분위기 전환. 1회 30만원.' },
+        ]
+      },
+      {
+        name: '프랜차이즈/창업',
+        icon: '🏪',
+        examples: [
+          { title: '치킨 프랜차이즈', content: '인기 치킨 브랜드 가맹 상담. 창업비용 5000만원대. 본사 교육 2주.' },
+          { title: '카페 창업', content: '소자본 카페 창업 컨설팅. 브랜드 선정부터 오픈까지. 3000만원대 가능.' },
+          { title: '무인매장 창업', content: '무인 아이스크림/편의점 창업. 최소 인건비. 2000만원대. 24시간 운영.' },
+          { title: '배달 전문점', content: '배달 전문 음식점 창업. 소형 주방으로 가능. 1500만원대.' },
+          { title: '프랜차이즈 컨설팅', content: '프랜차이즈 선택 컨설팅. 브랜드 비교 분석, 수익성 검토. 1회 20만원.' },
+          { title: '소자본 창업', content: '1000만원 이하 소자본 창업 아이템. 온라인/오프라인 추천. 1:1 상담 무료.' },
         ]
       },
     ]
@@ -2476,44 +2524,6 @@ export default function CreatePage() {
 
             {showExamples && (
               <>
-                {/* 업종별 샘플 갤러리 */}
-                <div style={{
-                  marginBottom: '16px',
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-                  borderRadius: '10px',
-                  border: '1px solid #F59E0B',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: '#92400E' }}>
-                      🎯 업종별 샘플 (보험, 마케팅, 인테리어 등)
-                    </span>
-                    <button onClick={() => router.push('/samples')} style={{ fontSize: '11px', color: '#B45309', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      전체보기 →
-                    </button>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-                    {samplePages.slice(0, 8).map((sample) => (
-                      <button
-                        key={sample.id}
-                        onClick={() => {
-                          if (sample.formData) {
-                            const parts = sample.formData.content.split('. ').filter(Boolean);
-                            const newAnswers = new Array(config.questions?.length || 6).fill('');
-                            newAnswers[0] = sample.formData.title;
-                            if (parts.length > 0) newAnswers[1] = parts.slice(0, 2).join('. ');
-                            setAnswers(newAnswers);
-                          }
-                        }}
-                        style={{ minWidth: '100px', padding: '8px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: '6px', cursor: 'pointer', textAlign: 'left', flexShrink: 0 }}
-                      >
-                        <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '2px' }}>{sample.category}</div>
-                        <div style={{ fontSize: '12px', fontWeight: '500', color: '#111' }}>{sample.formData?.title?.slice(0, 10) || sample.id}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* 카테고리 탭 - 그리드 정렬 */}
                 <div style={{
                   display: 'grid',
