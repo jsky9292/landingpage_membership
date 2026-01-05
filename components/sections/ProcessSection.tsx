@@ -15,7 +15,7 @@ interface ProcessSectionProps {
 const stepIcons = ['%', '🔗', '💰', '📊', '✓'];
 
 export function ProcessSection({ content, theme = 'toss', style }: ProcessSectionProps) {
-  const themeConfig = THEMES[theme];
+  const themeConfig = THEMES[theme] || THEMES.toss;
   const colors = themeConfig.colors;
   const titleSize = style?.titleFontSize || 28;
   const textSize = style?.textFontSize || 16;

@@ -13,7 +13,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ content, theme = 'toss', style, isEditable, onEdit, onCTAClick }: HeroSectionProps) {
-  const themeConfig = THEMES[theme];
+  const themeConfig = THEMES[theme] || THEMES.toss;
   const colors = themeConfig.colors;
   const titleSize = style?.titleFontSize || 36;
   const textSize = style?.textFontSize || 18;

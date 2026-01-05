@@ -16,7 +16,7 @@ interface FormSectionProps {
 }
 
 export function FormSection({ content, formFields, theme = 'toss', style, onSubmit, isSubmitting }: FormSectionProps) {
-  const themeConfig = THEMES[theme];
+  const themeConfig = THEMES[theme] || THEMES.toss;
   const colors = themeConfig.colors;
   const titleSize = style?.titleFontSize || 24;
   const textSize = style?.textFontSize || 14;
