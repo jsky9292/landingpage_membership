@@ -28,14 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // hero 섹션에서 subtext 가져오기
       const heroSection = page.sections?.find((s: any) => s.type === 'hero');
       if (heroSection?.content?.subtext) {
-        description = heroSection.content.subtext.replace(/\\n/g, ' ').slice(0, 150);
+        description = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 150);
       } else if (heroSection?.content?.headline) {
-        description = heroSection.content.headline.replace(/\\n/g, ' ').slice(0, 150);
+        description = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 150);
       }
     }
   } catch (e) {
     console.error('Metadata generation error:', e);
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://landingpage-membership3.vercel.app';
+  const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`;
 
   return {
     title,
@@ -47,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: 'ko_KR',
       images: [
         {
-          url: `./opengraph-image`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: title,
@@ -58,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [`./opengraph-image`],
+      images: [ogImageUrl],
     },
   };
 }
