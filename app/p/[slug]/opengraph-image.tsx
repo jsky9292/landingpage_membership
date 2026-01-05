@@ -15,12 +15,12 @@ type Props = {
 
 // 테마별 프라이머리 색상 매핑 (config/themes.ts와 동일)
 const themeColors: Record<string, string> = {
-  toss: '#0064FF',     // 토스 블루
-  dark: '#6366F1',     // 인디고
-  warm: '#10B981',     // 에메랄드
-  peach: '#F43F5E',    // 로즈
-  luxury: '#F59E0B',   // 앰버
-  slate: '#475569',    // 슬레이트
+  toss: '#0064FF',
+  dark: '#6366F1',
+  warm: '#10B981',
+  peach: '#F43F5E',
+  luxury: '#F59E0B',
+  slate: '#475569',
 };
 
 export default async function Image({ params }: Props) {
@@ -28,37 +28,46 @@ export default async function Image({ params }: Props) {
 
   let title = '랜딩페이지';
   let subtitle = '';
-  let primaryColor = '#0064FF'; // 기본값: 토스 블루
+  let primaryColor = '#0064FF';
 
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const { data: page } = await supabase
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('OG Image: Missing Supabase credentials');
+      throw new Error('Missing credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data: page, error } = await supabase
       .from('landing_pages')
       .select('title, sections, theme')
       .eq('slug', slug)
       .eq('status', 'published')
       .single();
 
+    if (error) {
+      console.error('OG Image Supabase error:', error.message);
+    }
+
     if (page?.title) {
       title = page.title;
 
-      // 테마 색상 적용
       if (page.theme && themeColors[page.theme]) {
         primaryColor = themeColors[page.theme];
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const heroSection = page.sections?.find((s: any) => s.type === 'hero');
       if (heroSection?.content?.subtext) {
         subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 80);
+      } else if (heroSection?.content?.headline) {
+        subtitle = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 80);
       }
     }
   } catch (e) {
-    // 에러 시 기본값 사용
+    console.error('OG Image error:', e);
   }
 
   return new ImageResponse(
