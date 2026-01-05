@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
 import { Section, FormField, SectionType, ThemeType } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 interface PageData {
   title: string;
@@ -307,12 +308,16 @@ export default function PublicPage() {
     );
   }
 
+  const themeKey = (data.theme || 'toss') as ThemeType;
+  const themeConfig = THEMES[themeKey] || THEMES.toss;
+  const themeColors = themeConfig.colors;
+
   return (
-    <div style={{ minHeight: '100vh', background: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: themeColors.background }}>
       <SectionRenderer
         sections={data.sections}
         formFields={data.formFields}
-        theme={(data.theme || 'toss') as ThemeType}
+        theme={themeKey}
         isEditable={false}
         onFormSubmit={handleFormSubmit}
         isSubmitting={isSubmitting}
@@ -336,11 +341,11 @@ export default function PublicPage() {
             fontSize: '16px',
             fontWeight: '600',
             color: '#fff',
-            background: '#0064FF',
+            background: themeColors.primary,
             border: 'none',
             borderRadius: '50px',
             cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(0,100,255,0.4)',
+            boxShadow: `0 4px 20px ${themeColors.primary}66`,
           }}
         >
           지금 신청하기

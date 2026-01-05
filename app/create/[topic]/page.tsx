@@ -1702,6 +1702,9 @@ export default function CreatePage() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [selectedTone, setSelectedTone] = useState('professional');
   const [loadedFromSample, setLoadedFromSample] = useState(false);
+  const [inputMode, setInputMode] = useState<'form' | 'free'>('form');
+  const [freeText, setFreeText] = useState('');
+  const [isDistributing, setIsDistributing] = useState(false);
 
   // 질문 개수만큼 답변 배열 초기화
   useEffect(() => {
@@ -1748,17 +1751,57 @@ export default function CreatePage() {
     }
   }, [usageLoading, canCreatePage]);
 
-  const handleGenerate = async () => {
-    const hasAnyAnswer = answers.some(a => a.trim());
-    if (!hasAnyAnswer) return;
-
-    // 답변들을 조합하여 프롬프트 생성
-    const combinedPrompt = config.questions.map((q, i) => {
-      if (answers[i]?.trim()) {
-        return `${q.q} ${answers[i]}`;
+  // AI 분배 기능 - 자유 텍스트를 분석해서 폼 필드에 자동 입력
+  const handleDistribute = async () => {
+    if (!freeText.trim()) return;
+    
+    setIsDistributing(true);
+    try {
+      const res = await fetch('/api/ai/distribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text: freeText, 
+          questions: config.questions.map(q => q.q),
+          topic 
+        }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.answers) {
+        setAnswers(data.answers);
+        setInputMode('form');
+        setFreeText('');
+      } else {
+        alert('AI 분배 실패: ' + (data.error || '다시 시도해주세요'));
       }
-      return null;
-    }).filter(Boolean).join(". ") + (additionalPrompt ? `. 추가사항: ${additionalPrompt}` : "") + (ctaButtonText ? `. CTA 버튼 문구: "${ctaButtonText}"` : "");
+    } catch (err) {
+      console.error('Distribute error:', err);
+      alert('AI 분배 중 오류가 발생했습니다');
+    } finally {
+      setIsDistributing(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    // 자유 입력 모드면 freeText 사용, 폼 모드면 answers 사용
+    let combinedPrompt = '';
+    
+    if (inputMode === 'free') {
+      if (!freeText.trim()) return;
+      combinedPrompt = freeText + (additionalPrompt ? `. 추가사항: ${additionalPrompt}` : "") + (ctaButtonText ? `. CTA 버튼 문구: "${ctaButtonText}"` : "");
+    } else {
+      const hasAnyAnswer = answers.some(a => a.trim());
+      if (!hasAnyAnswer) return;
+      
+      combinedPrompt = config.questions.map((q, i) => {
+        if (answers[i]?.trim()) {
+          return `${q.q} ${answers[i]}`;
+        }
+        return null;
+      }).filter(Boolean).join(". ") + (additionalPrompt ? `. 추가사항: ${additionalPrompt}` : "") + (ctaButtonText ? `. CTA 버튼 문구: "${ctaButtonText}"` : "");
+    }
 
     // 사용량 체크
     if (!canCreatePage) {
@@ -2220,7 +2263,106 @@ export default function CreatePage() {
               </div>
             </div>
 
+            {/* 입력 모드 토글 */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '20px',
+              padding: '4px',
+              background: '#F3F4F6',
+              borderRadius: '10px',
+            }}>
+              <button
+                onClick={() => setInputMode('form')}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  background: inputMode === 'form' ? '#fff' : 'transparent',
+                  color: inputMode === 'form' ? '#111' : '#6B7280',
+                  boxShadow: inputMode === 'form' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                📋 질문별 입력
+              </button>
+              <button
+                onClick={() => setInputMode('free')}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  background: inputMode === 'free' ? '#fff' : 'transparent',
+                  color: inputMode === 'free' ? '#111' : '#6B7280',
+                  boxShadow: inputMode === 'free' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                ✍️ 자유 입력
+              </button>
+            </div>
+
+            {/* 자유 입력 모드 */}
+            {inputMode === 'free' && (
+              <div style={{ marginBottom: '24px' }}>
+                <textarea
+                  value={freeText}
+                  onChange={(e) => setFreeText(e.target.value)}
+                  placeholder="정리되지 않은 내용을 자유롭게 입력하세요.
+
+예시:
+엑셀 강의 합니다. 직장인 대상이고 피벗테이블이랑 VLOOKUP 가르쳐요.
+4주 과정이고 20만원입니다. 강남역 근처에서 하고 수료증도 줘요."
+                  disabled={isLoading}
+                  style={{
+                    width: '100%',
+                    minHeight: '200px',
+                    padding: '16px',
+                    fontSize: '14px',
+                    lineHeight: '1.7',
+                    border: '2px solid #E5E8EB',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    resize: 'vertical',
+                    background: '#FAFBFC',
+                    fontFamily: 'inherit',
+                  }}
+                />
+                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={handleDistribute}
+                    disabled={isDistributing || !freeText.trim()}
+                    style={{
+                      padding: '10px 16px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: isDistributing || !freeText.trim() ? 'not-allowed' : 'pointer',
+                      background: '#F3F4F6',
+                      color: isDistributing || !freeText.trim() ? '#9CA3AF' : '#374151',
+                    }}
+                  >
+                    {isDistributing ? '⏳ 분석 중...' : '🔄 질문별로 분배하기'}
+                  </button>
+                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                    또는 바로 생성 버튼을 눌러주세요
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* 질문 입력 필드들 */}
+            {inputMode === 'form' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
               {config.questions.map((q, i) => (
                 <div key={i}>
@@ -2285,6 +2427,7 @@ export default function CreatePage() {
                 </div>
               ))}
             </div>
+            )}
 
             {/* 추가 프롬프트 입력 */}
             <div style={{ marginBottom: '24px' }}>
