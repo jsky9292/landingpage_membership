@@ -42,7 +42,7 @@ export function ProcessSection({ content, theme = 'toss', style }: ProcessSectio
         }
         .process-step-title {
           font-weight: 600;
-          color: ${colors.text};
+          color: ${colors.cardText || colors.text};
           margin-bottom: 4px;
           font-size: ${textSize}px;
           word-break: keep-all;
@@ -55,7 +55,7 @@ export function ProcessSection({ content, theme = 'toss', style }: ProcessSectio
         }
         .process-step-desc {
           font-size: clamp(13px, 3.5vw, 14px);
-          color: ${colors.textSecondary};
+          color: ${colors.cardTextSecondary || colors.textSecondary};
           line-height: 1.6;
           word-break: keep-all;
           text-wrap: balance;

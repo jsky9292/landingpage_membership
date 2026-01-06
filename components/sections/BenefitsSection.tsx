@@ -31,7 +31,7 @@ export function BenefitsSection({ content, theme = 'toss', style }: BenefitsSect
         }
         .benefit-item-title {
           font-weight: 600;
-          color: ${colors.text};
+          color: ${colors.cardText || colors.text};
           font-size: ${textSize}px;
           margin-bottom: 4px;
           word-break: keep-all;
@@ -39,7 +39,7 @@ export function BenefitsSection({ content, theme = 'toss', style }: BenefitsSect
         }
         .benefit-item-desc {
           font-size: ${Math.round(textSize * 0.875)}px;
-          color: ${colors.textSecondary};
+          color: ${colors.cardTextSecondary || colors.textSecondary};
           line-height: 1.6;
           word-break: keep-all;
           text-wrap: balance;

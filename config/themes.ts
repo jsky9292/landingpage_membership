@@ -15,6 +15,8 @@ export interface ThemeColors {
   error: string;
   gradient?: string; // 그라데이션 배경
   cardBackground?: string; // 카드 배경색
+  cardText?: string; // 카드 내부 텍스트 색상
+  cardTextSecondary?: string; // 카드 내부 보조 텍스트 색상
 }
 
 export interface ThemeConfig {
@@ -57,6 +59,8 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
       border: '#404040',
       success: '#22C55E',
       error: '#EF4444',
+      cardText: '#191F28',
+      cardTextSecondary: '#4E5968',
     },
   },
   warm: {
@@ -91,6 +95,8 @@ export const THEMES: Record<ThemeType, ThemeConfig> = {
       border: '#404040',
       success: '#84CC16',
       error: '#DC2626',
+      cardText: '#191F28',
+      cardTextSecondary: '#4E5968',
     },
   },
   peach: {
