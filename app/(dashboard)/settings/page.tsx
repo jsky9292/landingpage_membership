@@ -76,40 +76,72 @@ export default function SettingsPage() {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isTestingKey, setIsTestingKey] = useState(false);
   const [keyTestResult, setKeyTestResult] = useState<'success' | 'error' | null>(null);
+  const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
-  // localStorage에서 설정 불러오기
+  // Supabase에서 설정 불러오기
   useEffect(() => {
-    const savedApiSettings = localStorage.getItem('apiSettings');
-    if (savedApiSettings) {
+    const loadSettings = async () => {
       try {
-        setApiSettings(JSON.parse(savedApiSettings));
-      } catch (e) {
-        console.error('Failed to load API settings:', e);
+        const response = await fetch('/api/users/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.apiSettings) {
+            setApiSettings({
+              useOwnKey: data.apiSettings.useOwnKey || false,
+              geminiApiKey: '',
+              imageModel: data.apiSettings.imageModel || 'gemini-2.5-flash-image',
+              textModel: data.apiSettings.textModel || 'gemini-2.5-pro',
+            });
+            setHasGeminiKey(data.apiSettings.hasGeminiKey || false);
+          }
+          if (data.crmSettings) {
+            setCrmSettings(prev => ({ ...prev, ...data.crmSettings }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-
-    const savedCrmSettings = localStorage.getItem('crmSettings');
-    if (savedCrmSettings) {
-      try {
-        setCrmSettings({ ...crmSettings, ...JSON.parse(savedCrmSettings) });
-      } catch (e) {
-        console.error('Failed to load CRM settings:', e);
-      }
-    }
+    };
+    loadSettings();
   }, []);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // API 설정 localStorage에 저장
-    localStorage.setItem('apiSettings', JSON.stringify(apiSettings));
-    // CRM 설정 localStorage에 저장
-    localStorage.setItem('crmSettings', JSON.stringify(crmSettings));
-    // TODO: 나머지 설정 API 호출
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    alert('저장되었습니다!');
+    try {
+      const response = await fetch('/api/users/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiSettings: {
+            useOwnKey: apiSettings.useOwnKey,
+            geminiApiKey: apiSettings.geminiApiKey || undefined,
+            imageModel: apiSettings.imageModel,
+            textModel: apiSettings.textModel,
+          },
+          crmSettings,
+        }),
+      });
+      if (response.ok) {
+        alert('저장되었습니다!');
+        if (apiSettings.geminiApiKey) {
+          setHasGeminiKey(true);
+          setApiSettings(prev => ({ ...prev, geminiApiKey: '' }));
+        }
+      } else {
+        const data = await response.json();
+        alert(data.error || '저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('저장에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const testApiKey = async () => {
@@ -579,17 +611,20 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-[#4E5968] mb-2">
                 Google AI API 키
               </label>
+              {hasGeminiKey && !apiSettings.geminiApiKey && (
+                <p className="text-sm text-green-600 mb-2">✓ API 키가 저장되어 있습니다. 변경하려면 새 키를 입력하세요.</p>
+              )}
               <div className="flex gap-2">
                 <input
                   type="password"
                   value={apiSettings.geminiApiKey}
                   onChange={(e) => setApiSettings({ ...apiSettings, geminiApiKey: e.target.value })}
-                  placeholder="AIza..."
+                  placeholder={hasGeminiKey ? '새 API 키를 입력하세요...' : 'AIza...'}
                   className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0064FF]/20 focus:border-[#0064FF]"
                 />
                 <button
                   onClick={testApiKey}
-                  disabled={isTestingKey}
+                  disabled={isTestingKey || !apiSettings.geminiApiKey}
                   className="px-4 py-3 bg-[#0064FF] text-white rounded-xl hover:bg-[#0050CC] disabled:opacity-50 whitespace-nowrap"
                 >
                   {isTestingKey ? '테스트 중...' : '테스트'}

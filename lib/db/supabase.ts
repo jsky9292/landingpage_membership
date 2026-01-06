@@ -12,6 +12,32 @@ export const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// API 설정 타입
+export type APISettings = {
+  useOwnKey: boolean;
+  geminiApiKey: string;
+  claudeApiKey: string;
+  imageModel: string;
+  textModel: string;
+};
+
+// CRM 설정 타입
+export type CRMSettings = {
+  redirectType: 'none' | 'url' | 'kakao' | 'thankyou';
+  redirectUrl: string;
+  kakaoChannelUrl: string;
+  autoSendEnabled: boolean;
+  autoSendType: 'ebook' | 'link' | 'message';
+  autoSendContent: string;
+  autoSendTitle: string;
+  notifyKakaoEnabled: boolean;
+  notifyKakaoPhone: string;
+  thankYouTitle: string;
+  thankYouMessage: string;
+  thankYouButtonText: string;
+  thankYouButtonUrl: string;
+};
+
 // Database types (Supabase에서 생성된 타입과 연동)
 export type Database = {
   public: {
@@ -31,6 +57,8 @@ export type Database = {
           notify_kakao: boolean;
           notify_email: boolean;
           notify_sms: boolean;
+          api_settings: APISettings | null;
+          crm_settings: CRMSettings | null;
           created_at: string;
           updated_at: string;
         };

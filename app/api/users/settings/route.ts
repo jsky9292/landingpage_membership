@@ -3,7 +3,33 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
 import { supabaseAdmin } from '@/lib/db/supabase';
 
-// 사용자 API 설정 조회
+// 기본 CRM 설정
+const DEFAULT_CRM_SETTINGS = {
+  redirectType: 'thankyou',
+  redirectUrl: '',
+  kakaoChannelUrl: '',
+  autoSendEnabled: false,
+  autoSendType: 'ebook',
+  autoSendContent: '',
+  autoSendTitle: '',
+  notifyKakaoEnabled: false,
+  notifyKakaoPhone: '',
+  thankYouTitle: '신청이 완료되었습니다!',
+  thankYouMessage: '빠른 시일 내에 연락드리겠습니다.',
+  thankYouButtonText: '',
+  thankYouButtonUrl: '',
+};
+
+// 기본 API 설정
+const DEFAULT_API_SETTINGS = {
+  useOwnKey: false,
+  geminiApiKey: '',
+  claudeApiKey: '',
+  imageModel: 'gemini-2.5-flash-image',
+  textModel: 'gemini-2.5-pro',
+};
+
+// 사용자 설정 조회
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -12,11 +38,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = supabaseAdmin;
     const { data: user, error } = await supabase
       .from('profiles')
-      .select('id, api_settings')
+      .select('id, api_settings, crm_settings')
       .eq('email', session.user.email)
       .single();
 
@@ -24,24 +49,22 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // API 설정이 없으면 기본값 반환
-    const apiSettings = user.api_settings || {
-      useOwnKey: false,
-      geminiApiKey: '',
-      claudeApiKey: '',
-      imageModel: 'gemini-2.5-flash-image',
-      textModel: 'gemini-2.5-pro',
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const apiSettings = (user as any).api_settings || DEFAULT_API_SETTINGS;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const crmSettings = (user as any).crm_settings || DEFAULT_CRM_SETTINGS;
 
-    // API 키는 마스킹해서 반환 (보안)
     return NextResponse.json({
-      useOwnKey: apiSettings.useOwnKey,
-      geminiApiKey: apiSettings.geminiApiKey ? maskApiKey(apiSettings.geminiApiKey) : '',
-      claudeApiKey: apiSettings.claudeApiKey ? maskApiKey(apiSettings.claudeApiKey) : '',
-      imageModel: apiSettings.imageModel,
-      textModel: apiSettings.textModel,
-      hasGeminiKey: !!apiSettings.geminiApiKey,
-      hasClaudeKey: !!apiSettings.claudeApiKey,
+      apiSettings: {
+        useOwnKey: apiSettings.useOwnKey,
+        geminiApiKey: apiSettings.geminiApiKey ? maskApiKey(apiSettings.geminiApiKey) : '',
+        claudeApiKey: apiSettings.claudeApiKey ? maskApiKey(apiSettings.claudeApiKey) : '',
+        imageModel: apiSettings.imageModel,
+        textModel: apiSettings.textModel,
+        hasGeminiKey: !!apiSettings.geminiApiKey,
+        hasClaudeKey: !!apiSettings.claudeApiKey,
+      },
+      crmSettings,
     });
   } catch (error) {
     console.error('Get user settings error:', error);
@@ -49,7 +72,7 @@ export async function GET() {
   }
 }
 
-// 사용자 API 설정 저장
+// 사용자 설정 저장
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,15 +82,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { useOwnKey, geminiApiKey, claudeApiKey, imageModel, textModel } = body;
+    const { apiSettings, crmSettings } = body;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = supabaseAdmin;
 
     // 현재 사용자 조회
     const { data: user, error: userError } = await supabase
       .from('profiles')
-      .select('id, api_settings')
+      .select('id, api_settings, crm_settings')
       .eq('email', session.user.email)
       .single();
 
@@ -75,30 +97,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // 기존 설정과 병합 (빈 문자열이 아닌 경우에만 업데이트)
-    const existingSettings = user.api_settings || {};
-    const newSettings = {
-      useOwnKey: useOwnKey ?? existingSettings.useOwnKey ?? false,
-      geminiApiKey: geminiApiKey || existingSettings.geminiApiKey || '',
-      claudeApiKey: claudeApiKey || existingSettings.claudeApiKey || '',
-      imageModel: imageModel || existingSettings.imageModel || 'gemini-2.5-flash-image',
-      textModel: textModel || existingSettings.textModel || 'gemini-2.5-pro',
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: any = {};
 
     // API 설정 업데이트
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ api_settings: newSettings })
-      .eq('id', user.id);
+    if (apiSettings) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const existingApiSettings = (user as any).api_settings || {};
+      updateData.api_settings = {
+        useOwnKey: apiSettings.useOwnKey ?? existingApiSettings.useOwnKey ?? false,
+        geminiApiKey: apiSettings.geminiApiKey || existingApiSettings.geminiApiKey || '',
+        claudeApiKey: apiSettings.claudeApiKey || existingApiSettings.claudeApiKey || '',
+        imageModel: apiSettings.imageModel || existingApiSettings.imageModel || 'gemini-2.5-flash-image',
+        textModel: apiSettings.textModel || existingApiSettings.textModel || 'gemini-2.5-pro',
+      };
+    }
 
-    if (updateError) {
-      console.error('Update error:', updateError);
-      return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
+    // CRM 설정 업데이트
+    if (crmSettings) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const existingCrmSettings = (user as any).crm_settings || {};
+      updateData.crm_settings = {
+        ...DEFAULT_CRM_SETTINGS,
+        ...existingCrmSettings,
+        ...crmSettings,
+      };
+    }
+
+    // 설정 업데이트
+    if (Object.keys(updateData).length > 0) {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Update error:', updateError);
+        return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'API 설정이 저장되었습니다.',
+      message: '설정이 저장되었습니다.',
     });
   } catch (error) {
     console.error('Save user settings error:', error);
