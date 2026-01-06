@@ -276,10 +276,24 @@ export default function HomePage() {
     }
   };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('구독 신청이 완료되었습니다! 매주 유용한 마케팅 팁을 보내드릴게요.');
-    setEmail('');
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(data.message || '구독 신청이 완료되었습니다! 매주 유용한 마케팅 팁을 보내드릴게요.');
+        setEmail('');
+      } else {
+        alert(data.error || '구독 신청에 실패했습니다.');
+      }
+    } catch {
+      alert('구독 신청 중 오류가 발생했습니다.');
+    }
   };
 
   const handleChatSubmit = () => {
@@ -403,7 +417,7 @@ export default function HomePage() {
               href="/create/url"
               style={{
                 padding: '10px 20px',
-                background: 'linear-gradient(135deg, #9333EA 0%, #3182F6 100%)',
+                background: '#10B981',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '8px',
@@ -416,7 +430,7 @@ export default function HomePage() {
                 gap: '4px',
               }}
             >
-              <span style={{ fontSize: '12px' }}>⭐</span> URL로 만들기
+              URL로 만들기
             </a>
           </nav>
           {/* 모바일 네비게이션 */}
@@ -696,7 +710,7 @@ export default function HomePage() {
               marginBottom: '12px',
             }}>
               <span style={{ fontSize: '13px', fontWeight: '600', color: '#D97706' }}>
-                📈 실제 DB 수집 성과
+                실제 DB 수집 성과
               </span>
             </div>
             <h2 className="section-title" style={{
@@ -994,11 +1008,23 @@ export default function HomePage() {
             gap: '20px',
           }}>
             {blogPosts.slice(0, 3).map((post) => (
-              <article key={post.id} style={{
+              <article
+                key={post.id}
+                onClick={() => alert('블로그 콘텐츠 준비 중입니다. 곧 공개됩니다!')}
+                style={{
                 background: '#F9FAFB',
                 borderRadius: '12px',
                 padding: '20px',
                 cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                   <span style={{
@@ -1057,7 +1083,6 @@ export default function HomePage() {
         background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
       }}>
         <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>📬</div>
           <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#191919', marginBottom: '8px' }}>
             매주 DB 수집 팁 받기
           </h3>
@@ -1338,7 +1363,7 @@ export default function HomePage() {
             borderRadius: '8px',
           }}>
             <span style={{ fontSize: '13px', color: '#6B7280' }}>
-              🛡️ <strong>7일 환불 보장</strong> - 불만족시 전액 환불 | 💳 토스페이먼츠 안전결제
+              <strong>7일 환불 보장</strong> - 불만족시 전액 환불 | 토스페이먼츠 안전결제
             </span>
           </div>
         </div>
