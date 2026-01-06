@@ -54,6 +54,7 @@ export type Database = {
           kakao_phone: string | null;
           plan: 'free' | 'starter' | 'pro' | 'enterprise';
           plan_expires_at: string | null;
+          role: 'user' | 'admin';
           notify_kakao: boolean;
           notify_email: boolean;
           notify_sms: boolean;

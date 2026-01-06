@@ -87,20 +87,13 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       try {
-        // 데모 계정은 Supabase 저장 건너뛰기
-        if (account?.provider === 'demo-login') {
-          console.log('[Auth] Demo user signed in:', {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          });
-          return true;
-        }
-
-        // Supabase에 사용자 정보 저장/업데이트
+        // Supabase에 사용자 정보 저장/업데이트 (데모 계정 포함)
         if (user.email) {
+          const isDemoAccount = account?.provider === 'demo-login';
+          const demoUser = isDemoAccount ? DEMO_USERS.find(u => u.email === user.email) : null;
+
           const { error } = await supabaseAdmin
             .from('profiles')
             .upsert({
@@ -111,6 +104,7 @@ export const authOptions: AuthOptions = {
               kakao_linked: account?.provider === 'kakao',
               kakao_id: account?.provider === 'kakao' ? account.providerAccountId : null,
               plan: 'free', // 신규 가입 시 무료 플랜
+              role: demoUser?.role || 'user', // 데모 계정은 role 저장
             }, {
               onConflict: 'email',
               ignoreDuplicates: false,
