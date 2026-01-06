@@ -5,7 +5,15 @@ import { scrapeWebsite } from '@/lib/scrape';
 import { supabaseAdmin } from '@/lib/db/supabase';
 
 // Pro only scraping API
+// NOTE: Scraping is temporarily disabled on Vercel serverless
 export async function POST(request: NextRequest) {
+  // Temporarily disabled - Puppeteer doesn't work well on Vercel serverless
+  return NextResponse.json(
+    { error: 'URL 스크래핑 기능은 현재 준비 중입니다. 곧 제공될 예정입니다.' },
+    { status: 503 }
+  );
+
+  /* Original code - re-enable when using dedicated server
   try {
     const session = await getServerSession(authOptions);
 
@@ -99,4 +107,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  */
 }
