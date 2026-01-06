@@ -494,29 +494,44 @@ export async function scrapeWebsite(
       await new Promise((r) => setTimeout(r, 300));
 
       try {
-        await page.screenshot({
-          path: path.join(outputDir, "sections", `section-${i}.png`),
-          clip: {
-            x: 0,
-            y: section.rect.top,
-            width: viewport.width,
-            height: Math.ceil(section.rect.height),
-          },
-        });
-      } catch {
-        console.warn(`Warning: Failed to capture section ${i}`);
+        // Validate clip dimensions
+        const clipY = Math.max(0, section.rect.top);
+        const clipHeight = Math.min(
+          Math.ceil(section.rect.height),
+          captureHeight - clipY
+        );
+
+        if (clipHeight > 0) {
+          await page.screenshot({
+            path: path.join(outputDir, "sections", `section-${i}.png`),
+            clip: {
+              x: 0,
+              y: clipY,
+              width: viewport.width,
+              height: clipHeight,
+            },
+          });
+        } else {
+          console.warn(`Warning: Section ${i} has invalid dimensions, skipping screenshot`);
+        }
+      } catch (err) {
+        console.warn(`Warning: Failed to capture section ${i}:`, err);
       }
 
-      const snippet = await page.evaluate((selector: string) => {
-        const el = document.querySelector(selector);
-        return el ? el.outerHTML : "";
-      }, section.selector);
+      try {
+        const snippet = await page.evaluate((selector: string) => {
+          const el = document.querySelector(selector);
+          return el ? el.outerHTML : "";
+        }, section.selector);
 
-      if (snippet) {
-        fs.writeFileSync(
-          path.join(outputDir, "sections", `section-${i}.html`),
-          snippet
-        );
+        if (snippet) {
+          fs.writeFileSync(
+            path.join(outputDir, "sections", `section-${i}.html`),
+            snippet
+          );
+        }
+      } catch (err) {
+        console.warn(`Warning: Failed to extract HTML for section ${i}:`, err);
       }
     }
 

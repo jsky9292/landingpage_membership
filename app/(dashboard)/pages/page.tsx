@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Page {
   id: string;
@@ -16,46 +16,6 @@ interface Page {
   updatedAt: string;
 }
 
-// 임시 데이터
-const mockPages: Page[] = [
-  {
-    id: '1',
-    title: 'DB 자동화 멤버십',
-    slug: 'demo',
-    topic: 'course',
-    status: 'published',
-    viewCount: 1234,
-    submissionCount: 89,
-    newSubmissionCount: 5,
-    createdAt: '2025-01-20',
-    updatedAt: '2025-01-24',
-  },
-  {
-    id: '2',
-    title: '스터디 모집 페이지',
-    slug: 'study-2025',
-    topic: 'study',
-    status: 'published',
-    viewCount: 567,
-    submissionCount: 34,
-    newSubmissionCount: 2,
-    createdAt: '2025-01-18',
-    updatedAt: '2025-01-22',
-  },
-  {
-    id: '3',
-    title: '프리랜서 상담 예약',
-    slug: 'freelancer',
-    topic: 'consultation',
-    status: 'draft',
-    viewCount: 0,
-    submissionCount: 0,
-    newSubmissionCount: 0,
-    createdAt: '2025-01-15',
-    updatedAt: '2025-01-15',
-  },
-];
-
 const topicLabels: Record<string, string> = {
   course: '강의 모집',
   study: '스터디 모집',
@@ -68,13 +28,57 @@ const topicLabels: Record<string, string> = {
 };
 
 export default function PagesListPage() {
-  const [pages] = useState<Page[]>(mockPages);
+  const [pages, setPages] = useState<Page[]>([]);
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // API에서 페이지 목록 가져오기
+  useEffect(() => {
+    const fetchPages = async () => {
+      try {
+        const response = await fetch('/api/pages');
+        if (response.ok) {
+          const data = await response.json();
+          // API 응답 형식에 맞게 변환
+          const formattedPages: Page[] = (data.pages || []).map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            topic: p.topic || 'free',
+            status: p.status || 'draft',
+            viewCount: p.view_count || 0,
+            submissionCount: p.submission_count || 0,
+            newSubmissionCount: p.new_submission_count || 0,
+            createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString('ko-KR') : '',
+            updatedAt: p.updated_at ? new Date(p.updated_at).toLocaleDateString('ko-KR') : '',
+          }));
+          setPages(formattedPages);
+        }
+      } catch (error) {
+        console.error('Failed to fetch pages:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPages();
+  }, []);
 
   const filteredPages = pages.filter((page) => {
     if (filter === 'all') return true;
     return page.status === filter;
   });
+
+  // 로딩 중
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[#4E5968]">페이지 목록 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

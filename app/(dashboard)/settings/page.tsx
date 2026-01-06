@@ -44,13 +44,14 @@ const IMAGE_MODELS = [
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>({
-    name: '홍길동',
-    email: 'user@example.com',
-    phone: '010-1234-5678',
+    name: '',
+    email: '',
+    phone: '',
     notifyEmail: true,
-    notifyKakao: true,
+    notifyKakao: false,
     kakaoLinked: false,
   });
+  const [plan, setPlan] = useState<string>('free');
 
   const [apiSettings, setApiSettings] = useState<APISettings>({
     useOwnKey: false,
@@ -81,13 +82,29 @@ export default function SettingsPage() {
   const [keyTestResult, setKeyTestResult] = useState<'success' | 'error' | null>(null);
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
-  // Supabase에서 설정 불러오기
+  // API에서 설정 불러오기
   useEffect(() => {
     const loadSettings = async () => {
       try {
         const response = await fetch('/api/users/settings');
         if (response.ok) {
           const data = await response.json();
+          // 프로필 정보
+          if (data.profile) {
+            setSettings({
+              name: data.profile.name || '',
+              email: data.profile.email || '',
+              phone: data.profile.phone || '',
+              notifyEmail: data.profile.notifyEmail ?? true,
+              notifyKakao: data.profile.notifyKakao ?? false,
+              kakaoLinked: data.profile.kakaoLinked ?? false,
+            });
+          }
+          // 요금제
+          if (data.plan) {
+            setPlan(data.plan);
+          }
+          // API 설정
           if (data.apiSettings) {
             setApiSettings({
               useOwnKey: data.apiSettings.useOwnKey || false,
@@ -97,6 +114,7 @@ export default function SettingsPage() {
             });
             setHasGeminiKey(data.apiSettings.hasGeminiKey || false);
           }
+          // CRM 설정
           if (data.crmSettings) {
             setCrmSettings(prev => ({ ...prev, ...data.crmSettings }));
           }
@@ -117,6 +135,12 @@ export default function SettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          profile: {
+            name: settings.name,
+            phone: settings.phone,
+            notifyEmail: settings.notifyEmail,
+            notifyKakao: settings.notifyKakao,
+          },
           apiSettings: {
             useOwnKey: apiSettings.useOwnKey,
             geminiApiKey: apiSettings.geminiApiKey || undefined,
@@ -720,11 +744,11 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-80">현재 요금제</p>
-              <p className="text-2xl font-bold mt-1">Free</p>
+              <p className="text-2xl font-bold mt-1 capitalize">{plan === 'free' ? 'Free' : plan === 'starter' ? '스타터' : plan === 'pro' ? '프로' : plan === 'enterprise' ? '엔터프라이즈' : plan}</p>
             </div>
             <div className="text-right">
               <p className="text-sm opacity-80">페이지</p>
-              <p className="text-lg font-bold">1 / 1개</p>
+              <p className="text-lg font-bold">{plan === 'free' ? '1 / 1개' : plan === 'starter' ? '1 / 1개' : plan === 'pro' ? '3 / 3개' : '무제한'}</p>
             </div>
           </div>
         </div>
