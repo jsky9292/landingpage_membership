@@ -3,7 +3,9 @@
  * monet-registry에서 이식됨
  */
 
-import puppeteer, { Page } from "puppeteer";
+import puppeteer from "puppeteer-core";
+import type { Page } from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 import * as fs from "fs";
 import * as path from "path";
 import { analyzeDOM } from "./html-analyzer";
@@ -421,10 +423,22 @@ export async function scrapeWebsite(
   console.log(`[Scraping] ${url}`);
   console.log(`[Output] ${outputDir}`);
 
+  // Vercel/AWS Lambda 환경에서는 @sparticuz/chromium 사용
+  const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", `--window-size=${viewport.width},${viewport.height}`],
+    args: isVercel
+      ? chromium.args
+      : ["--no-sandbox", `--window-size=${viewport.width},${viewport.height}`],
     defaultViewport: viewport,
+    executablePath: isVercel
+      ? await chromium.executablePath()
+      : process.platform === 'win32'
+        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+        : process.platform === 'darwin'
+          ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+          : '/usr/bin/google-chrome',
+    headless: isVercel ? chromium.headless : true,
   });
 
   try {

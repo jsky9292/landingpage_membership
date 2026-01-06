@@ -1,0 +1,1298 @@
+{
+  "tag": "body",
+  "id": null,
+  "className": "",
+  "rect": {
+    "top": 0,
+    "left": 0,
+    "width": 1440,
+    "height": 3225
+  },
+  "children": [
+    {
+      "tag": "div",
+      "id": "__next",
+      "className": "",
+      "rect": {
+        "top": 0,
+        "left": 0,
+        "width": 1440,
+        "height": 3225
+      },
+      "children": [
+        {
+          "tag": "div",
+          "id": null,
+          "className": "antialiased __variable_676a84  __variable_388092 __variable_0d17d4 __variable_c94c0a __variable_5a9324 __variable_62ff0e __variable_e32036 __variable_a4f841",
+          "rect": {
+            "top": 0,
+            "left": 0,
+            "width": 1440,
+            "height": 3225
+          },
+          "children": [
+            {
+              "tag": "div",
+              "id": null,
+              "className": "overflow-x-hidden bg-white",
+              "rect": {
+                "top": 0,
+                "left": 0,
+                "width": 1440,
+                "height": 3225
+              },
+              "children": [
+                {
+                  "tag": "header",
+                  "id": null,
+                  "className": "inset-x-0 top-0 z-40 flex h-[3.75rem] justify-center md:h-20 absolute bg-transparent",
+                  "rect": {
+                    "top": 0,
+                    "left": 0,
+                    "width": 1440,
+                    "height": 80
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "id": null,
+                      "className": "flex w-full items-center justify-between px-6 md:px-10 xl:max-w-[77.5rem] xl:px-5",
+                      "rect": {
+                        "top": 0,
+                        "left": 100,
+                        "width": 1240,
+                        "height": 80
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "tag": "main",
+                  "id": null,
+                  "className": "",
+                  "rect": {
+                    "top": 0,
+                    "left": 0,
+                    "width": 1440,
+                    "height": 2757
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "id": null,
+                      "className": "relative min-h-[31.25rem] w-full md:min-h-[52rem] xl:min-h-[38.75rem]",
+                      "rect": {
+                        "top": 0,
+                        "left": 0,
+                        "width": 1440,
+                        "height": 620
+                      },
+                      "children": [
+                        {
+                          "tag": "div",
+                          "id": null,
+                          "className": "swiper swiper-initialized swiper-horizontal hero-carousel swiper-backface-hidden",
+                          "rect": {
+                            "top": 0,
+                            "left": 0,
+                            "width": 1440,
+                            "height": 620
+                          },
+                          "children": [
+                            {
+                              "tag": "div",
+                              "id": null,
+                              "className": "swiper-wrapper",
+                              "rect": {
+                                "top": 0,
+                                "left": 0,
+                                "width": 1440,
+                                "height": 620
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "swiper-slide swiper-slide-active",
+                                  "rect": {
+                                    "top": 0,
+                                    "left": 0,
+                                    "width": 1440,
+                                    "height": 620
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "a",
+                                      "id": null,
+                                      "className": "block w-full",
+                                      "rect": {
+                                        "top": 0,
+                                        "left": 0,
+                                        "width": 1440,
+                                        "height": 620
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "div",
+                                          "id": null,
+                                          "className": "relative w-full",
+                                          "rect": {
+                                            "top": 0,
+                                            "left": 0,
+                                            "width": 1440,
+                                            "height": 620
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "hidden h-[38.75rem] w-full object-cover object-center xl:block",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 0,
+                                                "width": 1440,
+                                                "height": 620
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "absolute inset-0 mx-auto h-full w-full max-w-[80rem]",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 80,
+                                                "width": 1280,
+                                                "height": 620
+                                              },
+                                              "children": [
+                                                {
+                                                  "tag": "img",
+                                                  "id": null,
+                                                  "className": "absolute bottom-12 left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 xl:block",
+                                                  "rect": {
+                                                    "top": 0,
+                                                    "left": 80,
+                                                    "width": 1280,
+                                                    "height": 620
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "swiper-slide swiper-slide-next",
+                                  "rect": {
+                                    "top": 0,
+                                    "left": 1440,
+                                    "width": 1440,
+                                    "height": 620
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "a",
+                                      "id": null,
+                                      "className": "block w-full",
+                                      "rect": {
+                                        "top": 0,
+                                        "left": 1440,
+                                        "width": 1440,
+                                        "height": 620
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "div",
+                                          "id": null,
+                                          "className": "relative w-full",
+                                          "rect": {
+                                            "top": 0,
+                                            "left": 1440,
+                                            "width": 1440,
+                                            "height": 620
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "hidden h-[38.75rem] w-full object-cover object-center xl:block",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 1440,
+                                                "width": 1440,
+                                                "height": 620
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "absolute inset-0 mx-auto h-full w-full max-w-[80rem]",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 1520,
+                                                "width": 1280,
+                                                "height": 620
+                                              },
+                                              "children": [
+                                                {
+                                                  "tag": "img",
+                                                  "id": null,
+                                                  "className": "absolute bottom-12 left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 xl:block",
+                                                  "rect": {
+                                                    "top": 0,
+                                                    "left": 1520,
+                                                    "width": 1280,
+                                                    "height": 620
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "swiper-slide",
+                                  "rect": {
+                                    "top": 0,
+                                    "left": 2880,
+                                    "width": 1440,
+                                    "height": 620
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "a",
+                                      "id": null,
+                                      "className": "block w-full",
+                                      "rect": {
+                                        "top": 0,
+                                        "left": 2880,
+                                        "width": 1440,
+                                        "height": 620
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "div",
+                                          "id": null,
+                                          "className": "relative w-full",
+                                          "rect": {
+                                            "top": 0,
+                                            "left": 2880,
+                                            "width": 1440,
+                                            "height": 620
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "hidden h-[38.75rem] w-full object-cover object-center xl:block",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 2880,
+                                                "width": 1440,
+                                                "height": 620
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "absolute inset-0 mx-auto h-full w-full max-w-[80rem]",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 2960,
+                                                "width": 1280,
+                                                "height": 620
+                                              },
+                                              "children": [
+                                                {
+                                                  "tag": "img",
+                                                  "id": null,
+                                                  "className": "absolute bottom-12 left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 xl:block",
+                                                  "rect": {
+                                                    "top": 0,
+                                                    "left": 2960,
+                                                    "width": 1280,
+                                                    "height": 620
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "swiper-slide",
+                                  "rect": {
+                                    "top": 0,
+                                    "left": 4320,
+                                    "width": 1440,
+                                    "height": 620
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "a",
+                                      "id": null,
+                                      "className": "block w-full",
+                                      "rect": {
+                                        "top": 0,
+                                        "left": 4320,
+                                        "width": 1440,
+                                        "height": 620
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "div",
+                                          "id": null,
+                                          "className": "relative w-full",
+                                          "rect": {
+                                            "top": 0,
+                                            "left": 4320,
+                                            "width": 1440,
+                                            "height": 620
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "hidden h-[38.75rem] w-full object-cover object-center xl:block",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 4320,
+                                                "width": 1440,
+                                                "height": 620
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "absolute inset-0 mx-auto h-full w-full max-w-[80rem]",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 4400,
+                                                "width": 1280,
+                                                "height": 620
+                                              },
+                                              "children": [
+                                                {
+                                                  "tag": "img",
+                                                  "id": null,
+                                                  "className": "absolute bottom-12 left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 xl:block",
+                                                  "rect": {
+                                                    "top": 0,
+                                                    "left": 4400,
+                                                    "width": 1280,
+                                                    "height": 620
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "swiper-slide",
+                                  "rect": {
+                                    "top": 0,
+                                    "left": 5760,
+                                    "width": 1440,
+                                    "height": 620
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "a",
+                                      "id": null,
+                                      "className": "block w-full",
+                                      "rect": {
+                                        "top": 0,
+                                        "left": 5760,
+                                        "width": 1440,
+                                        "height": 620
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "div",
+                                          "id": null,
+                                          "className": "relative w-full",
+                                          "rect": {
+                                            "top": 0,
+                                            "left": 5760,
+                                            "width": 1440,
+                                            "height": 620
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "hidden h-[38.75rem] w-full object-cover object-center xl:block",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 5760,
+                                                "width": 1440,
+                                                "height": 620
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "absolute inset-0 mx-auto h-full w-full max-w-[80rem]",
+                                              "rect": {
+                                                "top": 0,
+                                                "left": 5840,
+                                                "width": 1280,
+                                                "height": 620
+                                              },
+                                              "children": [
+                                                {
+                                                  "tag": "img",
+                                                  "id": null,
+                                                  "className": "absolute bottom-12 left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 xl:block",
+                                                  "rect": {
+                                                    "top": 0,
+                                                    "left": 5840,
+                                                    "width": 1280,
+                                                    "height": 620
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "id": null,
+                      "className": "mx-0 mt-10 w-full px-5 md:mt-[3.75rem] md:px-10 xl:mx-auto xl:mt-20 xl:max-w-[82.5rem]",
+                      "rect": {
+                        "top": 700,
+                        "left": 60,
+                        "width": 1320,
+                        "height": 1356
+                      },
+                      "children": [
+                        {
+                          "tag": "div",
+                          "id": null,
+                          "className": "grid grid-cols-2 grid-rows-2 gap-5 gap-x-2 gap-y-6 md:gap-x-5 md:gap-y-10 xl:grid-cols-4 xl:grid-rows-1",
+                          "rect": {
+                            "top": 760,
+                            "left": 100,
+                            "width": 1240,
+                            "height": 454
+                          },
+                          "children": [
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 760,
+                                "left": 100,
+                                "width": 295,
+                                "height": 454
+                              },
+                              "children": [
+                                {
+                                  "tag": "img",
+                                  "id": null,
+                                  "className": "absolute -top-[1.34%] left-[5.42%] z-10 w-[27%]",
+                                  "rect": {
+                                    "top": 753.921875,
+                                    "left": 115.984375,
+                                    "width": 79.640625,
+                                    "height": 87.59375
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 760,
+                                    "left": 100,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 101,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 101,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 760,
+                                "left": 415,
+                                "width": 295,
+                                "height": 454
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 760,
+                                    "left": 415,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 416,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 416,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 760,
+                                "left": 730,
+                                "width": 295,
+                                "height": 454
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 760,
+                                    "left": 730,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 731,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 731,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 760,
+                                "left": 1045,
+                                "width": 295,
+                                "height": 454
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 760,
+                                    "left": 1045,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 1046,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 761,
+                                        "left": 1046,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "a",
+                          "id": null,
+                          "className": "my-10 block md:my-[3.75rem]",
+                          "rect": {
+                            "top": 1274,
+                            "left": 100,
+                            "width": 1240,
+                            "height": 80
+                          },
+                          "children": [
+                            {
+                              "tag": "img",
+                              "id": null,
+                              "className": "hidden h-20 w-full rounded-[0.625rem] object-cover shadow-lg md:block",
+                              "rect": {
+                                "top": 1274,
+                                "left": 100,
+                                "width": 1240,
+                                "height": 80
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "div",
+                          "id": null,
+                          "className": "grid grid-cols-2 gap-5 gap-x-2 gap-y-6 md:gap-x-5 md:gap-y-10 xl:grid-cols-4",
+                          "rect": {
+                            "top": 1474,
+                            "left": 100,
+                            "width": 1240,
+                            "height": 482
+                          },
+                          "children": [
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 1474,
+                                "left": 100,
+                                "width": 295,
+                                "height": 482
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 1474,
+                                    "left": 100,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 101,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 101,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 1474,
+                                "left": 415,
+                                "width": 295,
+                                "height": 482
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 1474,
+                                    "left": 415,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 416,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 416,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 1474,
+                                "left": 730,
+                                "width": 295,
+                                "height": 482
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 1474,
+                                    "left": 730,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 731,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 731,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "p",
+                                  "id": null,
+                                  "className": "ml-1 mt-1 font-pretendard text-sm font-medium leading-[130%] text-[#757575] md:mt-1 md:text-xl",
+                                  "rect": {
+                                    "top": 1900,
+                                    "left": 734,
+                                    "width": 291,
+                                    "height": 56
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "a",
+                              "id": null,
+                              "className": "relative flex-1",
+                              "rect": {
+                                "top": 1474,
+                                "left": 1045,
+                                "width": 295,
+                                "height": 482
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "relative w-full rounded-[0.625rem] overflow-hidden border border-[#E1E1E1]",
+                                  "rect": {
+                                    "top": 1474,
+                                    "left": 1045,
+                                    "width": 295,
+                                    "height": 370
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "img",
+                                      "id": null,
+                                      "className": "h-full w-full object-cover",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 1046,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "absolute inset-0 bg-transparent",
+                                      "rect": {
+                                        "top": 1475,
+                                        "left": 1046,
+                                        "width": 293,
+                                        "height": 368
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "button",
+                          "id": null,
+                          "className": "mx-auto mt-10 flex h-12 w-full items-center justify-center gap-0.5 rounded-[0.625rem] border border-[#E1E1E1] shadow-md md:h-[3.75rem] md:w-80",
+                          "rect": {
+                            "top": 1996,
+                            "left": 560,
+                            "width": 320,
+                            "height": 60
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "id": null,
+                      "className": "mx-0 mb-28 w-full px-5 md:px-10 xl:mx-auto xl:max-w-[82.5rem]",
+                      "rect": {
+                        "top": 2217,
+                        "left": 60,
+                        "width": 1320,
+                        "height": 540
+                      },
+                      "children": [
+                        {
+                          "tag": "div",
+                          "id": null,
+                          "className": "flex flex-col gap-10 md:gap-[3.75rem] xl:flex-row xl:gap-5",
+                          "rect": {
+                            "top": 2217,
+                            "left": 100,
+                            "width": 1240,
+                            "height": 540
+                          },
+                          "children": [
+                            {
+                              "tag": "div",
+                              "id": null,
+                              "className": "flex-1",
+                              "rect": {
+                                "top": 2217,
+                                "left": 100,
+                                "width": 610,
+                                "height": 540
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "w-full rounded-[0.625rem] border border-[#E1E1E1] bg-white px-5 pb-8 pt-8 shadow-md md:px-7 xl:pb-6",
+                                  "rect": {
+                                    "top": 2273,
+                                    "left": 100,
+                                    "width": 610,
+                                    "height": 484
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "",
+                                      "rect": {
+                                        "top": 2306,
+                                        "left": 129,
+                                        "width": 552,
+                                        "height": 346
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "block w-full",
+                                          "rect": {
+                                            "top": 2306,
+                                            "left": 129,
+                                            "width": 552,
+                                            "height": 88
+                                          },
+                                          "children": []
+                                        },
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "block w-full my-5 border-b border-t border-[#F1F1F1] py-4 md:py-5",
+                                          "rect": {
+                                            "top": 2414,
+                                            "left": 129,
+                                            "width": 552,
+                                            "height": 130
+                                          },
+                                          "children": []
+                                        },
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "block w-full",
+                                          "rect": {
+                                            "top": 2564,
+                                            "left": 129,
+                                            "width": 552,
+                                            "height": 88
+                                          },
+                                          "children": []
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "div",
+                              "id": null,
+                              "className": "flex-1",
+                              "rect": {
+                                "top": 2217,
+                                "left": 730,
+                                "width": 610,
+                                "height": 540
+                              },
+                              "children": [
+                                {
+                                  "tag": "div",
+                                  "id": null,
+                                  "className": "w-full rounded-[0.625rem] border border-[#E1E1E1] bg-white px-5 pb-8 pt-8 shadow-md md:px-7 xl:pb-6",
+                                  "rect": {
+                                    "top": 2273,
+                                    "left": 730,
+                                    "width": 610,
+                                    "height": 484
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "div",
+                                      "id": null,
+                                      "className": "",
+                                      "rect": {
+                                        "top": 2306,
+                                        "left": 759,
+                                        "width": 552,
+                                        "height": 346
+                                      },
+                                      "children": [
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "flex w-full items-center gap-5",
+                                          "rect": {
+                                            "top": 2306,
+                                            "left": 759,
+                                            "width": 552,
+                                            "height": 88
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "",
+                                              "rect": {
+                                                "top": 2306,
+                                                "left": 759,
+                                                "width": 452,
+                                                "height": 88
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "flex-shrink-0 object-cover h-16 w-16 rounded-[0.625rem] md:h-24 md:w-24 xl:h-20 xl:w-20",
+                                              "rect": {
+                                                "top": 2310,
+                                                "left": 1231,
+                                                "width": 80,
+                                                "height": 80
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "flex w-full items-center gap-5 my-5 border-b border-t border-[#F1F1F1] py-5",
+                                          "rect": {
+                                            "top": 2414,
+                                            "left": 759,
+                                            "width": 552,
+                                            "height": 130
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "",
+                                              "rect": {
+                                                "top": 2435,
+                                                "left": 759,
+                                                "width": 452,
+                                                "height": 88
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "flex-shrink-0 object-cover h-16 w-16 rounded-[0.625rem] md:h-24 md:w-24 xl:h-20 xl:w-20",
+                                              "rect": {
+                                                "top": 2439,
+                                                "left": 1231,
+                                                "width": 80,
+                                                "height": 80
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "tag": "a",
+                                          "id": null,
+                                          "className": "flex w-full items-center gap-5",
+                                          "rect": {
+                                            "top": 2564,
+                                            "left": 759,
+                                            "width": 552,
+                                            "height": 88
+                                          },
+                                          "children": [
+                                            {
+                                              "tag": "div",
+                                              "id": null,
+                                              "className": "",
+                                              "rect": {
+                                                "top": 2564,
+                                                "left": 759,
+                                                "width": 452,
+                                                "height": 88
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "tag": "img",
+                                              "id": null,
+                                              "className": "flex-shrink-0 object-cover h-16 w-16 rounded-[0.625rem] md:h-24 md:w-24 xl:h-20 xl:w-20",
+                                              "rect": {
+                                                "top": 2568,
+                                                "left": 1231,
+                                                "width": 80,
+                                                "height": 80
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "footer",
+                  "id": null,
+                  "className": "w-full bg-[#F7F9FA] px-4 py-10 md:px-10 md:py-[3.75rem] xl:px-0",
+                  "rect": {
+                    "top": 2869,
+                    "left": 0,
+                    "width": 1440,
+                    "height": 356
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "id": null,
+                      "className": "w-full xl:mx-auto xl:max-w-[77.5rem]",
+                      "rect": {
+                        "top": 2929,
+                        "left": 100,
+                        "width": 1240,
+                        "height": 236
+                      },
+                      "children": [
+                        {
+                          "tag": "div",
+                          "id": null,
+                          "className": "flex flex-col items-center justify-center gap-3 font-pretendard text-[0.625rem] font-normal leading-none text-[#A1A1A1] xs:gap-4 xs:text-xs [&_>strong]:font-semibold md:items-start",
+                          "rect": {
+                            "top": 2997,
+                            "left": 100,
+                            "width": 1240,
+                            "height": 80
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

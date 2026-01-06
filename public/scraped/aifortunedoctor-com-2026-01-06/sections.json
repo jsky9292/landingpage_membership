@@ -1,0 +1,24 @@
+[
+  {
+    "index": 0,
+    "tag": "main",
+    "selector": "main",
+    "category": null,
+    "rect": {
+      "top": 0,
+      "height": 2757
+    },
+    "confidence": 0.8
+  },
+  {
+    "index": 1,
+    "tag": "footer",
+    "selector": "footer.w-full",
+    "category": "footer",
+    "rect": {
+      "top": 2869,
+      "height": 356
+    },
+    "confidence": 0.8
+  }
+]

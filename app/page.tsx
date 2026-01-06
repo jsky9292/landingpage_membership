@@ -340,7 +340,7 @@ export default function HomePage() {
         textAlign: 'center',
       }}>
         <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>
-          🎁 지금 시작하면 <strong>7일 무료</strong> + DB 수집 가이드북 무료 증정
+          지금 시작하면 <strong>7일 무료</strong> + DB 수집 가이드북 무료 증정
         </span>
       </div>
 
