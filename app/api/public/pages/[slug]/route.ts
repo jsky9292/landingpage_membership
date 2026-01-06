@@ -2,6 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/client';
 
+// 항상 동적으로 렌더링 (캐시 비활성화)
+export const dynamic = 'force-dynamic';
+
 // 공개 페이지 조회 (slug로)
 export async function GET(
   request: NextRequest,
@@ -30,7 +33,7 @@ export async function GET(
       .update({ view_count: (page.view_count || 0) + 1 })
       .eq('id', page.id);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       page: {
         id: page.id,
         title: page.title,
@@ -40,6 +43,12 @@ export async function GET(
         theme: page.theme || 'toss',
       },
     });
+    
+    // 캐시 비활성화 - 항상 최신 데이터 반환
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    
+    return response;
   } catch (error) {
     console.error('Public page GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
