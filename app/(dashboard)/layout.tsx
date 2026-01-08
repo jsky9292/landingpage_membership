@@ -63,7 +63,7 @@ export default function DashboardLayout({
             {/* 새 페이지 만들기 버튼 + 로그아웃 */}
             <div className="flex items-center gap-3">
               <Link
-                href="/"
+                href="/create/free"
                 className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 + 새 페이지 만들기

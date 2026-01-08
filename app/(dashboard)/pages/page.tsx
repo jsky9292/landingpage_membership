@@ -83,19 +83,11 @@ export default function PagesListPage() {
   return (
     <div className="space-y-6">
       {/* 헤더 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#191F28]">내 페이지</h1>
-          <p className="text-[#4E5968] mt-1">
-            총 {pages.length}개의 페이지가 있어요.
-          </p>
-        </div>
-        <Link
-          href="/"
-          className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          + 새 페이지 만들기
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold text-[#191F28]">내 페이지</h1>
+        <p className="text-[#4E5968] mt-1">
+          총 {pages.length}개의 페이지가 있어요.
+        </p>
       </div>
 
       {/* 필터 탭 */}
@@ -142,7 +134,7 @@ export default function PagesListPage() {
             새 랜딩페이지를 만들어보세요!
           </p>
           <Link
-            href="/"
+            href="/create/free"
             className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
           >
             + 새 페이지 만들기
