@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
 export const alt = '랜딩메이커 - 2줄로 만드는 DB 수집 랜딩페이지';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
