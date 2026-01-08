@@ -2539,24 +2539,24 @@ export default function CreatePage() {
             {/* 생성 버튼 */}
             <button
               onClick={handleGenerate}
-              disabled={!answers.some(a => a.trim()) || isLoading}
+              disabled={(inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading}
               style={{
                 width: '100%',
                 padding: '18px',
                 fontSize: '16px',
                 fontWeight: '700',
-                color: (!answers.some(a => a.trim()) || isLoading) ? '#8B95A1' : '#fff',
-                background: (!answers.some(a => a.trim()) || isLoading)
+                color: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? '#8B95A1' : '#fff',
+                background: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
                   ? '#E5E8EB'
                   : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
                 border: 'none',
                 borderRadius: '12px',
-                cursor: (!answers.some(a => a.trim()) || isLoading) ? 'not-allowed' : 'pointer',
+                cursor: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '10px',
-                boxShadow: (!answers.some(a => a.trim()) || isLoading)
+                boxShadow: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
                   ? 'none'
                   : '0 4px 15px rgba(99,102,241,0.35)',
                 transition: 'all 0.3s',
