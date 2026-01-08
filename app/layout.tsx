@@ -38,6 +38,15 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta property="og:title" content="랜딩메이커 - 2줄로 DB 수집 랜딩페이지" />
+        <meta property="og:description" content="2줄 입력하면 30초만에 랜딩페이지 완성" />
+        <meta property="og:image" content="https://landingpage-membership3.vercel.app/opengraph-image" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://landingpage-membership3.vercel.app/opengraph-image" />
         <link
           rel="stylesheet"
           as="style"
