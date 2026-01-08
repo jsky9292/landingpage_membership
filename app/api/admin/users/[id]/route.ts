@@ -27,7 +27,7 @@ export async function GET(
 
     if (!isAdmin) {
       const { data: currentUser } = await supabase
-        .from('users')
+        .from('profiles')
         .select('id, role')
         .eq('email', session.user.email)
         .single();
@@ -41,7 +41,7 @@ export async function GET(
 
     // 대상 사용자 조회
     const { data: user, error: userError } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -172,7 +172,7 @@ export async function PATCH(
 
     if (!isAdmin) {
       const { data: currentUser } = await supabase
-        .from('users')
+        .from('profiles')
         .select('id, role')
         .eq('email', session.user.email)
         .single();
@@ -200,7 +200,7 @@ export async function PATCH(
 
     // 업데이트
     const { data: updated, error } = await supabase
-      .from('users')
+      .from('profiles')
       .update(updateData)
       .eq('id', userId)
       .select()

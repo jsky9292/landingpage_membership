@@ -18,6 +18,12 @@ const safeSetStorage = (key: string, value: string) => {
   }
 };
 
+interface ContactInfo {
+  phoneNumber?: string;
+  email?: string;
+  kakaoId?: string;
+}
+
 interface GeneratedData {
   topic: string;
   prompt: string;
@@ -25,6 +31,7 @@ interface GeneratedData {
   sections: Section[];
   formFields: FormField[];
   theme: string;
+  contactInfo?: ContactInfo;
 }
 
 export default function PreviewNewPage() {
@@ -39,6 +46,7 @@ export default function PreviewNewPage() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [showAddSection, setShowAddSection] = useState(false);
   const [showThemePanel, setShowThemePanel] = useState(false);
+  const [showContactSettings, setShowContactSettings] = useState(false);
   const [insertAfterOrder, setInsertAfterOrder] = useState<number>(999);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +130,7 @@ export default function PreviewNewPage() {
           sections: data.sections,
           formFields: data.formFields,
           theme: data.theme,
+          contactInfo: data.contactInfo || {},
           slug,
         }),
       });
@@ -628,36 +637,52 @@ export default function PreviewNewPage() {
               background: '#F8FAFC',
             }}>
               <button
-                onClick={() => setShowThemePanel(false)}
+                onClick={() => { setShowThemePanel(false); setShowContactSettings(false); }}
                 style={{
                   flex: 1,
                   padding: '14px',
                   border: 'none',
-                  background: !showThemePanel ? '#fff' : 'transparent',
-                  color: !showThemePanel ? '#0064FF' : '#6B7280',
+                  background: !showThemePanel && !showContactSettings ? '#fff' : 'transparent',
+                  color: !showThemePanel && !showContactSettings ? '#0064FF' : '#6B7280',
                   fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  borderBottom: !showThemePanel ? '2px solid #0064FF' : '2px solid transparent',
+                  borderBottom: !showThemePanel && !showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
                 }}
               >
-                📝 섹션 편집
+                섹션 편집
               </button>
               <button
-                onClick={() => setShowThemePanel(true)}
+                onClick={() => { setShowThemePanel(true); setShowContactSettings(false); }}
                 style={{
                   flex: 1,
                   padding: '14px',
                   border: 'none',
-                  background: showThemePanel ? '#fff' : 'transparent',
-                  color: showThemePanel ? '#0064FF' : '#6B7280',
+                  background: showThemePanel && !showContactSettings ? '#fff' : 'transparent',
+                  color: showThemePanel && !showContactSettings ? '#0064FF' : '#6B7280',
                   fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  borderBottom: showThemePanel ? '2px solid #0064FF' : '2px solid transparent',
+                  borderBottom: showThemePanel && !showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
                 }}
               >
-                🎨 톤앤매너
+                톤앤매너
+              </button>
+              <button
+                onClick={() => { setShowThemePanel(false); setShowContactSettings(true); }}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  border: 'none',
+                  background: showContactSettings ? '#fff' : 'transparent',
+                  color: showContactSettings ? '#0064FF' : '#6B7280',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  borderBottom: showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
+                }}
+              >
+                연락처
               </button>
             </div>
           )}
@@ -691,13 +716,98 @@ export default function PreviewNewPage() {
                 currentTheme={(data?.theme as ThemeType) || 'toss'}
                 onThemeChange={handleThemeChange}
               />
+            ) : showContactSettings ? (
+              <div style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#191F28', marginBottom: '24px' }}>
+                  연락처 설정
+                </h3>
+                <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
+                  모바일 하단 바에 표시될 전화번호를 입력하세요. 입력하면 '전화 상담' 버튼이 활성화됩니다.
+                </p>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                    전화번호
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="010-0000-0000"
+                    value={data?.contactInfo?.phoneNumber || ''}
+                    onChange={(e) => {
+                      if (data) {
+                        const newData = {
+                          ...data,
+                          contactInfo: {
+                            ...data.contactInfo,
+                            phoneNumber: e.target.value,
+                          },
+                        };
+                        setData(newData);
+                        safeSetStorage('generatedPage', JSON.stringify(newData));
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      fontSize: '16px',
+                      border: '1px solid #E5E8EB',
+                      borderRadius: '12px',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+
+                <div style={{
+                  padding: '16px',
+                  background: '#F0FDF4',
+                  borderRadius: '12px',
+                  marginTop: '24px',
+                }}>
+                  <p style={{ fontSize: '14px', color: '#166534', marginBottom: '8px', fontWeight: '500' }}>
+                    모바일 하단 버튼 미리보기
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {data?.contactInfo?.phoneNumber && (
+                      <div style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: '#F8FAFC',
+                        border: '1px solid #E5E8EB',
+                        borderRadius: '8px',
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#191F28',
+                      }}>
+                        전화 상담
+                      </div>
+                    )}
+                    <div style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#0064FF',
+                      borderRadius: '8px',
+                      textAlign: 'center',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#fff',
+                    }}>
+                      상담 신청
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div style={{
                 padding: '32px 24px',
                 textAlign: 'center',
                 color: '#8B95A1'
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>👆</div>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" strokeWidth="1.5">
+                    <path d="M7 11l5-5 5 5M7 17l5-5 5 5"/>
+                  </svg>
+                </div>
                 <p style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '8px' }}>
                   섹션을 선택하세요
                 </p>
@@ -721,7 +831,7 @@ export default function PreviewNewPage() {
                     gap: '8px',
                   }}
                 >
-                  ➕ 새 섹션 추가
+                  + 새 섹션 추가
                 </button>
               </div>
             )}

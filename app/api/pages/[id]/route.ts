@@ -57,6 +57,7 @@ export async function GET(
         theme: page.theme || 'toss',
         sections: page.sections || [],
         formFields: page.form_fields || [],
+        contactInfo: page.contact_info || {},
         viewCount: page.view_count || 0,
         createdAt: page.created_at,
         updatedAt: page.updated_at,
@@ -82,7 +83,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, sections, formFields, theme, status } = body;
+    const { title, sections, formFields, theme, status, contactInfo } = body;
 
     const supabase = supabaseAdmin;
 
@@ -123,6 +124,7 @@ export async function PUT(
     if (formFields !== undefined) updateData.form_fields = formFields;
     if (theme !== undefined) updateData.theme = theme;
     if (status !== undefined) updateData.status = status;
+    if (contactInfo !== undefined) updateData.contact_info = contactInfo;
 
     // 업데이트
     const { data: updated, error: updateError } = await supabase
@@ -147,6 +149,7 @@ export async function PUT(
         theme: updated.theme,
         sections: updated.sections,
         formFields: updated.form_fields,
+        contactInfo: updated.contact_info || {},
         updatedAt: updated.updated_at,
       },
     });

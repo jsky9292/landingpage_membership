@@ -9,6 +9,12 @@ import { ThemeSelector } from '@/components/builder/ThemeSelector';
 import { Section, FormField, SectionContent, SectionStyle, ThemeType } from '@/types/page';
 import html2canvas from 'html2canvas';
 
+interface ContactInfo {
+  phoneNumber?: string;
+  email?: string;
+  kakaoId?: string;
+}
+
 interface PageData {
   id: string;
   topic: string;
@@ -19,6 +25,7 @@ interface PageData {
   sections: Section[];
   formFields: FormField[];
   theme: string;
+  contactInfo?: ContactInfo;
 }
 
 export default function PreviewEditPage() {
@@ -37,6 +44,7 @@ export default function PreviewEditPage() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [showAddSection, setShowAddSection] = useState(false);
   const [showThemePanel, setShowThemePanel] = useState(false);
+  const [showContactSettings, setShowContactSettings] = useState(false);
   const [insertAfterOrder, setInsertAfterOrder] = useState<number>(999);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -79,6 +87,7 @@ export default function PreviewEditPage() {
           })),
           formFields: page.formFields || [],
           theme: page.theme || 'toss',
+          contactInfo: page.contactInfo || {},
         });
       } catch (err) {
         console.error('Fetch page error:', err);
@@ -109,6 +118,7 @@ export default function PreviewEditPage() {
           sections: data.sections,
           formFields: data.formFields,
           theme: data.theme,
+          contactInfo: data.contactInfo || {},
         }),
       });
 
@@ -143,6 +153,7 @@ export default function PreviewEditPage() {
           sections: data.sections,
           formFields: data.formFields,
           theme: data.theme,
+          contactInfo: data.contactInfo || {},
           status: 'published',
         }),
       });

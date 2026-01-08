@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -9,31 +9,6 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showDemoLogin, setShowDemoLogin] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    const result = await signIn('demo-login', {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError('이메일 또는 비밀번호가 일치하지 않습니다.');
-      setIsLoading(false);
-    } else {
-      router.push(callbackUrl);
-    }
-  };
 
   return (
     <div style={{
@@ -145,133 +120,6 @@ function LoginForm() {
           </button>
         </div>
 
-        {/* 데모 로그인 토글 */}
-        <div style={{ marginTop: '32px' }}>
-          <button
-            onClick={() => setShowDemoLogin(!showDemoLogin)}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'transparent',
-              color: '#6B7280',
-              border: 'none',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-            }}
-          >
-            {showDemoLogin ? '접기' : '🧪 테스트 계정으로 로그인'}
-          </button>
-
-          {showDemoLogin && (
-            <form onSubmit={handleSubmit} style={{
-              marginTop: '16px',
-              padding: '20px',
-              background: '#F8FAFC',
-              borderRadius: '16px',
-            }}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '8px',
-                }}>
-                  이메일
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@demo.com"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '12px',
-                    fontSize: '16px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '8px',
-                }}>
-                  비밀번호
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="admin123"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '12px',
-                    fontSize: '16px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
-                  required
-                />
-              </div>
-
-              {error && (
-                <p style={{
-                  color: '#EF4444',
-                  fontSize: '14px',
-                  marginBottom: '16px',
-                }}>
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  background: '#191919',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.6 : 1,
-                }}
-              >
-                {isLoading ? '로그인 중...' : '로그인'}
-              </button>
-
-              <div style={{
-                marginTop: '16px',
-                padding: '12px',
-                background: '#EFF6FF',
-                borderRadius: '8px',
-              }}>
-                <p style={{ fontSize: '13px', color: '#3B82F6', margin: 0 }}>
-                  <strong>관리자:</strong> admin@demo.com / admin123<br/>
-                  <strong>일반:</strong> user@demo.com / user123
-                </p>
-              </div>
-            </form>
-          )}
-        </div>
       </main>
 
       {/* 하단 회원가입 링크 */}

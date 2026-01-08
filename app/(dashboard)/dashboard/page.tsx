@@ -132,7 +132,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
+          <div className="w-8 h-8 border-2 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-[#4E5968]">로딩중...</p>
         </div>
       </div>
@@ -144,8 +144,8 @@ export default function DashboardPage() {
       {/* 환영 메시지 + 플랜 정보 */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#191F28]">내 대시보드 📊</h1>
-          <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요.</p>
+          <h1 className="text-2xl font-bold text-[#191F28]">내 대시보드</h1>
+          <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-2xl px-6 py-4">
           <div className="flex items-center gap-4">
@@ -192,7 +192,6 @@ export default function DashboardPage() {
                         <span className="text-xs text-[#4E5968] ml-2">
                           ({p.pages === -1 ? '무제한' : `${p.pages}개`})
                         </span>
-                        {plan.id === p.id && <span className="ml-2">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -213,9 +212,9 @@ export default function DashboardPage() {
             <div className="mt-4 pt-4 border-t border-gray-100">
               <Link
                 href="/admin"
-                className="text-sm text-[#0064FF] hover:underline flex items-center gap-2"
+                className="text-sm text-[#0064FF] hover:underline"
               >
-                👑 관리자 대시보드로 이동 →
+                관리자 대시보드 →
               </Link>
             </div>
           )}
@@ -225,26 +224,22 @@ export default function DashboardPage() {
       {/* 통계 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatsCard
-          icon="📄"
           label="내 페이지"
           value={stats.totalPages.toString()}
           suffix="개"
         />
         <StatsCard
-          icon="📬"
           label="총 신청"
           value={stats.totalSubmissions.toString()}
           suffix="건"
         />
         <StatsCard
-          icon="🔔"
           label="새 신청"
           value={stats.newSubmissions.toString()}
           suffix="건"
           highlight
         />
         <StatsCard
-          icon="📈"
           label="전환율"
           value={stats.conversionRate.toFixed(1)}
           suffix="%"
@@ -255,16 +250,13 @@ export default function DashboardPage() {
       {stats.newSubmissions > 0 && (
         <div className="bg-[#E8F3FF] border border-[#0064FF]/20 rounded-2xl p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">🔔</span>
-              <div>
-                <p className="font-bold text-[#191F28]">
-                  새로운 신청이 {stats.newSubmissions}건 있어요!
-                </p>
-                <p className="text-sm text-[#4E5968]">
-                  지금 바로 확인하고 연락해보세요.
-                </p>
-              </div>
+            <div>
+              <p className="font-bold text-[#191F28]">
+                새로운 신청 {stats.newSubmissions}건
+              </p>
+              <p className="text-sm text-[#4E5968]">
+                지금 바로 확인하고 연락해보세요
+              </p>
             </div>
             <Link
               href="/pages"
@@ -297,18 +289,22 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-          <span className="text-6xl mb-4 block">🚀</span>
+          <div className="w-16 h-16 bg-[#E8F3FF] rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[#0064FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
           <h3 className="text-xl font-bold text-[#191F28] mb-2">
-            첫 랜딩페이지를 만들어보세요!
+            첫 랜딩페이지를 만들어보세요
           </h3>
           <p className="text-[#4E5968] mb-6">
-            AI가 프롬프트 하나로 완벽한 마케팅 카피를 만들어드려요.
+            AI가 완벽한 마케팅 카피를 만들어드려요
           </p>
           <Link
             href="/create/free"
             className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
           >
-            + 새 페이지 만들기
+            새 페이지 만들기
           </Link>
         </div>
       )}
@@ -318,13 +314,11 @@ export default function DashboardPage() {
 
 // 통계 카드 컴포넌트
 function StatsCard({
-  icon,
   label,
   value,
   suffix,
   highlight = false,
 }: {
-  icon: string;
   label: string;
   value: string;
   suffix: string;
@@ -338,15 +332,14 @@ function StatsCard({
           : 'bg-white border border-gray-200'
       }`}
     >
-      <span className="text-2xl">{icon}</span>
       <p
-        className={`text-sm mt-2 ${
+        className={`text-sm ${
           highlight ? 'text-white/80' : 'text-[#4E5968]'
         }`}
       >
         {label}
       </p>
-      <p className="text-2xl font-bold mt-1">
+      <p className="text-2xl font-bold mt-2">
         {value}
         <span className="text-base font-normal ml-1">{suffix}</span>
       </p>
@@ -388,9 +381,9 @@ function PageCard({ page }: { page: PageStats }) {
           </div>
 
           <div className="flex items-center gap-4 text-sm text-[#4E5968]">
-            <span>👁️ {page.viewCount.toLocaleString()}</span>
-            <span>📬 {page.submissionCount}건</span>
-            <span>📅 {formatDate(page.createdAt)}</span>
+            <span>조회 {page.viewCount.toLocaleString()}</span>
+            <span>신청 {page.submissionCount}건</span>
+            <span>{formatDate(page.createdAt)}</span>
           </div>
         </div>
 

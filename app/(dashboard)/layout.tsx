@@ -6,9 +6,9 @@ import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 
 const navigation = [
-  { name: '대시보드', href: '/dashboard', icon: '📊' },
-  { name: '내 페이지', href: '/pages', icon: '📄' },
-  { name: '설정', href: '/settings', icon: '⚙️' },
+  { name: '대시보드', href: '/dashboard' },
+  { name: '내 페이지', href: '/pages' },
+  { name: '설정', href: '/settings' },
 ];
 
 export default function DashboardLayout({
@@ -26,8 +26,7 @@ export default function DashboardLayout({
           <div className="flex justify-between h-16">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2" title="홈으로 이동">
-                <span className="text-2xl">🚀</span>
-                <span className="text-xl font-bold text-[#191F28]">랜딩AI</span>
+                <span className="text-xl font-bold text-[#0064FF]">랜딩AI</span>
               </Link>
               <Link
                 href="/"
@@ -53,7 +52,6 @@ export default function DashboardLayout({
                         : 'text-[#4E5968] hover:bg-gray-100'
                     )}
                   >
-                    <span className="mr-2">{item.icon}</span>
                     {item.name}
                   </Link>
                 );
@@ -66,7 +64,7 @@ export default function DashboardLayout({
                 href="/create/free"
                 className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                + 새 페이지 만들기
+                새 페이지 만들기
               </Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -89,22 +87,20 @@ export default function DashboardLayout({
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex flex-col items-center px-4 py-2 text-xs font-medium transition-colors',
+                    'px-4 py-2 text-xs font-medium transition-colors',
                     isActive
                       ? 'text-[#0064FF]'
                       : 'text-[#4E5968]'
                   )}
                 >
-                  <span className="text-xl mb-1">{item.icon}</span>
                   {item.name}
                 </Link>
               );
             })}
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="flex flex-col items-center px-4 py-2 text-xs font-medium text-[#4E5968] transition-colors"
+              className="px-4 py-2 text-xs font-medium text-[#4E5968] transition-colors"
             >
-              <span className="text-xl mb-1">🚪</span>
               로그아웃
             </button>
           </div>

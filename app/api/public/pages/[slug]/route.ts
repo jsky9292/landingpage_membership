@@ -41,6 +41,7 @@ export async function GET(
         sections: page.sections || [],
         formFields: page.form_fields || [],
         theme: page.theme || 'toss',
+        contactInfo: page.contact_info || {},
       },
     });
     

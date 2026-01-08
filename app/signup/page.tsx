@@ -133,7 +133,7 @@ function SignUpForm() {
             color: '#191919',
             marginBottom: '12px',
           }}>
-            🎁 가입 즉시 제공
+            가입 즉시 제공
           </p>
           <ul style={{
             listStyle: 'none',
@@ -156,22 +156,6 @@ function SignUpForm() {
               </li>
             ))}
           </ul>
-        </div>
-
-        {/* 테스트 계정 안내 */}
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: '#EFF6FF',
-          borderRadius: '12px',
-        }}>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#1E40AF', marginBottom: '8px' }}>
-            🧪 테스트 계정
-          </p>
-          <p style={{ fontSize: '13px', color: '#3B82F6', margin: 0 }}>
-            <strong>관리자:</strong> admin@demo.com / admin123<br/>
-            <strong>일반 사용자:</strong> user@demo.com / user123
-          </p>
         </div>
 
         {/* 약관 */}

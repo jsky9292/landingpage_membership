@@ -47,7 +47,7 @@ export async function GET() {
     if (!isAdmin) {
       try {
         const { data: currentUser } = await supabase
-          .from('users')
+          .from('profiles')
           .select('id, role')
           .eq('email', session.user.email)
           .single();
@@ -62,10 +62,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
-    // 전체 사용자 목록 조회
+    // 전체 사용자 목록 조회 (profiles 테이블에서)
     const { data: users, error: usersError } = await supabase
-      .from('users')
-      .select('id, email, name, role, plan, created_at, last_login_at')
+      .from('profiles')
+      .select('id, email, name, role, plan, created_at, avatar_url, kakao_linked')
       .order('created_at', { ascending: false });
 
     if (usersError) {

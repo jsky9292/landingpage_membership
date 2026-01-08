@@ -6,11 +6,18 @@ import { SectionRenderer } from '@/components/sections/SectionRenderer';
 import { Section, FormField, SectionType, ThemeType } from '@/types/page';
 import { THEMES } from '@/config/themes';
 
+interface ContactInfo {
+  phoneNumber?: string;
+  email?: string;
+  kakaoId?: string;
+}
+
 interface PageData {
   title: string;
   sections: Section[];
   formFields: FormField[];
   theme: string;
+  contactInfo?: ContactInfo;
 }
 
 // 데모 페이지 데이터 - 설득력 있는 스토리텔링 카피
@@ -181,6 +188,7 @@ export default function PublicPage() {
             sections: result.page.sections || [],
             formFields: result.page.formFields || [],
             theme: result.page.theme || 'toss',
+            contactInfo: result.page.contactInfo || {},
           });
         }
       } catch (error) {
@@ -323,32 +331,73 @@ export default function PublicPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* 플로팅 CTA 버튼 */}
-      <div style={{
+      {/* 모바일 하단 고정 버튼바 */}
+      <div className="mobile-bottom-bar" style={{
         position: 'fixed',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 50
+        bottom: 0,
+        left: 0,
+        right: 0,
+        background: '#fff',
+        borderTop: '1px solid #E5E8EB',
+        padding: '12px 16px',
+        paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+        display: 'flex',
+        gap: '12px',
+        zIndex: 50,
       }}>
+        {data.contactInfo?.phoneNumber && (
+          <a
+            href={`tel:${data.contactInfo.phoneNumber}`}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '14px 16px',
+              fontSize: '15px',
+              fontWeight: '600',
+              color: '#191F28',
+              background: '#F8FAFC',
+              border: '1px solid #E5E8EB',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            전화 상담
+          </a>
+        )}
         <button
           onClick={() => {
             const formSection = document.getElementById('form-section');
             formSection?.scrollIntoView({ behavior: 'smooth' });
           }}
           style={{
-            padding: '16px 32px',
-            fontSize: '16px',
+            flex: data.contactInfo?.phoneNumber ? 1 : 'auto',
+            width: data.contactInfo?.phoneNumber ? 'auto' : '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '14px 16px',
+            fontSize: '15px',
             fontWeight: '600',
             color: '#fff',
             background: themeColors.primary,
             border: 'none',
-            borderRadius: '50px',
+            borderRadius: '12px',
             cursor: 'pointer',
-            boxShadow: `0 4px 20px ${themeColors.primary}66`,
           }}
         >
-          지금 신청하기
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+          상담 신청
         </button>
       </div>
 
@@ -358,12 +407,20 @@ export default function PublicPage() {
         textAlign: 'center',
         borderTop: '1px solid #E5E8EB',
         marginTop: '40px',
-        paddingBottom: '80px'
+        paddingBottom: '100px'
       }}>
         <p style={{ fontSize: '12px', color: '#8B95A1' }}>
           Powered by 랜딩AI
         </p>
       </footer>
+
+      <style jsx>{`
+        @media (min-width: 768px) {
+          .mobile-bottom-bar {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
