@@ -22,6 +22,11 @@ interface ContactInfo {
   phoneNumber?: string;
   email?: string;
   kakaoId?: string;
+  // 긴급성 표시 설정
+  showVisitorCount?: boolean;
+  visitorCount?: number;
+  showApplicantCount?: boolean;
+  applicantCount?: number;
 }
 
 interface GeneratedData {
@@ -718,14 +723,11 @@ export default function PreviewNewPage() {
               />
             ) : showContactSettings ? (
               <div style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#191F28', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#191F28', marginBottom: '16px' }}>
                   연락처 설정
                 </h3>
-                <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                  모바일 하단 바에 표시될 전화번호를 입력하세요. 입력하면 '전화 상담' 버튼이 활성화됩니다.
-                </p>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div style={{ marginBottom: '24px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
                     전화번호
                   </label>
@@ -748,52 +750,182 @@ export default function PreviewNewPage() {
                     }}
                     style={{
                       width: '100%',
-                      padding: '14px 16px',
-                      fontSize: '16px',
+                      padding: '12px 14px',
+                      fontSize: '15px',
                       border: '1px solid #E5E8EB',
-                      borderRadius: '12px',
+                      borderRadius: '10px',
                       outline: 'none',
                     }}
                   />
+                  <p style={{ fontSize: '12px', color: '#8B95A1', marginTop: '6px' }}>
+                    입력하면 모바일 하단에 '전화 상담' 버튼이 표시됩니다
+                  </p>
                 </div>
 
-                <div style={{
-                  padding: '16px',
-                  background: '#F0FDF4',
-                  borderRadius: '12px',
-                  marginTop: '24px',
-                }}>
-                  <p style={{ fontSize: '14px', color: '#166534', marginBottom: '8px', fontWeight: '500' }}>
-                    모바일 하단 버튼 미리보기
-                  </p>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {data?.contactInfo?.phoneNumber && (
-                      <div style={{
-                        flex: 1,
-                        padding: '12px',
-                        background: '#F8FAFC',
-                        border: '1px solid #E5E8EB',
-                        borderRadius: '8px',
-                        textAlign: 'center',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#191F28',
-                      }}>
-                        전화 상담
+                <div style={{ borderTop: '1px solid #E5E8EB', paddingTop: '24px', marginBottom: '24px' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '16px' }}>
+                    긴급성 표시
+                  </h4>
+
+                  {/* 접속자 수 */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={data?.contactInfo?.showVisitorCount || false}
+                        onChange={(e) => {
+                          if (data) {
+                            const newData = {
+                              ...data,
+                              contactInfo: {
+                                ...data.contactInfo,
+                                showVisitorCount: e.target.checked,
+                                visitorCount: data.contactInfo?.visitorCount || 23,
+                              },
+                            };
+                            setData(newData);
+                            safeSetStorage('generatedPage', JSON.stringify(newData));
+                          }
+                        }}
+                        style={{ width: '18px', height: '18px', accentColor: '#0064FF' }}
+                      />
+                      <span style={{ fontSize: '14px', color: '#374151' }}>현재 접속자 수 표시</span>
+                    </label>
+                    {data?.contactInfo?.showVisitorCount && (
+                      <div style={{ marginTop: '10px', marginLeft: '28px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px', color: '#6B7280' }}>현재</span>
+                          <input
+                            type="number"
+                            value={data?.contactInfo?.visitorCount || 23}
+                            onChange={(e) => {
+                              if (data) {
+                                const newData = {
+                                  ...data,
+                                  contactInfo: {
+                                    ...data.contactInfo,
+                                    visitorCount: parseInt(e.target.value) || 0,
+                                  },
+                                };
+                                setData(newData);
+                                safeSetStorage('generatedPage', JSON.stringify(newData));
+                              }
+                            }}
+                            style={{
+                              width: '70px',
+                              padding: '8px 10px',
+                              fontSize: '14px',
+                              border: '1px solid #E5E8EB',
+                              borderRadius: '8px',
+                              textAlign: 'center',
+                            }}
+                          />
+                          <span style={{ fontSize: '14px', color: '#6B7280' }}>명이 보는 중</span>
+                        </div>
                       </div>
                     )}
-                    <div style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: '#0064FF',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#fff',
-                    }}>
-                      상담 신청
-                    </div>
+                  </div>
+
+                  {/* 신청자 수 */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={data?.contactInfo?.showApplicantCount || false}
+                        onChange={(e) => {
+                          if (data) {
+                            const newData = {
+                              ...data,
+                              contactInfo: {
+                                ...data.contactInfo,
+                                showApplicantCount: e.target.checked,
+                                applicantCount: data.contactInfo?.applicantCount || 47,
+                              },
+                            };
+                            setData(newData);
+                            safeSetStorage('generatedPage', JSON.stringify(newData));
+                          }
+                        }}
+                        style={{ width: '18px', height: '18px', accentColor: '#0064FF' }}
+                      />
+                      <span style={{ fontSize: '14px', color: '#374151' }}>신청자 수 표시</span>
+                    </label>
+                    {data?.contactInfo?.showApplicantCount && (
+                      <div style={{ marginTop: '10px', marginLeft: '28px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px', color: '#6B7280' }}>현재</span>
+                          <input
+                            type="number"
+                            value={data?.contactInfo?.applicantCount || 47}
+                            onChange={(e) => {
+                              if (data) {
+                                const newData = {
+                                  ...data,
+                                  contactInfo: {
+                                    ...data.contactInfo,
+                                    applicantCount: parseInt(e.target.value) || 0,
+                                  },
+                                };
+                                setData(newData);
+                                safeSetStorage('generatedPage', JSON.stringify(newData));
+                              }
+                            }}
+                            style={{
+                              width: '70px',
+                              padding: '8px 10px',
+                              fontSize: '14px',
+                              border: '1px solid #E5E8EB',
+                              borderRadius: '8px',
+                              textAlign: 'center',
+                            }}
+                          />
+                          <span style={{ fontSize: '14px', color: '#6B7280' }}>명이 신청함</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 미리보기 */}
+                <div style={{
+                  padding: '16px',
+                  background: '#F8FAFC',
+                  borderRadius: '12px',
+                  border: '1px solid #E5E8EB',
+                }}>
+                  <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px', fontWeight: '500' }}>
+                    상단 배지 미리보기
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {data?.contactInfo?.showVisitorCount && (
+                      <span style={{
+                        padding: '6px 12px',
+                        background: '#FEF3C7',
+                        color: '#92400E',
+                        borderRadius: '20px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                      }}>
+                        🔥 {data?.contactInfo?.visitorCount || 23}명이 보는 중
+                      </span>
+                    )}
+                    {data?.contactInfo?.showApplicantCount && (
+                      <span style={{
+                        padding: '6px 12px',
+                        background: '#DBEAFE',
+                        color: '#1E40AF',
+                        borderRadius: '20px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                      }}>
+                        ✨ {data?.contactInfo?.applicantCount || 47}명 신청완료
+                      </span>
+                    )}
+                    {!data?.contactInfo?.showVisitorCount && !data?.contactInfo?.showApplicantCount && (
+                      <span style={{ fontSize: '13px', color: '#9CA3AF' }}>
+                        체크박스를 선택하면 미리보기가 표시됩니다
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

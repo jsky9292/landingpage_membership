@@ -10,6 +10,10 @@ interface ContactInfo {
   phoneNumber?: string;
   email?: string;
   kakaoId?: string;
+  showVisitorCount?: boolean;
+  visitorCount?: number;
+  showApplicantCount?: boolean;
+  applicantCount?: number;
 }
 
 interface PageData {
@@ -337,8 +341,8 @@ export default function PublicPage() {
         bottom: 0,
         left: 0,
         right: 0,
-        background: '#fff',
-        borderTop: '1px solid #E5E8EB',
+        background: themeKey === 'dark' ? '#1a1a1a' : '#fff',
+        borderTop: `1px solid ${themeKey === 'dark' ? '#333' : '#E5E8EB'}`,
         padding: '12px 16px',
         paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
         display: 'flex',
@@ -357,9 +361,9 @@ export default function PublicPage() {
               padding: '14px 16px',
               fontSize: '15px',
               fontWeight: '600',
-              color: '#191F28',
-              background: '#F8FAFC',
-              border: '1px solid #E5E8EB',
+              color: themeKey === 'dark' ? '#fff' : '#191F28',
+              background: themeKey === 'dark' ? '#333' : '#F8FAFC',
+              border: `1px solid ${themeKey === 'dark' ? '#444' : '#E5E8EB'}`,
               borderRadius: '12px',
               textDecoration: 'none',
               cursor: 'pointer',
@@ -386,7 +390,7 @@ export default function PublicPage() {
             padding: '14px 16px',
             fontSize: '15px',
             fontWeight: '600',
-            color: '#fff',
+            color: themeKey === 'dark' || themeKey === 'warm' ? '#000' : '#fff',
             background: themeColors.primary,
             border: 'none',
             borderRadius: '12px',
