@@ -61,9 +61,9 @@ export default async function Image({ params }: Props) {
 
       const heroSection = page.sections?.find((s: any) => s.type === 'hero');
       if (heroSection?.content?.subtext) {
-        subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 80);
+        subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 40);
       } else if (heroSection?.content?.headline) {
-        subtitle = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 80);
+        subtitle = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 40);
       }
     }
   } catch (e) {
