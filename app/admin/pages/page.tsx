@@ -1,7 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface PageOwner {
+  id: string;
+  email: string;
+  name: string | null;
+}
 
 interface Page {
   id: string;
@@ -14,47 +20,15 @@ interface Page {
   newSubmissionCount: number;
   createdAt: string;
   updatedAt: string;
+  owner: PageOwner | null;
 }
 
-// 임시 데이터
-const mockPages: Page[] = [
-  {
-    id: '1',
-    title: 'DB 자동화 멤버십',
-    slug: 'demo',
-    topic: 'course',
-    status: 'published',
-    viewCount: 1234,
-    submissionCount: 89,
-    newSubmissionCount: 5,
-    createdAt: '2025-01-20',
-    updatedAt: '2025-01-24',
-  },
-  {
-    id: '2',
-    title: '스터디 모집 페이지',
-    slug: 'study-2025',
-    topic: 'study',
-    status: 'published',
-    viewCount: 567,
-    submissionCount: 34,
-    newSubmissionCount: 2,
-    createdAt: '2025-01-18',
-    updatedAt: '2025-01-22',
-  },
-  {
-    id: '3',
-    title: '프리랜서 상담 예약',
-    slug: 'freelancer',
-    topic: 'consultation',
-    status: 'draft',
-    viewCount: 0,
-    submissionCount: 0,
-    newSubmissionCount: 0,
-    createdAt: '2025-01-15',
-    updatedAt: '2025-01-15',
-  },
-];
+interface PageStats {
+  totalPages: number;
+  publishedPages: number;
+  totalSubmissions: number;
+  newSubmissions: number;
+}
 
 const topicLabels: Record<string, string> = {
   course: '강의 모집',
@@ -67,31 +41,126 @@ const topicLabels: Record<string, string> = {
   free: '자유 주제',
 };
 
-export default function PagesListPage() {
-  const [pages] = useState<Page[]>(mockPages);
+export default function AdminPagesListPage() {
+  const [pages, setPages] = useState<Page[]>([]);
+  const [stats, setStats] = useState<PageStats>({
+    totalPages: 0,
+    publishedPages: 0,
+    totalSubmissions: 0,
+    newSubmissions: 0,
+  });
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(true);
+
+  useEffect(() => {
+    fetchPages();
+  }, []);
+
+  const fetchPages = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/admin/pages');
+
+      if (res.status === 403) {
+        setIsAdmin(false);
+        return;
+      }
+
+      if (!res.ok) {
+        console.error('Failed to fetch pages');
+        return;
+      }
+
+      const data = await res.json();
+      setPages(data.pages || []);
+      setStats(data.stats || {
+        totalPages: 0,
+        publishedPages: 0,
+        totalSubmissions: 0,
+        newSubmissions: 0,
+      });
+    } catch (error) {
+      console.error('Fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredPages = pages.filter((page) => {
     if (filter === 'all') return true;
     return page.status === filter;
   });
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[#4E5968]">로딩중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-6xl mb-4">&#128274;</div>
+          <h3 className="text-xl font-bold text-[#191F28] mb-2">
+            관리자 권한이 필요합니다
+          </h3>
+          <p className="text-[#4E5968] mb-6">
+            이 페이지는 관리자만 접근할 수 있습니다.
+          </p>
+          <Link
+            href="/dashboard"
+            className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
+          >
+            내 대시보드로 이동
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#191F28]">내 페이지</h1>
+          <h1 className="text-2xl font-bold text-[#191F28]">전체 페이지 관리</h1>
           <p className="text-[#4E5968] mt-1">
-            총 {pages.length}개의 페이지가 있어요.
+            플랫폼의 모든 페이지를 관리합니다.
           </p>
         </div>
         <Link
-          href="/"
+          href="/create/free"
           className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           + 새 페이지 만들기
         </Link>
+      </div>
+
+      {/* 통계 카드 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <p className="text-sm text-[#4E5968]">전체 페이지</p>
+          <p className="text-2xl font-bold text-[#191F28]">{stats.totalPages}</p>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <p className="text-sm text-[#4E5968]">게시중</p>
+          <p className="text-2xl font-bold text-green-600">{stats.publishedPages}</p>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <p className="text-sm text-[#4E5968]">총 신청</p>
+          <p className="text-2xl font-bold text-[#191F28]">{stats.totalSubmissions}</p>
+        </div>
+        <div className="bg-[#0064FF] rounded-xl p-4">
+          <p className="text-sm text-white/80">새 신청</p>
+          <p className="text-2xl font-bold text-white">{stats.newSubmissions}</p>
+        </div>
       </div>
 
       {/* 필터 탭 */}
@@ -126,7 +195,7 @@ export default function PagesListPage() {
       {/* 빈 상태 */}
       {filteredPages.length === 0 && (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-          <span className="text-5xl mb-4 block">📄</span>
+          <div className="text-5xl mb-4">&#128196;</div>
           <h3 className="text-lg font-bold text-[#191F28] mb-2">
             {filter === 'all'
               ? '아직 페이지가 없어요'
@@ -138,7 +207,7 @@ export default function PagesListPage() {
             새 랜딩페이지를 만들어보세요!
           </p>
           <Link
-            href="/"
+            href="/create/free"
             className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
           >
             + 새 페이지 만들기
@@ -177,6 +246,15 @@ function FilterTab({
 function PageRow({ page }: { page: Page }) {
   const [showMenu, setShowMenu] = useState(false);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-4">
@@ -203,15 +281,20 @@ function PageRow({ page }: { page: Page }) {
             )}
             {page.newSubmissionCount > 0 && (
               <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full font-bold animate-pulse">
-                🔔 새 신청 {page.newSubmissionCount}건
+                새 신청 {page.newSubmissionCount}건
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-4 text-sm text-[#4E5968]">
-            <span>👁️ 조회 {page.viewCount.toLocaleString()}</span>
-            <span>📬 신청 {page.submissionCount}건</span>
-            <span>📅 {page.updatedAt} 수정</span>
+            <span>조회 {page.viewCount.toLocaleString()}</span>
+            <span>신청 {page.submissionCount}건</span>
+            <span>{formatDate(page.updatedAt)} 수정</span>
+            {page.owner && (
+              <span className="text-[#0064FF]">
+                {page.owner.name || page.owner.email}
+              </span>
+            )}
           </div>
 
           {page.status === 'published' && (
@@ -222,7 +305,7 @@ function PageRow({ page }: { page: Page }) {
                 rel="noopener noreferrer"
                 className="text-xs text-[#0064FF] hover:underline"
               >
-                🔗 {typeof window !== 'undefined' ? window.location.origin : ''}/p/{page.slug}
+                /p/{page.slug}
               </a>
             </div>
           )}
@@ -241,7 +324,7 @@ function PageRow({ page }: { page: Page }) {
               onClick={() => setShowMenu(!showMenu)}
               className="p-2 text-[#4E5968] hover:bg-gray-100 rounded-lg transition-colors"
             >
-              ⋮
+              &#8942;
             </button>
             {showMenu && (
               <>
@@ -254,7 +337,7 @@ function PageRow({ page }: { page: Page }) {
                     href={`/preview/${page.id}`}
                     className="block px-4 py-3 text-sm text-[#191F28] hover:bg-gray-50"
                   >
-                    ✏️ 편집하기
+                    편집하기
                   </Link>
                   {page.status === 'published' && (
                     <a
@@ -263,14 +346,14 @@ function PageRow({ page }: { page: Page }) {
                       rel="noopener noreferrer"
                       className="block px-4 py-3 text-sm text-[#191F28] hover:bg-gray-50"
                     >
-                      👁️ 미리보기
+                      미리보기
                     </a>
                   )}
                   <button className="block w-full text-left px-4 py-3 text-sm text-[#191F28] hover:bg-gray-50">
-                    📋 복제하기
+                    복제하기
                   </button>
                   <button className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50">
-                    🗑️ 삭제하기
+                    삭제하기
                   </button>
                 </div>
               </>

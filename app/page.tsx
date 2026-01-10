@@ -4,1498 +4,618 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 
-// 카테고리별 샘플들
+// 카테고리 데이터 - 아이콘 없이 텍스트 중심
 const categories = [
-  {
-    id: 'education',
-    name: '교육/강의',
-    icon: '🎓',
-    color: '#3182F6',
-    samples: [
-      { id: 'marketing-edu', name: '마케팅 교육', desc: 'SNS 마케팅, 퍼포먼스 마케팅, 브랜딩 강의', emoji: '📈', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=240&fit=crop' },
-      { id: 'it-edu', name: 'IT/개발 교육', desc: '코딩, 데이터분석, AI 활용 강의', emoji: '💻', thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=240&fit=crop' },
-      { id: 'ai-edu', name: 'AI 활용 교육', desc: 'ChatGPT, 미드저니, 업무 자동화 강의', emoji: '🤖', thumbnail: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=240&fit=crop' },
-      { id: 'design-edu', name: '디자인 교육', desc: '포토샵, 피그마, UI/UX 강의', emoji: '🎨', thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=240&fit=crop' },
-      { id: 'language-edu', name: '외국어 교육', desc: '영어, 중국어, 일본어 회화 강의', emoji: '🌍', thumbnail: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400&h=240&fit=crop' },
-      { id: 'finance-edu', name: '재테크 교육', desc: '주식, 부동산, 가상화폐 투자 강의', emoji: '💰', thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=240&fit=crop' },
-    ]
-  },
-  {
-    id: 'consulting',
-    name: '상담/컨설팅',
-    icon: '💼',
-    color: '#1E6DE8',
-    samples: [
-      { id: 'insurance', name: '보험 상담', desc: '생명보험, 손해보험 무료 상담', emoji: '🛡️', thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=240&fit=crop' },
-      { id: 'insurance-car', name: '자동차보험', desc: '다이렉트 자동차보험 비교견적', emoji: '🚗', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=240&fit=crop' },
-      { id: 'insurance-health', name: '건강보험', desc: '실비, 암보험, 건강검진 상담', emoji: '❤️', thumbnail: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&h=240&fit=crop' },
-      { id: 'tax-consult', name: '세무 상담', desc: '종합소득세, 부가세, 절세 상담', emoji: '📋', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=240&fit=crop' },
-      { id: 'legal-consult', name: '법률 상담', desc: '계약서, 분쟁, 소송 상담', emoji: '⚖️', thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=240&fit=crop' },
-      { id: 'career-consult', name: '커리어 상담', desc: '이직, 면접, 포트폴리오 컨설팅', emoji: '🎯', thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&h=240&fit=crop' },
-    ]
-  },
-  {
-    id: 'service',
-    name: '서비스/대행',
-    icon: '🛠️',
-    color: '#0052CC',
-    samples: [
-      { id: 'web-dev', name: '웹사이트 제작', desc: '홈페이지, 쇼핑몰, 랜딩페이지 제작', emoji: '🌐', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=240&fit=crop' },
-      { id: 'design-service', name: '디자인 대행', desc: '로고, 명함, 상세페이지 제작', emoji: '✨', thumbnail: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400&h=240&fit=crop' },
-      { id: 'video-service', name: '영상 제작', desc: '홍보영상, 유튜브, 쇼츠 제작', emoji: '🎬', thumbnail: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=240&fit=crop' },
-      { id: 'marketing-service', name: '마케팅 대행', desc: 'SNS 운영, 광고 대행', emoji: '📣', thumbnail: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=400&h=240&fit=crop' },
-      { id: 'writing-service', name: '글쓰기 대행', desc: '보도자료, 블로그, 카피라이팅', emoji: '✍️', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=240&fit=crop' },
-      { id: 'photo-service', name: '사진 촬영', desc: '제품, 프로필, 인테리어 촬영', emoji: '📷', thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=240&fit=crop' },
-    ]
-  },
-  {
-    id: 'product',
-    name: '상품/판매',
-    icon: '🛒',
-    color: '#10B981',
-    samples: [
-      { id: 'digital-product', name: '디지털 상품', desc: '전자책, 템플릿, 프리셋 판매', emoji: '📱', thumbnail: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=240&fit=crop' },
-      { id: 'online-course', name: '온라인 강의', desc: 'VOD 강의, 클래스 판매', emoji: '🎥', thumbnail: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400&h=240&fit=crop' },
-      { id: 'subscription', name: '구독 서비스', desc: '멤버십, 뉴스레터, 커뮤니티', emoji: '🔄', thumbnail: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=240&fit=crop' },
-      { id: 'handmade', name: '핸드메이드', desc: '수제 상품, 공예품 판매', emoji: '🎁', thumbnail: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=240&fit=crop' },
-      { id: 'food-product', name: '식품 판매', desc: '건강식품, 반찬, 베이커리', emoji: '🍽️', thumbnail: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=240&fit=crop' },
-      { id: 'beauty-product', name: '뷰티 상품', desc: '화장품, 스킨케어, 헤어케어', emoji: '💄', thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=240&fit=crop' },
-    ]
-  },
-  {
-    id: 'event',
-    name: '이벤트/모집',
-    icon: '🎉',
-    color: '#F59E0B',
-    samples: [
-      { id: 'seminar', name: '세미나/웨비나', desc: '온오프라인 세미나 참가 모집', emoji: '🎤', thumbnail: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=240&fit=crop' },
-      { id: 'workshop', name: '워크숍', desc: '원데이클래스, 체험 프로그램', emoji: '🔧', thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=240&fit=crop' },
-      { id: 'study-group', name: '스터디 모집', desc: '독서, 어학, 자격증 스터디', emoji: '📚', thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=240&fit=crop' },
-      { id: 'community', name: '커뮤니티 모집', desc: '동호회, 네트워킹 모임', emoji: '👥', thumbnail: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=240&fit=crop' },
-      { id: 'early-bird', name: '얼리버드 모집', desc: '신제품, 서비스 사전 예약', emoji: '🐦', thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=240&fit=crop' },
-      { id: 'waitlist', name: '대기자 모집', desc: '출시 전 관심고객 확보', emoji: '⏰', thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=240&fit=crop' },
-    ]
-  },
-  {
-    id: 'realestate',
-    name: '부동산/분양',
-    icon: '🏠',
-    color: '#EF4444',
-    samples: [
-      { id: 'apartment', name: '아파트 분양', desc: '신축 아파트 분양 홍보', emoji: '🏢', thumbnail: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=240&fit=crop' },
-      { id: 'officetel', name: '오피스텔 분양', desc: '수익형 오피스텔 분양', emoji: '🏨', thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=240&fit=crop' },
-      { id: 'store', name: '상가 분양', desc: '상업시설, 상가 분양', emoji: '🏪', thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=240&fit=crop' },
-      { id: 'land', name: '토지 매매', desc: '전원주택 부지, 농지 매매', emoji: '🌳', thumbnail: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=240&fit=crop' },
-      { id: 'interior', name: '인테리어', desc: '리모델링, 인테리어 상담', emoji: '🛋️', thumbnail: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=240&fit=crop' },
-      { id: 'moving', name: '이사 서비스', desc: '포장이사, 원룸이사', emoji: '🚚', thumbnail: 'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=240&fit=crop' },
-    ]
-  },
+  { id: 'education', name: '교육/강의', desc: '온라인 강의, 코칭, 멘토링' },
+  { id: 'consulting', name: '상담/컨설팅', desc: '보험, 재무, 법률 상담' },
+  { id: 'service', name: '서비스/대행', desc: '디자인, 마케팅, 개발' },
+  { id: 'product', name: '상품/판매', desc: '이커머스, 구독 서비스' },
+  { id: 'event', name: '이벤트/모집', desc: '세미나, 워크샵, 스터디' },
+  { id: 'realestate', name: '부동산/분양', desc: '아파트, 오피스텔, 상가' },
 ];
 
-// 성공 사례 데이터
+// 성공 사례
 const successCases = [
-  {
-    id: 1,
-    category: '교육',
-    title: '온라인 코딩 부트캠프',
-    result: '신청 DB 340% 증가',
-    revenue: '월 수강신청 247건 확보',
-    period: '런칭 2주 만에',
-    image: '💻',
-    color: '#3182F6',
-  },
-  {
-    id: 2,
-    category: '보험',
-    title: '보험 설계사 김OO님',
-    result: '상담 DB 5배 증가',
-    revenue: '월 상담신청 89건 확보',
-    period: '페이지 오픈 후',
-    image: '🛡️',
-    color: '#1E6DE8',
-  },
-  {
-    id: 3,
-    category: '서비스',
-    title: '프리랜서 디자이너',
-    result: '견적 문의 800% 증가',
-    revenue: '월 프로젝트 문의 45건',
-    period: '1개월 만에',
-    image: '🎨',
-    color: '#0052CC',
-  },
-  {
-    id: 4,
-    category: '부동산',
-    title: 'A 분양대행사',
-    result: '방문예약 DB 12배',
-    revenue: '월 상담예약 320건 확보',
-    period: '캠페인 4주 만에',
-    image: '🏢',
-    color: '#EF4444',
-  },
+  { category: '교육', title: '온라인 코딩 부트캠프', result: '+340%', metric: '수강신청', detail: '월 247건 달성', period: '2주' },
+  { category: '보험', title: '보험 설계사 K님', result: '+500%', metric: '상담신청', detail: '월 89건 달성', period: '1개월' },
+  { category: '디자인', title: '프리랜서 디자이너', result: '+800%', metric: '견적문의', detail: '월 45건 달성', period: '1개월' },
+  { category: '부동산', title: 'A 분양대행사', result: '+1,200%', metric: '방문예약', detail: '월 320건 달성', period: '4주' },
 ];
 
-// 블로그 글 데이터
-const blogPosts = [
-  {
-    id: 1,
-    category: '마케팅 전략',
-    title: '랜딩페이지 DB 수집률 300% 올리는 7가지 원칙',
-    excerpt: '같은 광고비로 3배 더 많은 고객 DB를 확보하는 검증된 방법을 공개합니다.',
-    readTime: '8분',
-    date: '2026.01.15',
-    views: '2.3만',
-    tag: '인기',
-  },
-  {
-    id: 2,
-    category: '성공 사례',
-    title: '월 DB 0건에서 247건: 코딩 강사 이OO님의 성공기',
-    excerpt: '2줄만 입력하고 만든 랜딩페이지로 매월 247건의 수강신청 DB를 확보한 비결.',
-    readTime: '12분',
-    date: '2026.01.12',
-    views: '1.8만',
-    tag: '추천',
-  },
-  {
-    id: 3,
-    category: '실전 가이드',
-    title: '보험 설계사를 위한 DB 수집 랜딩페이지 완벽 가이드',
-    excerpt: '보험 업계에서 검증된 상담신청 DB 확보 전략을 단계별로 설명합니다.',
-    readTime: '15분',
-    date: '2026.01.10',
-    views: '1.2만',
-    tag: '가이드',
-  },
-  {
-    id: 4,
-    category: 'A/B 테스트',
-    title: 'CTA 버튼 문구만 바꿨는데 DB 수집률 47% 상승',
-    excerpt: '실제 A/B 테스트로 증명된 신청폼 최적화 방법을 공유합니다.',
-    readTime: '6분',
-    date: '2026.01.08',
-    views: '9,800',
-    tag: '데이터',
-  },
-  {
-    id: 5,
-    category: '업종별 팁',
-    title: '부동산 분양 랜딩페이지, 방문예약 DB 10배 늘리기',
-    excerpt: '분양대행사 10곳의 성공 사례에서 도출한 핵심 요소 5가지.',
-    readTime: '10분',
-    date: '2026.01.05',
-    views: '7,500',
-    tag: '부동산',
-  },
-  {
-    id: 6,
-    category: '트렌드',
-    title: '2026년 고전환율 랜딩페이지 디자인 트렌드',
-    excerpt: '올해 가장 높은 DB 수집률을 기록한 랜딩페이지들의 공통점.',
-    readTime: '7분',
-    date: '2026.01.03',
-    views: '1.5만',
-    tag: '트렌드',
-  },
-];
-
-// 고객 후기
+// 후기 - 6개로 확장
 const testimonials = [
-  {
-    name: '김영희',
-    role: '온라인 강의 크리에이터',
-    content: '2줄만 입력했는데 진짜 30초만에 페이지가 나왔어요. 런칭 첫 주에 수강신청 DB 87건 확보!',
-    avatar: '👩‍💼',
-    rating: 5,
-  },
-  {
-    name: '박준호',
-    role: '보험 설계사',
-    content: '지인 영업만 하다가 랜딩페이지 만들고 나서 모르는 분들이 먼저 상담 신청해요. 매달 DB 90건씩 들어옵니다.',
-    avatar: '👨‍💼',
-    rating: 5,
-  },
-  {
-    name: '이수진',
-    role: '프리랜서 마케터',
-    content: '클라이언트한테 랜딩페이지도 제안하니까 단가가 올랐어요. 2줄만 바꾸면 업종별로 다 대응 가능!',
-    avatar: '👩‍🎨',
-    rating: 5,
-  },
-  {
-    name: '정민수',
-    role: '스타트업 대표',
-    content: '개발자 없이 MVP 랜딩 만들어서 시장 테스트했어요. 2주만에 사전예약 DB 500건 달성.',
-    avatar: '👨‍💻',
-    rating: 5,
-  },
-];
-
-// 핵심 가치 제안
-const valueProps = [
-  {
-    icon: '✏️',
-    title: '2줄만 입력',
-    desc: '상품명, 타겟만 적으세요',
-  },
-  {
-    icon: '⚡',
-    title: '30초 완성',
-    desc: 'AI가 자동으로 생성',
-  },
-  {
-    icon: '📥',
-    title: 'DB 자동 수집',
-    desc: '신청폼 자동 연동',
-  },
-  {
-    icon: '📱',
-    title: '카톡 알림',
-    desc: '실시간 DB 알림',
-  },
+  { name: '김영희', role: '온라인 강의 크리에이터', content: '2줄만 입력했는데 30초만에 페이지가 완성됐어요. 첫 주에 87건 DB 확보했습니다.', initial: '김' },
+  { name: '박준호', role: '보험 설계사', content: '지인 영업만 하다가 이제는 모르는 분들이 먼저 상담 신청해요. 매달 90건씩 들어옵니다.', initial: '박' },
+  { name: '이수진', role: '프리랜서 마케터', content: '클라이언트한테 랜딩페이지도 제안하니까 단가가 올랐어요. 업종별로 다 대응 가능해요.', initial: '이' },
+  { name: '최민수', role: '부동산 컨설턴트', content: '기존 대행사 비용의 1/10로 더 좋은 성과 내고 있어요. 이번 달만 방문예약 156건입니다.', initial: '최' },
+  { name: '정다은', role: '필라테스 원장', content: '인스타 광고에 연결했더니 체험 신청이 3배로 늘었어요. 이제 없으면 안 되는 도구예요.', initial: '정' },
+  { name: '한상우', role: '세무사', content: '블로그 유입을 랜딩페이지로 받으니까 상담 전환율이 확 올랐어요. 강력 추천합니다.', initial: '한' },
 ];
 
 export default function HomePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [hoveredSample, setHoveredSample] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatStep, setChatStep] = useState(0);
-  const [chatName, setChatName] = useState('');
-  const [chatCompany, setChatCompany] = useState('');
-  const [chatContact, setChatContact] = useState('');
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-  const handleCreateClick = (sampleId?: string) => {
-    if (sampleId) {
-      router.push(`/create/${sampleId}`);
-    } else {
-      router.push('/create/course');
-    }
-  };
-
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        alert(data.message || '구독 신청이 완료되었습니다! 매주 유용한 마케팅 팁을 보내드릴게요.');
-        setEmail('');
-      } else {
-        alert(data.error || '구독 신청에 실패했습니다.');
-      }
-    } catch {
-      alert('구독 신청 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleChatSubmit = () => {
-    if (chatStep === 0 && chatName) {
-      setChatStep(1);
-    } else if (chatStep === 1 && chatCompany) {
-      setChatStep(2);
-    } else if (chatStep === 2 && chatContact) {
-      setChatStep(3);
-      // TODO: 실제 DB 저장 및 알림 발송
-    }
-  };
-
-  const resetChat = () => {
-    setChatStep(0);
-    setChatName('');
-    setChatCompany('');
-    setChatContact('');
-    setIsChatOpen(false);
+  const handleCreateClick = (categoryId?: string) => {
+    router.push(categoryId ? `/create/${categoryId}` : '/create/free');
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAFAFA' }}>
-      {/* 토스 스타일 모바일 반응형 */}
+    <div style={{ minHeight: '100vh', background: '#fff' }}>
       <style>{`
-        * { -webkit-tap-highlight-color: transparent; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeUp 0.7s ease-out forwards; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
         @media (max-width: 768px) {
-          .hero-headline { font-size: 28px !important; line-height: 1.3 !important; }
-          .hero-subtext { font-size: 17px !important; line-height: 1.6 !important; }
-          .hero-buttons { flex-direction: column !important; gap: 12px !important; }
-          .hero-button { width: 100% !important; padding: 18px 24px !important; font-size: 17px !important; border-radius: 16px !important; }
-          .nav-links { display: none !important; }
-          .mobile-nav { display: flex !important; }
-          .stats-grid { flex-direction: column !important; gap: 20px !important; }
-          .pricing-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-          .pricing-card-featured { transform: none !important; }
-          .pain-grid { grid-template-columns: 1fr !important; }
-          .value-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-          .value-grid > div { padding: 14px 10px !important; }
-          .footer-grid { grid-template-columns: 1fr !important; text-align: center !important; }
-          .newsletter-form { flex-direction: column !important; }
-          .newsletter-form input { width: 100% !important; }
-          .newsletter-form button { width: 100% !important; white-space: nowrap !important; }
-          .template-grid { grid-template-columns: 1fr !important; }
-          .blog-grid { grid-template-columns: 1fr !important; }
-          .category-tabs { overflow-x: auto !important; justify-content: flex-start !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch !important; }
-          .category-tab { flex-shrink: 0 !important; padding: 12px 18px !important; font-size: 15px !important; }
-          .section-title { font-size: 22px !important; line-height: 1.4 !important; }
+          .hero-title { font-size: 32px !important; line-height: 1.3 !important; }
+          .grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+          .grid-2 { grid-template-columns: 1fr !important; }
+          .flex-row { flex-direction: column !important; }
+          .hide-mobile { display: none !important; }
+          .show-mobile { display: flex !important; }
           .testimonial-grid { grid-template-columns: 1fr !important; }
-          .success-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* 상단 띠배너 */}
-      <div style={{
-        background: 'linear-gradient(90deg, #3182F6 0%, #1E6DE8 50%, #0052CC 100%)',
-        padding: '10px 16px',
-        textAlign: 'center',
-      }}>
-        <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>
-          지금 시작하면 <strong>7일 무료</strong> + DB 수집 가이드북 무료 증정
-        </span>
-      </div>
-
       {/* 헤더 */}
       <header style={{
-        padding: '12px 16px',
-        background: '#fff',
-        borderBottom: '1px solid #EFEFEF',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
+        padding: '0 20px',
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        maxWidth: '1100px',
+        margin: '0 auto',
       }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{ fontSize: '18px', fontWeight: '800', color: '#191919' }}>
-            랜딩메이커
-          </span>
-          {/* PC 네비게이션 */}
-          <nav className="nav-links" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <a href="/samples" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>샘플</a>
-            <a href="#cases" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>성공사례</a>
-            <a href="/pricing" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>가격</a>
-            {status === 'authenticated' ? (
-              <>
-                <a href="/dashboard" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>내 페이지</a>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  style={{ color: '#666', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  로그아웃
-                </button>
-              </>
-            ) : (
-              <>
-                <a href="/login" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>로그인</a>
-                <a href="/signup" style={{ color: '#3182F6', fontSize: '14px', textDecoration: 'none', fontWeight: '600' }}>회원가입</a>
-              </>
-            )}
-            <button
-              onClick={() => handleCreateClick()}
-              style={{
-                padding: '10px 20px',
-                background: '#3182F6',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              무료로 만들기
-            </button>
-            <a
-              href="/create/url"
-              style={{
-                padding: '10px 20px',
-                background: '#10B981',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-            >
-              URL로 만들기
-            </a>
-          </nav>
-          {/* 모바일 네비게이션 */}
-          <div className="mobile-nav" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
-            {status === 'authenticated' ? (
-              <>
-                <a href="/dashboard" style={{
-                  padding: '8px 14px',
-                  background: '#F3F4F6',
-                  color: '#374151',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  textDecoration: 'none',
-                }}>내 페이지</a>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  style={{
-                    padding: '8px 14px',
-                    background: '#EF4444',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >로그아웃</button>
-              </>
-            ) : (
-              <>
-                <a href="/login" style={{
-                  padding: '8px 14px',
-                  background: '#F3F4F6',
-                  color: '#374151',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  textDecoration: 'none',
-                }}>로그인</a>
-                <a href="/signup" style={{
-                  padding: '8px 14px',
-                  background: '#3182F6',
-                  color: '#fff',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  textDecoration: 'none',
-                }}>회원가입</a>
-              </>
-            )}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="#3182F6"/>
+            {/* 문서 모양 */}
+            <rect x="8" y="6" width="12" height="16" rx="2" fill="white"/>
+            {/* 문서 내 라인들 */}
+            <rect x="10" y="9" width="8" height="1.5" rx="0.75" fill="#3182F6" opacity="0.5"/>
+            <rect x="10" y="12" width="6" height="1.5" rx="0.75" fill="#3182F6" opacity="0.5"/>
+            <rect x="10" y="15" width="7" height="1.5" rx="0.75" fill="#3182F6" opacity="0.5"/>
+            {/* 아래 화살표 (Landing) */}
+            <path d="M14 18L14 21M14 21L12 19M14 21L16 19" stroke="#3182F6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontSize: '17px', fontWeight: '700', color: '#191F28' }}>랜딩메이커</span>
         </div>
+
+        <nav className="hide-mobile" style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+          <a href="#cases" style={{ color: '#4E5968', fontSize: '15px', textDecoration: 'none' }}>성공사례</a>
+          <a href="#reviews" style={{ color: '#4E5968', fontSize: '15px', textDecoration: 'none' }}>후기</a>
+          <a href="#pricing" style={{ color: '#4E5968', fontSize: '15px', textDecoration: 'none' }}>가격</a>
+          {status === 'authenticated' ? (
+            <>
+              <a href="/dashboard" style={{ color: '#4E5968', fontSize: '15px', textDecoration: 'none' }}>대시보드</a>
+              <button
+                onClick={() => signOut()}
+                style={{
+                  padding: '10px 18px',
+                  background: '#F2F4F6',
+                  color: '#4E5968',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <a href="/login" style={{ color: '#4E5968', fontSize: '15px', textDecoration: 'none' }}>로그인</a>
+              <a
+                href="/signup"
+                style={{
+                  padding: '10px 18px',
+                  background: '#F2F4F6',
+                  color: '#4E5968',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                }}
+              >
+                회원가입
+              </a>
+            </>
+          )}
+          <button
+            onClick={() => handleCreateClick()}
+            style={{
+              padding: '10px 18px',
+              background: '#191F28',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+            }}
+          >
+            시작하기
+          </button>
+        </nav>
+
+        <button
+          className="show-mobile"
+          onClick={() => handleCreateClick()}
+          style={{
+            display: 'none',
+            padding: '8px 14px',
+            background: '#191F28',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+          }}
+        >
+          시작하기
+        </button>
       </header>
 
-      {/* 히어로 섹션 - 핵심 컨셉 강조 */}
-      <section style={{
-        padding: '60px 16px 40px',
-        background: 'linear-gradient(180deg, #fff 0%, #F8FAFF 100%)',
-        textAlign: 'center',
-      }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          {/* 소셜 프루프 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '20px',
-            flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex' }}>
-              {['👩‍💼', '👨‍💼', '👩‍🎨', '👨‍💻'].map((avatar, i) => (
-                <div key={i} style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  background: '#EEF2FF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginLeft: i > 0 ? '-8px' : 0,
-                  border: '2px solid #fff',
-                  fontSize: '14px',
-                }}>
-                  {avatar}
-                </div>
-              ))}
-            </div>
-            <span style={{ fontSize: '13px', color: '#6B7280' }}>
-              <strong style={{ color: '#191919' }}>10,847명</strong> 사용 중
-            </span>
-            <span style={{ color: '#FBBF24', fontSize: '12px' }}>★★★★★ 4.9</span>
-          </div>
+      {/* 히어로 */}
+      <section style={{ padding: '80px 20px 100px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <p className="animate" style={{
+          fontSize: '15px',
+          color: '#3182F6',
+          fontWeight: '600',
+          marginBottom: '16px',
+        }}>
+          10,000개 이상의 페이지가 만들어졌어요
+        </p>
 
-          <h1 className="hero-headline" style={{
-            fontSize: 'clamp(28px, 7vw, 48px)',
-            fontWeight: '800',
-            color: '#191919',
-            lineHeight: 1.2,
-            marginBottom: '16px',
-            letterSpacing: '-0.5px',
-          }}>
-            2줄만 입력하면<br/>
-            <span style={{
-              background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              고객 DB가 쏟아집니다
-            </span>
-          </h1>
+        <h1 className="hero-title animate" style={{
+          fontSize: '48px',
+          fontWeight: '700',
+          color: '#191F28',
+          lineHeight: 1.25,
+          marginBottom: '20px',
+          letterSpacing: '-0.5px',
+        }}>
+          2줄 입력하면<br/>
+          고객 DB가 쌓여요
+        </h1>
 
-          <p className="hero-subtext" style={{
-            fontSize: '17px',
-            color: '#374151',
-            lineHeight: 1.6,
-            marginBottom: '12px',
-          }}>
-            <strong>상품명 + 타겟</strong>만 적으면 끝.
-          </p>
-          <p style={{
-            fontSize: '15px',
-            color: '#6B7280',
-            lineHeight: 1.6,
-            marginBottom: '32px',
-          }}>
-            AI가 30초만에 DB 수집용 고퀄리티 랜딩페이지를 만들어드립니다.<br/>
-            신청이 들어오면 카카오톡으로 바로 알림!
-          </p>
+        <p className="animate" style={{
+          fontSize: '17px',
+          color: '#6B7684',
+          lineHeight: 1.6,
+          marginBottom: '40px',
+        }}>
+          상품명과 타겟만 입력하세요.<br/>
+          AI가 30초 만에 고전환 랜딩페이지를 만들어드립니다.
+        </p>
 
-          {/* 핵심 가치 아이콘 */}
-          <div className="value-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '12px',
-            marginBottom: '32px',
-            maxWidth: '500px',
-            margin: '0 auto 32px',
-          }}>
-            {valueProps.map((item, i) => (
-              <div key={i} style={{
-                padding: '16px 8px',
-                background: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              }}>
-                <div style={{ fontSize: '24px', marginBottom: '8px' }}>{item.icon}</div>
-                <div style={{ fontSize: '13px', fontWeight: '700', color: '#191919', marginBottom: '2px' }}>{item.title}</div>
-                <div style={{ fontSize: '11px', color: '#6B7280' }}>{item.desc}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="hero-buttons" style={{
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'center',
-            marginBottom: '16px',
-          }}>
-            <button
-              className="hero-button"
-              onClick={() => handleCreateClick()}
-              style={{
-                padding: '16px 40px',
-                fontSize: '16px',
-                fontWeight: '700',
-                background: '#3182F6',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(49, 130, 246, 0.4)',
-              }}
-            >
-              지금 바로 만들기
-            </button>
-            <button
-              className="hero-button"
-              onClick={() => router.push('/samples')}
-              style={{
-                padding: '16px 32px',
-                fontSize: '16px',
-                fontWeight: '600',
-                background: '#fff',
-                color: '#374151',
-                border: '2px solid #E5E7EB',
-                borderRadius: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              샘플 보기
-            </button>
-          </div>
-
-          <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
-            카드 등록 없이 7일 무료 • 30초면 첫 페이지 완성
-          </p>
+        <div className="animate flex-row" style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+          <button
+            onClick={() => handleCreateClick()}
+            style={{
+              padding: '16px 28px',
+              fontSize: '16px',
+              fontWeight: '600',
+              background: '#3182F6',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            무료로 시작하기
+          </button>
+          <button
+            onClick={() => router.push('/p/demo')}
+            style={{
+              padding: '16px 28px',
+              fontSize: '16px',
+              fontWeight: '600',
+              background: '#F2F4F6',
+              color: '#4E5968',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            데모 보기
+          </button>
         </div>
       </section>
 
-      {/* 작동 방식 - 3단계 */}
-      <section style={{
-        padding: '60px 16px',
-        background: '#fff',
-      }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <h2 className="section-title" style={{
-            fontSize: '28px',
-            fontWeight: '800',
-            color: '#191919',
-            textAlign: 'center',
-            marginBottom: '40px',
-          }}>
-            이렇게 간단합니다
-          </h2>
+      {/* 핵심 지표 */}
+      <section style={{ padding: '60px 20px', background: '#F9FAFB' }}>
+        <div style={{ maxWidth: '700px', margin: '0 auto', display: 'flex', justifyContent: 'space-around', textAlign: 'center', flexWrap: 'wrap', gap: '40px' }}>
+          {[
+            { value: '10,847', label: '생성된 페이지' },
+            { value: '12.4%', label: '평균 전환율' },
+            { value: '4.9', label: '고객 만족도' },
+          ].map((stat, i) => (
+            <div key={i}>
+              <div style={{ fontSize: '36px', fontWeight: '700', color: '#191F28', marginBottom: '8px' }}>{stat.value}</div>
+              <div style={{ fontSize: '14px', color: '#8B95A1' }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-          <div style={{
-            display: 'flex',
-            gap: '24px',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}>
-            {[
-              { step: '1', icon: '✏️', title: '2줄 입력', desc: '"직장인 퇴근 후 부업 코딩 강의"\n이렇게만 적으세요' },
-              { step: '2', icon: '🤖', title: 'AI 생성', desc: '30초 후 고퀄리티\n랜딩페이지 완성' },
-              { step: '3', icon: '📥', title: 'DB 수집', desc: '신청이 들어오면\n카톡으로 알림' },
-            ].map((item, i) => (
-              <div key={i} style={{
-                flex: '1 1 250px',
-                maxWidth: '280px',
-                padding: '32px 24px',
-                background: '#F9FAFB',
-                borderRadius: '16px',
-                textAlign: 'center',
+      {/* 작동 방식 - 숫자만 사용 */}
+      <section style={{ padding: '100px 20px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#191F28', marginBottom: '12px' }}>
+            이렇게 간단해요
+          </h2>
+          <p style={{ fontSize: '16px', color: '#6B7684' }}>3단계면 충분합니다</p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {[
+            { num: '1', title: '정보 입력', desc: '상품명과 타겟 고객만\n입력하세요' },
+            { num: '2', title: 'AI 생성', desc: '30초 후 랜딩페이지가\n완성됩니다' },
+            { num: '3', title: 'DB 수집', desc: '신청이 들어오면\n알림을 받으세요' },
+          ].map((item, i) => (
+            <div key={i} style={{ flex: '1 1 240px', maxWidth: '260px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
+                background: '#F2F4F6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#3182F6',
+                marginBottom: '20px',
               }}>
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: '#3182F6',
-                  color: '#fff',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 16px',
-                }}>
-                  {item.step}
-                </div>
-                <div style={{ fontSize: '40px', marginBottom: '16px' }}>{item.icon}</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#191919', marginBottom: '8px' }}>
-                  {item.title}
-                </div>
-                <div style={{ fontSize: '14px', color: '#6B7280', whiteSpace: 'pre-line', lineHeight: 1.5 }}>
-                  {item.desc}
-                </div>
+                {item.num}
               </div>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#191F28', marginBottom: '8px' }}>{item.title}</h3>
+              <p style={{ fontSize: '15px', color: '#6B7684', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 업종 - 텍스트 중심 */}
+      <section style={{ padding: '100px 20px', background: '#F9FAFB' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#191F28', marginBottom: '12px' }}>
+              어떤 업종이든 가능해요
+            </h2>
+            <p style={{ fontSize: '16px', color: '#6B7684' }}>36개 업종별 맞춤 템플릿</p>
+          </div>
+
+          <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCreateClick(cat.id)}
+                onMouseEnter={() => setHoveredCategory(cat.id)}
+                onMouseLeave={() => setHoveredCategory(null)}
+                className="card-hover"
+                style={{
+                  padding: '24px 20px',
+                  background: '#fff',
+                  border: hoveredCategory === cat.id ? '1px solid #3182F6' : '1px solid #E5E8EB',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+              >
+                <div style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '6px' }}>
+                  {cat.name}
+                </div>
+                <div style={{ fontSize: '13px', color: '#8B95A1' }}>
+                  {cat.desc}
+                </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
 
       {/* 성공 사례 */}
-      <section id="cases" style={{
-        padding: '60px 16px',
-        background: '#F9FAFB',
-      }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <div style={{
-              display: 'inline-block',
-              padding: '6px 14px',
-              background: '#FEF3C7',
-              borderRadius: '20px',
-              marginBottom: '12px',
-            }}>
-              <span style={{ fontSize: '13px', fontWeight: '600', color: '#D97706' }}>
-                실제 DB 수집 성과
-              </span>
-            </div>
-            <h2 className="section-title" style={{
-              fontSize: '28px',
-              fontWeight: '800',
-              color: '#191919',
-            }}>
-              2줄로 만든 페이지가<br/>이런 성과를 냈습니다
-            </h2>
-          </div>
-
-          <div className="success-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '20px',
-          }}>
-            {successCases.map((caseItem) => (
-              <div key={caseItem.id} style={{
-                background: '#fff',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '16px',
-                }}>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '12px',
-                    background: `${caseItem.color}15`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                  }}>
-                    {caseItem.image}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '11px', color: caseItem.color, fontWeight: '600' }}>
-                      {caseItem.category}
-                    </div>
-                    <div style={{ fontSize: '15px', fontWeight: '700', color: '#191919' }}>
-                      {caseItem.title}
-                    </div>
-                  </div>
-                </div>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '800',
-                  color: caseItem.color,
-                  marginBottom: '6px',
-                }}>
-                  {caseItem.result}
-                </div>
-                <div style={{ fontSize: '14px', color: '#374151', marginBottom: '4px' }}>
-                  {caseItem.revenue}
-                </div>
-                <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
-                  {caseItem.period}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 고객 후기 */}
-      <section style={{
-        padding: '60px 16px',
-        background: '#fff',
-      }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <h2 className="section-title" style={{
-            fontSize: '24px',
-            fontWeight: '800',
-            color: '#191919',
-            textAlign: 'center',
-            marginBottom: '32px',
-          }}>
-            실제 사용자 후기
+      <section id="cases" style={{ padding: '100px 20px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#191F28', marginBottom: '12px' }}>
+            실제 성과
           </h2>
-
-          <div className="testimonial-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '16px',
-          }}>
-            {testimonials.map((t, i) => (
-              <div key={i} style={{
-                background: '#F9FAFB',
-                borderRadius: '12px',
-                padding: '20px',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  marginBottom: '12px',
-                }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: '#EEF2FF',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '20px',
-                  }}>
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: '700', color: '#191919', fontSize: '14px' }}>{t.name}</div>
-                    <div style={{ fontSize: '12px', color: '#6B7280' }}>{t.role}</div>
-                  </div>
-                </div>
-                <div style={{ color: '#FBBF24', fontSize: '12px', marginBottom: '8px' }}>
-                  {'★'.repeat(t.rating)}
-                </div>
-                <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.5, margin: 0 }}>
-                  "{t.content}"
-                </p>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontSize: '16px', color: '#6B7684' }}>사용자들의 실제 결과입니다</p>
         </div>
-      </section>
 
-      {/* 템플릿 섹션 */}
-      <section style={{ padding: '60px 16px', background: '#F9FAFB' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <h2 className="section-title" style={{
-              fontSize: '24px',
-              fontWeight: '800',
-              color: '#191919',
-              marginBottom: '8px',
-            }}>
-              36개 업종별 맞춤 템플릿
-            </h2>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
-              2줄만 바꾸면 어떤 업종이든 바로 적용
-            </p>
-          </div>
-
-          {/* 카테고리 탭 */}
-          <div className="category-tabs" style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '32px',
-            flexWrap: 'nowrap',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-          }}>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                className="category-tab"
-                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                style={{
-                  padding: '10px 18px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  background: selectedCategory === cat.id ? cat.color : '#fff',
-                  color: selectedCategory === cat.id ? '#fff' : '#374151',
-                  border: `2px solid ${selectedCategory === cat.id ? cat.color : '#E5E7EB'}`,
-                  borderRadius: '24px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <span>{cat.icon}</span>
-                {cat.name}
-              </button>
-            ))}
-          </div>
-
-          {/* 샘플 그리드 */}
-          <div className="template-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '16px',
-          }}>
-            {(selectedCategory
-              ? categories.filter(c => c.id === selectedCategory)
-              : categories
-            ).flatMap(cat =>
-              cat.samples.slice(0, selectedCategory ? 6 : 2).map(sample => (
-                <div
-                  key={sample.id}
-                  onClick={() => handleCreateClick(sample.id)}
-                  onMouseEnter={() => setHoveredSample(sample.id)}
-                  onMouseLeave={() => setHoveredSample(null)}
-                  style={{
-                    background: '#fff',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    border: `2px solid ${hoveredSample === sample.id ? cat.color : '#F3F4F6'}`,
-                    transition: 'all 0.2s',
-                    transform: hoveredSample === sample.id ? 'translateY(-4px)' : 'none',
-                    boxShadow: hoveredSample === sample.id ? '0 8px 24px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.04)',
-                  }}
-                >
-                  {/* 썸네일 이미지 */}
-                  <div style={{
-                    height: '120px',
-                    background: `linear-gradient(to bottom, transparent 0%, ${cat.color}22 100%), url(${sample.thumbnail})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    position: 'relative',
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      top: '10px',
-                      left: '10px',
-                      padding: '4px 10px',
-                      background: cat.color,
-                      borderRadius: '20px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      color: '#fff',
-                    }}>
-                      {cat.name}
-                    </div>
-                  </div>
-                  {/* 카드 내용 */}
-                  <div style={{ padding: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '18px' }}>{sample.emoji}</span>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#191919' }}>{sample.name}</div>
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.4 }}>
-                      {sample.desc}
-                    </p>
-                    <span style={{ fontSize: '12px', color: cat.color, fontWeight: '600' }}>
-                      이 템플릿으로 만들기 →
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {!selectedCategory && (
-            <div style={{ textAlign: 'center', marginTop: '24px' }}>
-              <button
-                onClick={() => router.push('/samples')}
-                style={{
-                  padding: '12px 28px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  background: '#fff',
-                  color: '#374151',
-                  border: '2px solid #E5E7EB',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                }}
-              >
-                전체 샘플 보기 →
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 블로그 섹션 */}
-      <section id="blog" style={{ padding: '60px 16px', background: '#fff' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <h2 className="section-title" style={{
-              fontSize: '24px',
-              fontWeight: '800',
-              color: '#191919',
-              marginBottom: '8px',
-            }}>
-              DB 수집 노하우
-            </h2>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
-              10,000개 랜딩페이지 데이터에서 얻은 인사이트
-            </p>
-          </div>
-
-          <div className="blog-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '20px',
-          }}>
-            {blogPosts.slice(0, 3).map((post) => (
-              <article
-                key={post.id}
-                onClick={() => alert('블로그 콘텐츠 준비 중입니다. 곧 공개됩니다!')}
-                style={{
-                background: '#F9FAFB',
-                borderRadius: '12px',
-                padding: '20px',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{
-                    padding: '4px 8px',
-                    background: '#E0E7FF',
-                    borderRadius: '4px',
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    color: '#4F46E5',
-                  }}>
-                    {post.category}
-                  </span>
-                  {post.tag === '인기' && (
-                    <span style={{
-                      padding: '4px 8px',
-                      background: '#FEE2E2',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      color: '#DC2626',
-                    }}>
-                      🔥 인기
-                    </span>
-                  )}
-                </div>
-                <h3 style={{
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  color: '#191919',
-                  lineHeight: 1.4,
-                  marginBottom: '8px',
-                }}>
-                  {post.title}
-                </h3>
-                <p style={{
-                  fontSize: '13px',
-                  color: '#6B7280',
-                  lineHeight: 1.5,
-                  marginBottom: '12px',
-                }}>
-                  {post.excerpt}
-                </p>
-                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#9CA3AF' }}>
-                  <span>📅 {post.date}</span>
-                  <span>👁️ {post.views}</span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 뉴스레터 */}
-      <section style={{
-        padding: '48px 16px',
-        background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
-      }}>
-        <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#191919', marginBottom: '8px' }}>
-            매주 DB 수집 팁 받기
-          </h3>
-          <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
-            매주 화요일, 전환율 높이는 팁을 보내드려요
-          </p>
-          <form onSubmit={handleNewsletterSubmit} className="newsletter-form" style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="이메일 주소"
-              required
-              style={{
-                flex: 1,
-                padding: '14px 16px',
-                fontSize: '14px',
-                border: '2px solid #E5E7EB',
-                borderRadius: '8px',
-                outline: 'none',
-              }}
-            />
-            <button type="submit" style={{
-              padding: '14px 24px',
-              fontSize: '14px',
-              fontWeight: '600',
-              background: '#3182F6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}>
-              구독하기
-            </button>
-          </form>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '8px' }}>
-            3,200명 구독 중 • 스팸 없음
-          </p>
-        </div>
-      </section>
-
-      {/* 가격 */}
-      <section id="pricing" style={{ padding: '60px 16px', background: '#fff' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <div style={{
-              display: 'inline-block',
-              background: '#EF4444',
-              color: '#fff',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              fontWeight: '700',
-              marginBottom: '12px',
-            }}>
-              🎉 런칭 기념 50% 할인 중!
-            </div>
-            <h2 className="section-title" style={{
-              fontSize: '24px',
-              fontWeight: '800',
-              color: '#191919',
-              marginBottom: '8px',
-            }}>
-              합리적인 가격으로 시작하세요
-            </h2>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
-              필요에 맞는 플랜을 선택하세요
-            </p>
-          </div>
-
-          <div className="pricing-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '14px',
-          }}>
-            {/* 스타터 - 월 1개 */}
-            <div style={{
-              background: '#fff',
+        <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+          {successCases.map((item, i) => (
+            <div key={i} className="card-hover" style={{
+              padding: '28px',
+              background: '#F9FAFB',
               borderRadius: '16px',
-              padding: '20px',
-              border: '2px solid #E5E7EB',
-              position: 'relative',
             }}>
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: '#EF4444',
-                color: '#fff',
-                padding: '2px 8px',
-                borderRadius: '10px',
-                fontSize: '10px',
-                fontWeight: '700',
-              }}>
-                50% OFF
+              <div style={{ fontSize: '13px', color: '#3182F6', fontWeight: '600', marginBottom: '8px' }}>{item.category}</div>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#191F28', marginBottom: '16px' }}>{item.title}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '32px', fontWeight: '700', color: '#3182F6' }}>{item.result}</span>
+                <span style={{ fontSize: '15px', color: '#6B7684' }}>{item.metric}</span>
               </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>스타터</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through', marginBottom: '2px' }}>59,800원</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
-                29,900원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
-              </div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>월 1개 페이지</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['AI 콘텐츠 생성', '매월 1개 생성', '카톡 알림', '이메일 알림', '대시보드'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
-                    <span style={{ color: '#10B981' }}>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => router.push('/pricing')} style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: '#191919',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}>
-                시작하기
-              </button>
-            </div>
-
-            {/* 월 3개 - 인기 */}
-            <div className="pricing-card-featured" style={{
-              background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
-              borderRadius: '16px',
-              padding: '20px',
-              color: '#fff',
-              position: 'relative',
-              transform: 'scale(1.02)',
-              boxShadow: '0 12px 32px rgba(99, 102, 241, 0.3)',
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '-10px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                padding: '4px 12px',
-                background: '#FBBF24',
-                borderRadius: '12px',
-                fontSize: '11px',
-                fontWeight: '700',
-                color: '#191919',
-              }}>
-                🔥 인기
-              </div>
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: '#EF4444',
-                color: '#fff',
-                padding: '2px 8px',
-                borderRadius: '10px',
-                fontSize: '10px',
-                fontWeight: '700',
-              }}>
-                50% OFF
-              </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>프로</div>
-              <div style={{ fontSize: '14px', opacity: 0.7, textDecoration: 'line-through', marginBottom: '2px' }}>139,800원</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>
-                69,900원<span style={{ fontSize: '12px', fontWeight: '500', opacity: 0.8 }}>/월</span>
-              </div>
-              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>월 3개 페이지</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['스타터 모든 기능', '매월 3개 생성', 'A/B 테스트', '분석 리포트', '우선 지원'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => router.push('/pricing')} style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: '#fff',
-                color: '#3182F6',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}>
-                프로 시작
-              </button>
-            </div>
-
-            {/* 무제한 */}
-            <div style={{
-              background: '#fff',
-              borderRadius: '16px',
-              padding: '20px',
-              border: '2px solid #E5E7EB',
-              position: 'relative',
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: '#EF4444',
-                color: '#fff',
-                padding: '2px 8px',
-                borderRadius: '10px',
-                fontSize: '10px',
-                fontWeight: '700',
-              }}>
-                50% OFF
-              </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '6px' }}>무제한</div>
-              <div style={{ fontSize: '14px', color: '#9CA3AF', textDecoration: 'line-through', marginBottom: '2px' }}>198,000원</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', color: '#191919', marginBottom: '4px' }}>
-                99,000원<span style={{ fontSize: '12px', fontWeight: '500', color: '#9CA3AF' }}>/월</span>
-              </div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '16px' }}>페이지 무제한</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['프로 모든 기능', '무제한 생성', '화이트라벨', 'API 연동', '전담 매니저'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px', color: '#374151' }}>
-                    <span style={{ color: '#1E6DE8' }}>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => router.push('/pricing')} style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: '#191919',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}>
-                시작하기
-              </button>
-            </div>
-
-            {/* 대행사 문의 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #1F2937 0%, #374151 100%)',
-              borderRadius: '16px',
-              padding: '20px',
-              color: '#fff',
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.9, marginBottom: '6px' }}>대행사/제휴</div>
-              <div style={{ fontSize: '26px', fontWeight: '800', marginBottom: '4px' }}>별도 문의</div>
-              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>맞춤 견적 제공</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', fontSize: '12px' }}>
-                {['대량 할인', '맞춤 기능 개발', '전용 서버', 'SLA 보장', '교육 지원'].map((item, i) => (
-                  <li key={i} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: '#FBBF24' }}>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => setIsChatOpen(true)} style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: '#FBBF24',
-                color: '#191919',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}>
-                💬 대행 문의
-              </button>
-            </div>
-          </div>
-
-          <div style={{
-            marginTop: '24px',
-            textAlign: 'center',
-            padding: '16px',
-            background: '#F9FAFB',
-            borderRadius: '8px',
-          }}>
-            <span style={{ fontSize: '13px', color: '#6B7280' }}>
-              <strong>7일 환불 보장</strong> - 불만족시 전액 환불 | 토스페이먼츠 안전결제
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" style={{ padding: '60px 16px', background: '#F9FAFB' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <h2 className="section-title" style={{
-            fontSize: '24px',
-            fontWeight: '800',
-            color: '#191919',
-            textAlign: 'center',
-            marginBottom: '32px',
-          }}>
-            자주 묻는 질문
-          </h2>
-
-          {[
-            { q: '정말 2줄만 입력하면 되나요?', a: '네, 상품명과 타겟(예: "직장인 퇴근 후 부업 코딩 강의")만 입력하면 AI가 전체 페이지를 자동 생성합니다.' },
-            { q: 'DB 수집은 어떻게 되나요?', a: '방문자가 신청폼을 작성하면 자동으로 저장되고, 카카오톡으로 즉시 알림을 받을 수 있습니다.' },
-            { q: '무료 체험 후 자동 결제되나요?', a: '아니요, 카드 등록 없이 시작하므로 자동 결제되지 않습니다.' },
-            { q: '수정은 몇 번까지 가능한가요?', a: '구독 기간 내 무제한 수정 가능합니다.' },
-          ].map((faq, i) => (
-            <div key={i} style={{
-              background: '#fff',
-              borderRadius: '12px',
-              padding: '20px',
-              marginBottom: '12px',
-            }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#191919', marginBottom: '8px' }}>
-                Q. {faq.q}
-              </h3>
-              <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.5, margin: 0 }}>
-                A. {faq.a}
-              </p>
+              <div style={{ fontSize: '14px', color: '#8B95A1' }}>{item.detail} · {item.period}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 최종 CTA */}
-      <section style={{
-        padding: '60px 16px',
-        background: 'linear-gradient(135deg, #3182F6 0%, #1E6DE8 100%)',
-        textAlign: 'center',
-      }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: 'clamp(24px, 5vw, 32px)',
-            fontWeight: '800',
-            color: '#fff',
-            marginBottom: '12px',
-            lineHeight: 1.3,
-          }}>
-            2줄 입력하고<br/>고객 DB 받으세요
+      {/* 후기 - 6개 */}
+      <section id="reviews" style={{ padding: '100px 20px', background: '#F9FAFB' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#191F28', marginBottom: '12px' }}>
+              고객 후기
+            </h2>
+            <p style={{ fontSize: '16px', color: '#6B7684' }}>실제 사용자들의 이야기</p>
+          </div>
+
+          <div className="testimonial-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            {testimonials.map((t, i) => (
+              <div key={i} className="card-hover" style={{
+                padding: '24px',
+                background: '#fff',
+                borderRadius: '16px',
+                border: '1px solid #E5E8EB',
+              }}>
+                <p style={{ fontSize: '15px', color: '#4E5968', lineHeight: 1.7, marginBottom: '20px' }}>
+                  "{t.content}"
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#F2F4F6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    color: '#6B7684',
+                  }}>
+                    {t.initial}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#191F28' }}>{t.name}</div>
+                    <div style={{ fontSize: '13px', color: '#8B95A1' }}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 가격 */}
+      <section id="pricing" style={{ padding: '100px 20px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <p style={{ fontSize: '14px', color: '#F04452', fontWeight: '600', marginBottom: '12px' }}>런칭 특가 50%</p>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#191F28' }}>
+            합리적인 가격
           </h2>
-          <p style={{
-            fontSize: '15px',
-            color: 'rgba(255,255,255,0.9)',
-            marginBottom: '24px',
+        </div>
+
+        <div className="flex-row" style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+          {/* 스타터 */}
+          <div className="card-hover" style={{
+            flex: '1 1 260px',
+            maxWidth: '280px',
+            padding: '32px',
+            background: '#fff',
+            borderRadius: '20px',
+            border: '1px solid #E5E8EB',
           }}>
-            30초면 첫 페이지 완성 • 바로 DB 수집 시작
-          </p>
-          <button
-            onClick={() => handleCreateClick()}
-            style={{
-              padding: '16px 48px',
-              fontSize: '16px',
-              fontWeight: '700',
+            <div style={{ fontSize: '15px', fontWeight: '600', color: '#6B7684', marginBottom: '16px' }}>스타터</div>
+            <div style={{ marginBottom: '24px' }}>
+              <span style={{ fontSize: '14px', color: '#AEB5BC', textDecoration: 'line-through' }}>59,800원</span>
+              <div style={{ fontSize: '32px', fontWeight: '700', color: '#191F28' }}>
+                29,900<span style={{ fontSize: '14px', fontWeight: '500', color: '#8B95A1' }}>/월</span>
+              </div>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px' }}>
+              {['월 1개 페이지', 'AI 콘텐츠 생성', '카톡/이메일 알림', 'DB 대시보드'].map((f, i) => (
+                <li key={i} style={{ fontSize: '14px', color: '#4E5968', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="#3182F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => router.push('/pricing')} style={{
+              width: '100%',
+              padding: '14px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: '#F2F4F6',
+              color: '#4E5968',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}>
+              시작하기
+            </button>
+          </div>
+
+          {/* 프로 */}
+          <div className="card-hover" style={{
+            flex: '1 1 260px',
+            maxWidth: '280px',
+            padding: '32px',
+            background: '#3182F6',
+            borderRadius: '20px',
+            position: 'relative',
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              padding: '6px 14px',
+              background: '#191F28',
+              borderRadius: '100px',
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#fff',
+            }}>
+              인기
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: '600', color: 'rgba(255,255,255,0.8)', marginBottom: '16px' }}>프로</div>
+            <div style={{ marginBottom: '24px' }}>
+              <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>139,800원</span>
+              <div style={{ fontSize: '32px', fontWeight: '700', color: '#fff' }}>
+                69,900<span style={{ fontSize: '14px', fontWeight: '500', color: 'rgba(255,255,255,0.7)' }}>/월</span>
+              </div>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px' }}>
+              {['월 3개 페이지', 'A/B 테스트', '분석 리포트', '우선 지원'].map((f, i) => (
+                <li key={i} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => router.push('/pricing')} style={{
+              width: '100%',
+              padding: '14px',
+              fontSize: '15px',
+              fontWeight: '600',
               background: '#fff',
               color: '#3182F6',
               border: 'none',
               borderRadius: '12px',
               cursor: 'pointer',
+            }}>
+              프로 시작
+            </button>
+          </div>
+
+          {/* 무제한 */}
+          <div className="card-hover" style={{
+            flex: '1 1 260px',
+            maxWidth: '280px',
+            padding: '32px',
+            background: '#fff',
+            borderRadius: '20px',
+            border: '1px solid #E5E8EB',
+          }}>
+            <div style={{ fontSize: '15px', fontWeight: '600', color: '#6B7684', marginBottom: '16px' }}>무제한</div>
+            <div style={{ marginBottom: '24px' }}>
+              <span style={{ fontSize: '14px', color: '#AEB5BC', textDecoration: 'line-through' }}>198,000원</span>
+              <div style={{ fontSize: '32px', fontWeight: '700', color: '#191F28' }}>
+                99,000<span style={{ fontSize: '14px', fontWeight: '500', color: '#8B95A1' }}>/월</span>
+              </div>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px' }}>
+              {['무제한 페이지', '화이트라벨', 'API 연동', '전담 매니저'].map((f, i) => (
+                <li key={i} style={{ fontSize: '14px', color: '#4E5968', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="#3182F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => router.push('/pricing')} style={{
+              width: '100%',
+              padding: '14px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: '#F2F4F6',
+              color: '#4E5968',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+            }}>
+              시작하기
+            </button>
+          </div>
+        </div>
+
+        {/* 대행사/제휴 */}
+        <div style={{
+          marginTop: '24px',
+          padding: '28px 32px',
+          background: 'linear-gradient(135deg, #191F28 0%, #3B4654 100%)',
+          borderRadius: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '20px',
+        }}>
+          <div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
+              대행사 / 제휴 문의
+            </div>
+            <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)' }}>
+              대량 할인, 맞춤 기능 개발, 전용 서버, SLA 보장
+            </div>
+          </div>
+          <button
+            onClick={() => window.open('https://pf.kakao.com/_xnxnxn', '_blank')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: '#fff',
+              color: '#191F28',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
           >
-            지금 무료로 만들기
+            문의하기
           </button>
         </div>
       </section>
 
+      {/* CTA */}
+      <section style={{ padding: '100px 20px', background: '#191F28', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>
+          지금 바로 시작하세요
+        </h2>
+        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', marginBottom: '32px' }}>
+          카드 등록 없이 무료로 체험
+        </p>
+        <button
+          onClick={() => handleCreateClick()}
+          style={{
+            padding: '16px 32px',
+            fontSize: '16px',
+            fontWeight: '600',
+            background: '#3182F6',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer',
+          }}
+        >
+          무료로 시작하기
+        </button>
+      </section>
+
       {/* 푸터 */}
-      <footer style={{ padding: '48px 16px 32px', background: '#191919' }}>
-        <div className="footer-grid" style={{
-          maxWidth: '1000px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '32px',
-          marginBottom: '32px',
-        }}>
-          <div>
-            <div style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '12px' }}>랜딩메이커</div>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
-              2줄로 만드는<br/>DB 수집 랜딩페이지
-            </p>
+      <footer style={{ padding: '40px 20px', background: '#F9FAFB' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ fontSize: '15px', fontWeight: '600', color: '#6B7684' }}>랜딩메이커</div>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <a href="#pricing" style={{ color: '#8B95A1', fontSize: '14px', textDecoration: 'none' }}>가격</a>
+            <a href="#cases" style={{ color: '#8B95A1', fontSize: '14px', textDecoration: 'none' }}>성공사례</a>
+            <a href="/p/demo" style={{ color: '#8B95A1', fontSize: '14px', textDecoration: 'none' }}>데모</a>
           </div>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>서비스</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {['템플릿', '가격', '샘플'].map((item, i) => (
-                <a key={i} href="#" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{item}</a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>고객지원</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="#faq" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>자주 묻는 질문</a>
-              <a href="/pricing" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>요금 안내</a>
-              <a href="/samples" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>샘플 보기</a>
-            </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>문의</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>support@landingmaker.kr</span>
-            </div>
-          </div>
-        </div>
-        <div style={{
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          paddingTop: '20px',
-          textAlign: 'center',
-        }}>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-            © 2026 랜딩메이커. All rights reserved.
-          </p>
+          <div style={{ fontSize: '13px', color: '#AEB5BC' }}>© 2026 랜딩메이커</div>
         </div>
       </footer>
-
     </div>
   );
 }

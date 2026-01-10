@@ -7,15 +7,13 @@ import { SubmissionStatus, getStatusLabel, getStatusColor } from '@/types/submis
 
 interface Submission {
   id: string;
-  data: {
-    name: string;
-    phone: string;
-    company?: string;
-    message?: string;
-  };
+  name: string;
+  phone: string;
+  email?: string;
+  message?: string;
   status: SubmissionStatus;
   memo?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 interface PageDetail {
@@ -23,146 +21,152 @@ interface PageDetail {
   title: string;
   slug: string;
   status: 'draft' | 'published';
-  viewCount: number;
-  submissions: Submission[];
+  view_count: number;
 }
 
-// 임시 데이터
-const mockPage: PageDetail = {
-  id: '1',
-  title: 'DB 자동화 멤버십',
-  slug: 'demo',
-  status: 'published',
-  viewCount: 1234,
-  submissions: [
-    {
-      id: 'sub_1',
-      data: {
-        name: '김철수',
-        phone: '010-1234-5678',
-        company: '테크스타트업',
-        message: '멤버십 참여하고 싶습니다. 연락 부탁드려요!',
-      },
-      status: 'new',
-      createdAt: '2025-01-24 14:30',
-    },
-    {
-      id: 'sub_2',
-      data: {
-        name: '이영희',
-        phone: '010-9876-5432',
-        company: '프리랜서',
-      },
-      status: 'new',
-      createdAt: '2025-01-24 12:15',
-    },
-    {
-      id: 'sub_3',
-      data: {
-        name: '박민수',
-        phone: '010-5555-1234',
-        company: '마케팅에이전시',
-        message: '3명이 함께 신청하려고 합니다.',
-      },
-      status: 'contacted',
-      memo: '내일 오후 3시 통화 예정',
-      createdAt: '2025-01-23 16:45',
-    },
-    {
-      id: 'sub_4',
-      data: {
-        name: '정수진',
-        phone: '010-7777-8888',
-      },
-      status: 'done',
-      memo: '1기 결제 완료',
-      createdAt: '2025-01-22 10:20',
-    },
-    {
-      id: 'sub_5',
-      data: {
-        name: '최동혁',
-        phone: '010-3333-4444',
-        company: 'IT기업',
-      },
-      status: 'canceled',
-      memo: '시간 안 맞음',
-      createdAt: '2025-01-21 09:00',
-    },
-  ],
-};
-
-export default function PageManagementPage() {
+export default function AdminPageManagementPage() {
   const params = useParams();
   const [page, setPage] = useState<PageDetail | null>(null);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | 'all'>('all');
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: params.id를 사용해 실제 API에서 데이터 조회
-    console.log('Page ID:', params.id);
-    setPage(mockPage);
+    fetchPageData();
   }, [params.id]);
 
-  if (!page) {
+  const fetchPageData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/pages/${params.id}/submissions`);
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          setError('페이지를 찾을 수 없습니다.');
+        } else if (res.status === 403) {
+          setError('접근 권한이 없습니다.');
+        } else {
+          setError('데이터를 불러오는데 실패했습니다.');
+        }
+        return;
+      }
+
+      const data = await res.json();
+      setPage(data.page);
+      setSubmissions(data.submissions || []);
+    } catch (err) {
+      setError('서버 오류가 발생했습니다.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredSubmissions = submissions.filter((sub) => {
+    if (statusFilter === 'all') return true;
+    return sub.status === statusFilter;
+  });
+
+  const statusCounts = {
+    all: submissions.length,
+    new: submissions.filter((s) => s.status === 'new').length,
+    contacted: submissions.filter((s) => s.status === 'contacted').length,
+    done: submissions.filter((s) => s.status === 'done').length,
+    canceled: submissions.filter((s) => s.status === 'canceled').length,
+  };
+
+  const updateSubmissionStatus = async (id: string, newStatus: SubmissionStatus) => {
+    try {
+      const res = await fetch(`/api/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (res.ok) {
+        setSubmissions((prev) =>
+          prev.map((sub) => (sub.id === id ? { ...sub, status: newStatus } : sub))
+        );
+        if (selectedSubmission?.id === id) {
+          setSelectedSubmission({ ...selectedSubmission, status: newStatus });
+        }
+      }
+    } catch (err) {
+      console.error('Status update error:', err);
+    }
+  };
+
+  const updateSubmissionMemo = async (id: string, memo: string) => {
+    try {
+      const res = await fetch(`/api/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memo }),
+      });
+
+      if (res.ok) {
+        setSubmissions((prev) =>
+          prev.map((sub) => (sub.id === id ? { ...sub, memo } : sub))
+        );
+        if (selectedSubmission?.id === id) {
+          setSelectedSubmission({ ...selectedSubmission, memo });
+        }
+      }
+    } catch (err) {
+      console.error('Memo update error:', err);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
+          <div className="w-8 h-8 border-2 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-[#4E5968]">로딩중...</p>
         </div>
       </div>
     );
   }
 
-  const filteredSubmissions = page.submissions.filter((sub) => {
-    if (statusFilter === 'all') return true;
-    return sub.status === statusFilter;
-  });
-
-  const statusCounts = {
-    all: page.submissions.length,
-    new: page.submissions.filter((s) => s.status === 'new').length,
-    contacted: page.submissions.filter((s) => s.status === 'contacted').length,
-    done: page.submissions.filter((s) => s.status === 'done').length,
-    canceled: page.submissions.filter((s) => s.status === 'canceled').length,
-  };
-
-  const updateSubmissionStatus = (id: string, newStatus: SubmissionStatus) => {
-    setPage((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        submissions: prev.submissions.map((sub) =>
-          sub.id === id ? { ...sub, status: newStatus } : sub
-        ),
-      };
-    });
-    // TODO: API 호출
-  };
-
-  const updateSubmissionMemo = (id: string, memo: string) => {
-    setPage((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        submissions: prev.submissions.map((sub) =>
-          sub.id === id ? { ...sub, memo } : sub
-        ),
-      };
-    });
-    // TODO: API 호출
-  };
+  if (error || !page) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-4xl mb-4">&#128683;</div>
+          <p className="text-red-500 font-medium">{error}</p>
+          <Link
+            href="/admin/pages"
+            className="mt-4 inline-block text-[#0064FF] hover:underline"
+          >
+            &#8592; 페이지 목록으로
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* 뒤로가기 + 헤더 */}
       <div>
         <Link
-          href="/pages"
+          href="/admin/pages"
           className="text-sm text-[#4E5968] hover:text-[#0064FF] mb-2 inline-block"
         >
-          ← 페이지 목록으로
+          &#8592; 페이지 목록으로
         </Link>
         <div className="flex items-start justify-between">
           <div>
@@ -179,8 +183,8 @@ export default function PageManagementPage() {
               )}
             </div>
             <div className="flex items-center gap-4 mt-2 text-sm text-[#4E5968]">
-              <span>👁️ 조회 {page.viewCount.toLocaleString()}</span>
-              <span>📬 신청 {page.submissions.length}건</span>
+              <span>조회 {(page.view_count || 0).toLocaleString()}</span>
+              <span>신청 {submissions.length}건</span>
               {page.status === 'published' && (
                 <a
                   href={`/p/${page.slug}`}
@@ -188,7 +192,7 @@ export default function PageManagementPage() {
                   rel="noopener noreferrer"
                   className="text-[#0064FF] hover:underline"
                 >
-                  🔗 페이지 보기
+                  페이지 보기
                 </a>
               )}
             </div>
@@ -196,18 +200,39 @@ export default function PageManagementPage() {
           <div className="flex gap-2">
             <button
               onClick={() => {
-                // TODO: CSV 다운로드
-                alert('CSV 다운로드 기능 준비 중');
+                // CSV 다운로드
+                const csv = [
+                  ['이름', '연락처', '이메일', '메시지', '상태', '메모', '신청일시'],
+                  ...submissions.map((s) => [
+                    s.name,
+                    s.phone,
+                    s.email || '',
+                    s.message || '',
+                    getStatusLabel(s.status),
+                    s.memo || '',
+                    formatDate(s.created_at),
+                  ]),
+                ]
+                  .map((row) => row.map((cell) => `"${cell}"`).join(','))
+                  .join('\n');
+
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${page.title}_신청목록.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
               }}
               className="px-4 py-2 text-sm text-[#4E5968] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              📥 CSV 다운로드
+              CSV 다운로드
             </button>
             <Link
               href={`/preview/${page.id}`}
               className="px-4 py-2 text-sm text-[#0064FF] bg-[#E8F3FF] rounded-lg hover:bg-[#D4E9FF] transition-colors font-medium"
             >
-              ✏️ 페이지 편집
+              페이지 편집
             </Link>
           </div>
         </div>
@@ -239,7 +264,7 @@ export default function PageManagementPage() {
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
           <div className="col-span-2">이름</div>
           <div className="col-span-2">연락처</div>
-          <div className="col-span-2">소속</div>
+          <div className="col-span-2">이메일</div>
           <div className="col-span-2">상태</div>
           <div className="col-span-2">신청일시</div>
           <div className="col-span-2">관리</div>
@@ -253,11 +278,12 @@ export default function PageManagementPage() {
               submission={submission}
               onStatusChange={(status) => updateSubmissionStatus(submission.id, status)}
               onSelect={() => setSelectedSubmission(submission)}
+              formatDate={formatDate}
             />
           ))
         ) : (
           <div className="text-center py-16">
-            <span className="text-4xl mb-4 block">📭</span>
+            <div className="text-4xl mb-4">&#128237;</div>
             <p className="text-[#4E5968]">
               {statusFilter === 'all'
                 ? '아직 신청이 없어요'
@@ -272,14 +298,9 @@ export default function PageManagementPage() {
         <SubmissionDetailModal
           submission={selectedSubmission}
           onClose={() => setSelectedSubmission(null)}
-          onStatusChange={(status) => {
-            updateSubmissionStatus(selectedSubmission.id, status);
-            setSelectedSubmission({ ...selectedSubmission, status });
-          }}
-          onMemoChange={(memo) => {
-            updateSubmissionMemo(selectedSubmission.id, memo);
-            setSelectedSubmission({ ...selectedSubmission, memo });
-          }}
+          onStatusChange={(status) => updateSubmissionStatus(selectedSubmission.id, status)}
+          onMemoChange={(memo) => updateSubmissionMemo(selectedSubmission.id, memo)}
+          formatDate={formatDate}
         />
       )}
     </div>
@@ -290,10 +311,12 @@ function SubmissionRow({
   submission,
   onStatusChange,
   onSelect,
+  formatDate,
 }: {
   submission: Submission;
   onStatusChange: (status: SubmissionStatus) => void;
   onSelect: () => void;
+  formatDate: (date: string) => string;
 }) {
   return (
     <div
@@ -301,19 +324,19 @@ function SubmissionRow({
       onClick={onSelect}
     >
       <div className="col-span-2">
-        <p className="font-medium text-[#191F28]">{submission.data.name}</p>
+        <p className="font-medium text-[#191F28]">{submission.name}</p>
       </div>
       <div className="col-span-2">
         <a
-          href={`tel:${submission.data.phone}`}
+          href={`tel:${submission.phone}`}
           onClick={(e) => e.stopPropagation()}
           className="text-[#0064FF] hover:underline"
         >
-          {submission.data.phone}
+          {submission.phone}
         </a>
       </div>
-      <div className="col-span-2 text-[#4E5968]">
-        {submission.data.company || '-'}
+      <div className="col-span-2 text-[#4E5968] truncate">
+        {submission.email || '-'}
       </div>
       <div className="col-span-2">
         <select
@@ -326,14 +349,14 @@ function SubmissionRow({
             submission.status
           )}`}
         >
-          <option value="new">🆕 새 신청</option>
-          <option value="contacted">📞 연락함</option>
-          <option value="done">✅ 완료</option>
-          <option value="canceled">❌ 취소</option>
+          <option value="new">새 신청</option>
+          <option value="contacted">연락함</option>
+          <option value="done">완료</option>
+          <option value="canceled">취소</option>
         </select>
       </div>
       <div className="col-span-2 text-sm text-[#4E5968]">
-        {submission.createdAt}
+        {formatDate(submission.created_at)}
       </div>
       <div className="col-span-2">
         <button
@@ -355,11 +378,13 @@ function SubmissionDetailModal({
   onClose,
   onStatusChange,
   onMemoChange,
+  formatDate,
 }: {
   submission: Submission;
   onClose: () => void;
   onStatusChange: (status: SubmissionStatus) => void;
   onMemoChange: (memo: string) => void;
+  formatDate: (date: string) => string;
 }) {
   const [memo, setMemo] = useState(submission.memo || '');
 
@@ -373,7 +398,7 @@ function SubmissionDetailModal({
             onClick={onClose}
             className="text-[#4E5968] hover:text-[#191F28] text-2xl"
           >
-            ✕
+            &#10005;
           </button>
         </div>
 
@@ -386,28 +411,33 @@ function SubmissionDetailModal({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-[#8B95A1] mb-1">이름</p>
-                <p className="font-medium text-[#191F28]">{submission.data.name}</p>
+                <p className="font-medium text-[#191F28]">{submission.name}</p>
               </div>
               <div>
                 <p className="text-xs text-[#8B95A1] mb-1">연락처</p>
                 <a
-                  href={`tel:${submission.data.phone}`}
+                  href={`tel:${submission.phone}`}
                   className="font-medium text-[#0064FF] hover:underline"
                 >
-                  {submission.data.phone}
+                  {submission.phone}
                 </a>
               </div>
-              {submission.data.company && (
+              {submission.email && (
                 <div className="col-span-2">
-                  <p className="text-xs text-[#8B95A1] mb-1">소속</p>
-                  <p className="font-medium text-[#191F28]">{submission.data.company}</p>
+                  <p className="text-xs text-[#8B95A1] mb-1">이메일</p>
+                  <a
+                    href={`mailto:${submission.email}`}
+                    className="font-medium text-[#0064FF] hover:underline"
+                  >
+                    {submission.email}
+                  </a>
                 </div>
               )}
-              {submission.data.message && (
+              {submission.message && (
                 <div className="col-span-2">
                   <p className="text-xs text-[#8B95A1] mb-1">문의사항</p>
                   <p className="text-[#191F28] whitespace-pre-line bg-gray-50 p-3 rounded-lg">
-                    {submission.data.message}
+                    {submission.message}
                   </p>
                 </div>
               )}
@@ -449,7 +479,7 @@ function SubmissionDetailModal({
 
           {/* 신청일시 */}
           <div className="text-sm text-[#8B95A1]">
-            📅 신청일시: {submission.createdAt}
+            신청일시: {formatDate(submission.created_at)}
           </div>
         </div>
 
@@ -462,10 +492,10 @@ function SubmissionDetailModal({
             닫기
           </button>
           <a
-            href={`tel:${submission.data.phone}`}
+            href={`tel:${submission.phone}`}
             className="px-6 py-2 bg-[#0064FF] hover:bg-[#0050CC] text-white rounded-lg transition-colors font-medium"
           >
-            📞 전화하기
+            전화하기
           </a>
         </div>
       </div>

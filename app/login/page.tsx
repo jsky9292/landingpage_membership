@@ -120,6 +120,55 @@ function LoginForm() {
           </button>
         </div>
 
+        {/* 데모 로그인 섹션 */}
+        <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
+          <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', marginBottom: '16px' }}>
+            테스트용 데모 계정
+          </p>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => signIn('demo-login', {
+                callbackUrl,
+                email: 'admin@demo.com',
+                password: 'admin123'
+              })}
+              style={{
+                flex: 1,
+                padding: '14px 16px',
+                background: '#F3F4F6',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              관리자 데모
+            </button>
+            <button
+              onClick={() => signIn('demo-login', {
+                callbackUrl,
+                email: 'user@demo.com',
+                password: 'user123'
+              })}
+              style={{
+                flex: 1,
+                padding: '14px 16px',
+                background: '#F3F4F6',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              사용자 데모
+            </button>
+          </div>
+        </div>
+
       </main>
 
       {/* 하단 회원가입 링크 */}

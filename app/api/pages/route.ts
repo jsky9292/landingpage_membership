@@ -126,7 +126,7 @@ export async function GET() {
     // 사용자의 페이지 목록
     const { data: pages, error: pagesError } = await supabaseAdmin
       .from('landing_pages')
-      .select('id, title, slug, status, view_count, created_at, updated_at')
+      .select('id, title, slug, topic, status, view_count, created_at, updated_at')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
 
@@ -135,7 +135,40 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch pages' }, { status: 500 });
     }
 
-    return NextResponse.json({ pages: pages || [] });
+    // 페이지별 신청 통계 조회
+    const pageIds = pages?.map((p: any) => p.id) || [];
+    let submissions: any[] = [];
+
+    if (pageIds.length > 0) {
+      const { data: subs } = await supabaseAdmin
+        .from('submissions')
+        .select('id, page_id, status')
+        .in('page_id', pageIds);
+      submissions = subs || [];
+    }
+
+    // 신청 통계 집계
+    const submissionsByPage = new Map<string, { total: number; new: number }>();
+    submissions.forEach((s: any) => {
+      if (!submissionsByPage.has(s.page_id)) {
+        submissionsByPage.set(s.page_id, { total: 0, new: 0 });
+      }
+      const stats = submissionsByPage.get(s.page_id)!;
+      stats.total++;
+      if (s.status === 'new') stats.new++;
+    });
+
+    // 페이지에 신청 통계 추가
+    const pagesWithStats = (pages || []).map((p: any) => {
+      const stats = submissionsByPage.get(p.id) || { total: 0, new: 0 };
+      return {
+        ...p,
+        submission_count: stats.total,
+        new_submission_count: stats.new,
+      };
+    });
+
+    return NextResponse.json({ pages: pagesWithStats });
   } catch (error) {
     console.error('Pages GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -8,7 +8,7 @@ const navigation = [
   { name: '대시보드', href: '/admin/dashboard' },
   { name: '사용자 관리', href: '/admin/users' },
   { name: '전체 페이지', href: '/admin/pages' },
-  { name: 'URL 만들기', href: '/admin/create-url' },
+  { name: 'URL 만들기', href: '/create/url' },
   { name: '설정', href: '/admin/settings' },
 ];
 

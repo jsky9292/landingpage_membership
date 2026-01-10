@@ -157,8 +157,8 @@ const DEMO_PAGE: PageData = {
   ],
   formFields: [
     { id: 'name', label: '이름', type: 'text', placeholder: '실명을 입력해주세요', required: true },
-    { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
-    { id: 'current', label: '현재 상황', type: 'text', placeholder: '예: 직장인, 강의 준비 중', required: false },
+    { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000 형식으로 입력', required: true },
+    { id: 'current', label: '현재 직업/상황', type: 'text', placeholder: '예: 직장인, 프리랜서, 강의 준비 중', required: false },
     { id: 'goal', label: '이루고 싶은 목표', type: 'textarea', placeholder: '예: 월 100만원 강의 수익 만들기', required: false },
   ],
   theme: 'toss',
@@ -324,8 +324,65 @@ export default function PublicPage() {
   const themeConfig = THEMES[themeKey] || THEMES.toss;
   const themeColors = themeConfig.colors;
 
+  // 긴급성 배지 표시 여부
+  const showUrgencyBadges = data.contactInfo?.showVisitorCount || data.contactInfo?.showApplicantCount;
+
   return (
     <div style={{ minHeight: '100vh', background: themeColors.background }}>
+      {/* 긴급성 배지 - 상단 고정 */}
+      {showUrgencyBadges && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          background: themeKey === 'dark' ? 'rgba(26,26,26,0.95)' : 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(8px)',
+          padding: '10px 16px',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '10px',
+          flexWrap: 'wrap',
+          zIndex: 60,
+          borderBottom: `1px solid ${themeKey === 'dark' ? '#333' : '#E5E8EB'}`,
+        }}>
+          {data.contactInfo?.showVisitorCount && (
+            <span style={{
+              padding: '6px 14px',
+              background: themeKey === 'dark' ? '#422006' : '#FEF3C7',
+              color: themeKey === 'dark' ? '#FCD34D' : '#92400E',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+              <span style={{ animation: 'pulse 2s infinite' }}>🔥</span>
+              현재 {data.contactInfo?.visitorCount || 23}명이 보는 중
+            </span>
+          )}
+          {data.contactInfo?.showApplicantCount && (
+            <span style={{
+              padding: '6px 14px',
+              background: themeKey === 'dark' ? '#1e3a5f' : '#DBEAFE',
+              color: themeKey === 'dark' ? '#93C5FD' : '#1E40AF',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+              ✨ {data.contactInfo?.applicantCount || 47}명 신청완료
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* 긴급성 배지가 있을 때 콘텐츠 위쪽 패딩 */}
+      {showUrgencyBadges && <div style={{ height: '52px' }} />}
+
       <SectionRenderer
         sections={data.sections}
         formFields={data.formFields}
@@ -419,6 +476,10 @@ export default function PublicPage() {
       </footer>
 
       <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.1); }
+        }
         @media (min-width: 768px) {
           .mobile-bottom-bar {
             display: none !important;

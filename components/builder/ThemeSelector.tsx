@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ThemeType } from '@/types/page';
+import { THEMES } from '@/config/themes';
 
 export interface CustomColors {
   primary: string;
@@ -18,19 +19,20 @@ interface ThemeSelectorProps {
   onCustomColorsChange?: (colors: CustomColors) => void;
 }
 
-interface PresetTheme {
-  id: ThemeType;
+interface ThemeCategory {
   name: string;
-  colors: [string, string]; // [primary, secondary]
+  themes: ThemeType[];
 }
 
-const presetThemes: PresetTheme[] = [
-  { id: 'toss', name: '토스 블루', colors: ['#0064FF', '#3B82F6'] },
-  { id: 'dark', name: '인디고', colors: ['#6366F1', '#8B5CF6'] },
-  { id: 'warm', name: '에메랄드', colors: ['#10B981', '#34D399'] },
-  { id: 'peach', name: '로즈', colors: ['#F43F5E', '#FB7185'] },
-  { id: 'luxury', name: '앰버', colors: ['#F59E0B', '#FBBF24'] },
-  { id: 'slate', name: '슬레이트', colors: ['#475569', '#64748B'] },
+const themeCategories: ThemeCategory[] = [
+  {
+    name: '라이트',
+    themes: ['toss', 'minimal', 'corporate', 'ocean', 'forest', 'sunset', 'grape', 'peach', 'warm', 'slate'],
+  },
+  {
+    name: '다크',
+    themes: ['dark', 'midnight', 'neon', 'luxury'],
+  },
 ];
 
 const defaultCustomColors: CustomColors = {
@@ -48,7 +50,7 @@ export function ThemeSelector({
   onCustomColorsChange
 }: ThemeSelectorProps) {
   const [colors, setColors] = useState<CustomColors>(customColors);
-  const [borderRadius, setBorderRadius] = useState(12);
+  const [activeCategory, setActiveCategory] = useState<'light' | 'dark'>('light');
 
   const handleColorChange = (key: keyof CustomColors, value: string) => {
     const newColors = { ...colors, [key]: value };
@@ -56,217 +58,267 @@ export function ThemeSelector({
     onCustomColorsChange?.(newColors);
   };
 
+  const displayThemes = activeCategory === 'light'
+    ? themeCategories[0].themes
+    : themeCategories[1].themes;
+
   return (
     <div style={{
       padding: '20px',
       height: '100%',
       overflowY: 'auto',
     }}>
-      {/* 프리셋 테마 섹션 */}
-      <h3 style={{
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#191F28',
-        marginBottom: '16px',
-        marginTop: 0,
+      {/* 카테고리 탭 */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '20px',
+        background: '#F3F4F6',
+        padding: '4px',
+        borderRadius: '10px',
       }}>
-        프리셋 테마
-      </h3>
+        <button
+          onClick={() => setActiveCategory('light')}
+          style={{
+            flex: 1,
+            padding: '10px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            background: activeCategory === 'light' ? '#fff' : 'transparent',
+            color: activeCategory === 'light' ? '#191F28' : '#6B7280',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            boxShadow: activeCategory === 'light' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            transition: 'all 0.2s',
+          }}
+        >
+          ☀️ 라이트
+        </button>
+        <button
+          onClick={() => setActiveCategory('dark')}
+          style={{
+            flex: 1,
+            padding: '10px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            background: activeCategory === 'dark' ? '#fff' : 'transparent',
+            color: activeCategory === 'dark' ? '#191F28' : '#6B7280',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            boxShadow: activeCategory === 'dark' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            transition: 'all 0.2s',
+          }}
+        >
+          🌙 다크
+        </button>
+      </div>
 
+      {/* 테마 그리드 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '12px',
-        marginBottom: '32px',
+        marginBottom: '24px',
       }}>
-        {presetThemes.map((theme) => (
-          <button
-            key={theme.id}
-            onClick={() => onThemeChange(theme.id)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '16px 8px',
-              background: currentTheme === theme.id ? '#F0F7FF' : '#F8FAFC',
-              border: currentTheme === theme.id ? '2px solid #0064FF' : '2px solid #E5E8EB',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {/* 색상 원 2개 */}
-            <div style={{ display: 'flex', gap: '4px' }}>
+        {displayThemes.map((themeId) => {
+          const theme = THEMES[themeId];
+          if (!theme) return null;
+
+          const isSelected = currentTheme === themeId;
+          const isDarkTheme = ['dark', 'midnight', 'neon', 'luxury'].includes(themeId);
+
+          return (
+            <button
+              key={themeId}
+              onClick={() => onThemeChange(themeId)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                padding: '0',
+                background: 'transparent',
+                border: isSelected ? '2px solid #0064FF' : '2px solid #E5E8EB',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                overflow: 'hidden',
+                transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                boxShadow: isSelected ? '0 4px 12px rgba(0, 100, 255, 0.2)' : '0 2px 4px rgba(0,0,0,0.05)',
+              }}
+            >
+              {/* 미니 프리뷰 */}
               <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: theme.colors[0],
-              }} />
+                padding: '12px',
+                background: theme.colors.gradient || theme.colors.background,
+                minHeight: '80px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+              }}>
+                {/* 헤드라인 프리뷰 */}
+                <div style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: theme.colors.text,
+                  lineHeight: 1.3,
+                }}>
+                  샘플 헤드라인
+                </div>
+                {/* 서브텍스트 프리뷰 */}
+                <div style={{
+                  fontSize: '9px',
+                  color: theme.colors.textSecondary,
+                  lineHeight: 1.4,
+                }}>
+                  서브 텍스트 예시입니다
+                </div>
+                {/* 버튼 프리뷰 */}
+                <div style={{
+                  marginTop: 'auto',
+                  padding: '6px 10px',
+                  background: theme.colors.primary,
+                  color: isDarkTheme && themeId !== 'neon' ? '#000' : '#fff',
+                  borderRadius: '6px',
+                  fontSize: '9px',
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  alignSelf: 'flex-start',
+                }}>
+                  신청하기
+                </div>
+              </div>
+
+              {/* 테마 정보 */}
               <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: theme.colors[1],
-              }} />
-            </div>
-            <span style={{
-              fontSize: '12px',
-              fontWeight: currentTheme === theme.id ? '600' : '500',
-              color: currentTheme === theme.id ? '#0064FF' : '#4E5968',
-            }}>
-              {theme.name}
-            </span>
-          </button>
-        ))}
+                padding: '10px 12px',
+                background: isSelected ? '#F0F7FF' : '#FAFAFA',
+                borderTop: '1px solid #E5E8EB',
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                  <div>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: isSelected ? '#0064FF' : '#191F28',
+                      marginBottom: '2px',
+                    }}>
+                      {theme.name}
+                    </div>
+                    <div style={{
+                      fontSize: '10px',
+                      color: '#8B95A1',
+                    }}>
+                      {theme.description.slice(0, 15)}...
+                    </div>
+                  </div>
+                  {/* 컬러 팔레트 */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '3px',
+                  }}>
+                    <div style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      background: theme.colors.primary,
+                      border: '1px solid rgba(0,0,0,0.1)',
+                    }} />
+                    <div style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      background: theme.colors.background,
+                      border: '1px solid rgba(0,0,0,0.1)',
+                    }} />
+                  </div>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {/* 커스텀 컬러 섹션 */}
-      <h3 style={{
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#191F28',
-        marginBottom: '16px',
-      }}>
-        커스텀 컬러
-      </h3>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
-        {/* 주요 색상 */}
-        <ColorInput
-          label="주요 색상"
-          value={colors.primary}
-          onChange={(v) => handleColorChange('primary', v)}
-        />
-
-        {/* 보조 색상 */}
-        <ColorInput
-          label="보조 색상"
-          value={colors.secondary}
-          onChange={(v) => handleColorChange('secondary', v)}
-        />
-
-        {/* 강조 색상 */}
-        <ColorInput
-          label="강조 색상"
-          value={colors.accent}
-          onChange={(v) => handleColorChange('accent', v)}
-        />
-
-        {/* 배경 색상 */}
-        <ColorInput
-          label="배경 색상"
-          value={colors.background}
-          onChange={(v) => handleColorChange('background', v)}
-        />
-
-        {/* 텍스트 색상 */}
-        <ColorInput
-          label="텍스트 색상"
-          value={colors.text}
-          onChange={(v) => handleColorChange('text', v)}
-        />
-      </div>
-
-      {/* 스타일 섹션 */}
-      <h3 style={{
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#191F28',
-        marginBottom: '16px',
-      }}>
-        스타일
-      </h3>
-
-      <div style={{ marginBottom: '24px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '13px',
-          color: '#6B7280',
-          marginBottom: '8px',
-        }}>
-          모서리 라운딩
-        </label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input
-            type="range"
-            min="0"
-            max="24"
-            value={borderRadius}
-            onChange={(e) => setBorderRadius(Number(e.target.value))}
-            style={{
-              flex: 1,
-              height: '4px',
-              background: '#E5E8EB',
-              borderRadius: '2px',
-              appearance: 'none',
-              cursor: 'pointer',
-            }}
-          />
-          <span style={{
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#191F28',
-            minWidth: '40px',
-          }}>
-            {borderRadius}px
-          </span>
-        </div>
-      </div>
-
-      {/* 미리보기 */}
-      <div style={{
-        padding: '20px',
-        background: colors.background,
-        borderRadius: `${borderRadius}px`,
-        border: '1px solid #E5E8EB',
-      }}>
-        <p style={{
-          fontSize: '13px',
-          fontWeight: '600',
-          color: '#6B7280',
-          marginBottom: '12px',
-          marginTop: 0,
-        }}>
-          미리보기
-        </p>
+      {/* 현재 선택된 테마 정보 */}
+      {THEMES[currentTheme] && (
         <div style={{
           padding: '16px',
-          background: '#fff',
-          borderRadius: `${borderRadius}px`,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          background: 'linear-gradient(135deg, #F0F7FF 0%, #E8F3FF 100%)',
+          borderRadius: '12px',
+          marginBottom: '24px',
         }}>
           <div style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: colors.primary,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
             marginBottom: '8px',
           }}>
-            샘플 헤드라인
+            <span style={{ fontSize: '16px' }}>✓</span>
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '700',
+              color: '#0064FF',
+            }}>
+              {THEMES[currentTheme].name}
+            </span>
           </div>
-          <div style={{
-            fontSize: '13px',
-            color: colors.text,
-            marginBottom: '16px',
-            opacity: 0.7,
+          <p style={{
+            fontSize: '12px',
+            color: '#4E5968',
+            margin: 0,
+            lineHeight: 1.5,
           }}>
-            이것은 서브 텍스트 예시입니다
-          </div>
-          <button style={{
-            padding: '10px 20px',
-            background: colors.primary,
-            color: '#fff',
-            border: 'none',
-            borderRadius: `${borderRadius}px`,
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}>
-            버튼 예시
-          </button>
+            {THEMES[currentTheme].description}
+          </p>
         </div>
-      </div>
+      )}
+
+      {/* 커스텀 컬러 섹션 */}
+      <details style={{ marginBottom: '16px' }}>
+        <summary style={{
+          fontSize: '14px',
+          fontWeight: '600',
+          color: '#191F28',
+          cursor: 'pointer',
+          padding: '12px 0',
+          borderTop: '1px solid #E5E8EB',
+        }}>
+          🎨 커스텀 컬러 (고급)
+        </summary>
+
+        <div style={{
+          paddingTop: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}>
+          <ColorInput
+            label="주요 색상"
+            value={colors.primary}
+            onChange={(v) => handleColorChange('primary', v)}
+          />
+          <ColorInput
+            label="보조 색상"
+            value={colors.secondary}
+            onChange={(v) => handleColorChange('secondary', v)}
+          />
+          <ColorInput
+            label="배경 색상"
+            value={colors.background}
+            onChange={(v) => handleColorChange('background', v)}
+          />
+          <ColorInput
+            label="텍스트 색상"
+            value={colors.text}
+            onChange={(v) => handleColorChange('text', v)}
+          />
+        </div>
+      </details>
     </div>
   );
 }
@@ -299,10 +351,9 @@ function ColorInput({
         borderRadius: '8px',
         padding: '4px',
       }}>
-        {/* 컬러 프리뷰 박스 */}
         <div style={{
-          width: '48px',
-          height: '48px',
+          width: '40px',
+          height: '40px',
           borderRadius: '8px',
           background: value,
           border: '1px solid #E5E8EB',
@@ -325,8 +376,6 @@ function ColorInput({
             }}
           />
         </div>
-
-        {/* 헥스 코드 입력 */}
         <input
           type="text"
           value={value}
@@ -334,10 +383,10 @@ function ColorInput({
           placeholder="#000000"
           style={{
             flex: 1,
-            padding: '12px',
+            padding: '10px',
             border: '1px solid #E5E8EB',
             borderRadius: '8px',
-            fontSize: '14px',
+            fontSize: '13px',
             fontFamily: 'monospace',
             background: '#fff',
             color: '#191F28',
