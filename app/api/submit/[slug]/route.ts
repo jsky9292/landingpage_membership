@@ -25,7 +25,7 @@ export async function POST(
     // 페이지 조회 (slug로)
     const { data: page, error: pageError } = await supabase
       .from('landing_pages')
-      .select('id, title, user_id, users!inner(email, name)')
+      .select('id, title, user_id')
       .eq('slug', slug)
       .eq('status', 'published')
       .single();
@@ -36,6 +36,17 @@ export async function POST(
         { error: '페이지를 찾을 수 없습니다.' },
         { status: 404 }
       );
+    }
+
+    // 페이지 소유자 정보 조회 (알림용)
+    let pageOwner: { email?: string; name?: string } | null = null;
+    if (page.user_id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, name')
+        .eq('id', page.user_id)
+        .single();
+      pageOwner = profile;
     }
 
     // 신청 데이터 저장
@@ -67,8 +78,7 @@ export async function POST(
       phone: data.phone,
     });
 
-    // 페이지 소유자 정보 (알림용)
-    const pageOwner = page.users;
+    // pageOwner는 이미 위에서 조회됨
 
     // 알림 발송 (비동기로 처리)
     const notificationPromises: Promise<any>[] = [];
