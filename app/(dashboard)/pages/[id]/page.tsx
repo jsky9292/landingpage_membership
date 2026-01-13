@@ -13,6 +13,7 @@ interface Submission {
   message?: string;
   status: SubmissionStatus;
   memo?: string;
+  custom_data?: Record<string, string>;
   created_at: string;
 }
 
@@ -200,14 +201,24 @@ export default function PageManagementPage() {
           <div className="flex gap-2">
             <button
               onClick={() => {
+                // 커스텀 필드 키 수집
+                const customKeys = new Set<string>();
+                submissions.forEach((s) => {
+                  if (s.custom_data) {
+                    Object.keys(s.custom_data).forEach((key) => customKeys.add(key));
+                  }
+                });
+                const customKeyArray = Array.from(customKeys);
+
                 // CSV 다운로드
                 const csv = [
-                  ['이름', '연락처', '이메일', '메시지', '상태', '메모', '신청일시'],
+                  ['이름', '연락처', '이메일', '메시지', ...customKeyArray, '상태', '메모', '신청일시'],
                   ...submissions.map((s) => [
                     s.name,
                     s.phone,
                     s.email || '',
                     s.message || '',
+                    ...customKeyArray.map((key) => s.custom_data?.[key] || ''),
                     getStatusLabel(s.status),
                     s.memo || '',
                     formatDate(s.created_at),
@@ -439,6 +450,20 @@ function SubmissionDetailModal({
                   <p className="text-[#191F28] whitespace-pre-line bg-gray-50 p-3 rounded-lg">
                     {submission.message}
                   </p>
+                </div>
+              )}
+              {/* 커스텀 필드 표시 */}
+              {submission.custom_data && Object.keys(submission.custom_data).length > 0 && (
+                <div className="col-span-2">
+                  <p className="text-xs text-[#8B95A1] mb-2">추가 정보</p>
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+                    {Object.entries(submission.custom_data).map(([key, value]) => (
+                      <div key={key} className="flex">
+                        <span className="text-[#4E5968] min-w-[80px]">{key}:</span>
+                        <span className="text-[#191F28] font-medium">{value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

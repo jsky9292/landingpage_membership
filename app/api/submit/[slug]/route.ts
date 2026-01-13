@@ -49,15 +49,19 @@ export async function POST(
       pageOwner = profile;
     }
 
+    // 커스텀 필드 추출 (name, phone, email, message 제외한 나머지)
+    const { name, phone, email, goal, current, message, ...customFields } = data;
+
     // 신청 데이터 저장
     const { data: submission, error: submitError } = await supabase
       .from('submissions')
       .insert({
         page_id: page.id,
-        name: data.name,
-        phone: data.phone,
-        email: data.email || null,
-        message: data.goal || data.current || data.message || null,
+        name: name,
+        phone: phone,
+        email: email || null,
+        message: goal || current || message || null,
+        custom_data: Object.keys(customFields).length > 0 ? customFields : null,
         status: 'new',
       })
       .select()

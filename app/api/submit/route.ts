@@ -62,7 +62,7 @@ async function sendOwnerNotification(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { pageId, name, phone, email, message } = body;
+    const { pageId, name, phone, email, message, ...customFields } = body;
 
     if (!pageId || !name || !phone) {
       return NextResponse.json(
@@ -97,6 +97,7 @@ export async function POST(request: NextRequest) {
         phone,
         email: email || null,
         message: message || null,
+        custom_data: Object.keys(customFields).length > 0 ? customFields : null,
         status: 'new',
       })
       .select()
