@@ -89,8 +89,15 @@ export async function GET() {
     }
 
     // 일반 사용자: Supabase에서 조회
-    const supabase = supabaseAdmin;
-    const { data: user, error } = await supabase
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        profile: { name: session.user.name || '', email: session.user.email, phone: '', notifyEmail: true, notifyKakao: false, kakaoLinked: false },
+        apiSettings: { useOwnKey: false, geminiApiKey: '', claudeApiKey: '', imageModel: 'gemini-2.5-flash-image', textModel: 'gemini-2.5-pro', hasGeminiKey: false, hasClaudeKey: false },
+        crmSettings: DEFAULT_CRM_SETTINGS,
+        plan: 'free',
+      });
+    }
+    const { data: user, error } = await supabaseAdmin
       .from('profiles')
       .select('id, name, email, phone, notify_email, notify_kakao, kakao_linked, plan, api_settings, crm_settings')
       .eq('email', session.user.email)
@@ -221,10 +228,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 일반 사용자: Supabase에 저장
-    const supabase = supabaseAdmin;
+    if (!supabaseAdmin) {
+      return NextResponse.json({ success: true, message: '설정이 저장되었습니다. (로컬 모드)' });
+    }
 
     // 현재 사용자 조회
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('profiles')
       .select('id, api_settings, crm_settings')
       .eq('email', session.user.email)
@@ -268,7 +277,7 @@ export async function POST(request: NextRequest) {
 
     // 설정 업데이트
     if (Object.keys(updateData).length > 0) {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from('profiles')
         .update(updateData)
         .eq('id', user.id);

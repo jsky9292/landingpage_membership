@@ -21,11 +21,16 @@ export type SectionType =
   | 'image'
   | 'calendar'
   | 'cta'
-  | 'form';
+  | 'form'
+  | 'timer'
+  | 'inline-cta'
+  | 'inline-image'
+  | 'inline-video'
+  | 'divider';
 
 export type PageStatus = 'draft' | 'published' | 'archived';
 
-export type ThemeType = 'toss' | 'dark' | 'warm' | 'luxury' | 'peach';
+export type ThemeType = 'toss' | 'dark' | 'warm' | 'luxury' | 'peach' | 'minimal' | 'corporate' | 'ocean' | 'forest' | 'sunset' | 'grape' | 'slate' | 'midnight' | 'neon';
 
 // 섹션 콘텐츠 타입
 export interface HeroContent {
@@ -114,6 +119,57 @@ export interface ImageContent {
   caption?: string;
 }
 
+// 타이머 콘텐츠
+export interface TimerContent {
+  label?: string;
+  title?: string;
+  endDate: string; // ISO date string
+  message?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  expiredMessage?: string;
+  showDays?: boolean;
+  showHours?: boolean;
+  showMinutes?: boolean;
+  showSeconds?: boolean;
+}
+
+// 인라인 CTA 콘텐츠
+export interface InlineCTAContent {
+  buttonText: string;
+  subtext?: string;
+  subtitle?: string;
+  style?: 'solid' | 'outline' | 'ghost' | 'primary' | 'secondary';
+  size?: 'small' | 'medium' | 'large';
+  fullWidth?: boolean;
+}
+
+// 인라인 이미지 콘텐츠
+export interface InlineImageContent {
+  imageUrl: string;
+  alt?: string;
+  caption?: string;
+  size?: 'small' | 'medium' | 'large' | 'full';
+  alignment?: 'left' | 'center' | 'right';
+}
+
+// 인라인 비디오 콘텐츠
+export interface InlineVideoContent {
+  videoUrl: string;
+  caption?: string;
+  title?: string;
+  showControls?: boolean;
+}
+
+// 구분선 콘텐츠
+export interface DividerContent {
+  style?: 'line' | 'space' | 'dots';
+  height?: number;
+  color?: string;
+  spacing?: number;
+  thickness?: number;
+}
+
 // 스타일 옵션 (폰트 크기 등)
 export interface SectionStyle {
   titleFontSize?: number; // px 단위
@@ -142,7 +198,12 @@ export type SectionContent =
   | ImageContent
   | CalendarContent
   | CTAContent
-  | FormContent;
+  | FormContent
+  | TimerContent
+  | InlineCTAContent
+  | InlineImageContent
+  | InlineVideoContent
+  | DividerContent;
 
 export interface Section {
   id: string;
@@ -153,6 +214,13 @@ export interface Section {
   emojiImage?: string; // 섹션에 표시할 이모지 이미지 URL
   sectionImage?: string; // 섹션에 표시할 일반 이미지 URL
   imageKeyword?: string; // AI 이미지 생성을 위한 키워드
+}
+
+// 연락처 정보 타입
+export interface ContactInfo {
+  name: string;
+  phone: string;
+  email?: string;
 }
 
 // 폼 필드 타입

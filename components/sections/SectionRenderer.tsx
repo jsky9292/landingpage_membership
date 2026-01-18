@@ -24,6 +24,10 @@ interface SectionRendererProps {
   editingSection?: string | null;
   onSectionSelect?: (sectionId: string | null) => void;
   companyName?: string;
+  onAddSectionAt?: (index: number, type: SectionType) => void;
+  onMoveSection?: (sectionId: string, direction: 'up' | 'down') => void;
+  onDeleteSection?: (sectionId: string) => void;
+  onReorderSections?: (sections: Section[]) => void;
 }
 
 // 이모지/섹션 이미지 컴포넌트
