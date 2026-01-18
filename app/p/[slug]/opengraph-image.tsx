@@ -142,7 +142,7 @@ export default async function Image({ params }: Props) {
             fontSize: 18,
           }}
         >
-          랜딩AI
+          랜딩메이커
         </div>
       </div>
     ),

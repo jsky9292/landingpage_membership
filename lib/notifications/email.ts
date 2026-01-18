@@ -133,7 +133,7 @@ export async function sendEmailNotification(
     <!-- 푸터 -->
     <div style="text-align: center; margin-top: 32px;">
       <p style="font-size: 12px; color: #8b95a1; margin: 0;">
-        이 이메일은 랜딩AI에서 자동 발송되었습니다.
+        이 이메일은 랜딩메이커에서 자동 발송되었습니다.
       </p>
     </div>
   </div>
@@ -143,7 +143,7 @@ export async function sendEmailNotification(
 
   // 텍스트 버전
   const textContent = `
-[랜딩AI] 새 신청이 들어왔어요!
+[랜딩메이커] 새 신청이 들어왔어요!
 
 📋 페이지: ${pageName}
 ⏰ 시간: ${formatDate(submittedAt)}
@@ -159,7 +159,7 @@ ${submissionData.message ? `💬 문의: ${submissionData.message}` : ''}
 
   try {
     const { data, error } = await resend.emails.send({
-      from: '랜딩AI <noreply@landing.ai>',
+      from: '랜딩메이커 <noreply@landing.ai>',
       to: recipientEmail,
       subject: `[새 신청] ${pageName} - ${submissionData.name}님`,
       html: htmlContent,

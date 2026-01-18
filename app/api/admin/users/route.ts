@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/options';
 import { createServerClient } from '@/lib/supabase/client';
 
 // 회원 목록 조회 (관리자 전용)
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,9 +42,13 @@ export async function GET(request: NextRequest) {
       query = query.eq('role', role);
     }
 
-    // 검색 필터 (이름 또는 이메일)
+    // 검색 필터 (이름 또는 이메일) - SQL Injection 방지
     if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+      // 특수문자 이스케이프
+      const sanitizedSearch = search.replace(/[%_\]/g, '\$&').replace(/['";]/g, '');
+      if (sanitizedSearch.length > 0 && sanitizedSearch.length <= 100) {
+        query = query.or(`name.ilike.%${sanitizedSearch}%,email.ilike.%${sanitizedSearch}%`);
+      }
     }
 
     const { data: users, error } = await query;
@@ -98,7 +103,7 @@ export async function GET(request: NextRequest) {
 // 회원 역할 변경 (관리자 전용)
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

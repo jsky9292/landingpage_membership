@@ -204,7 +204,7 @@ export default function PricingPage() {
 
       await widgets.requestPayment({
         orderId,
-        orderName: `랜딩AI ${selectedPlan.name} 플랜 (${periodLabel})`,
+        orderName: `랜딩메이커 ${selectedPlan.name} 플랜 (${periodLabel})`,
         customerEmail: session.user.email,
         customerName: session.user.name || '사용자',
         successUrl: `${window.location.origin}/pricing/success?plan=${selectedPlan.id}&period=${billingPeriod}`,
@@ -294,7 +294,7 @@ export default function PricingPage() {
       <header className="py-6 px-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold text-gray-900">
-            🚀 랜딩AI
+            🚀 랜딩메이커
           </Link>
           {session ? (
             <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">

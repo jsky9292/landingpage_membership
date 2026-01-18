@@ -27,7 +27,7 @@ export default function DashboardLayout({
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
-                <span className="text-xl font-bold text-[#191F28]">랜딩AI</span>
+                <span className="text-xl font-bold text-[#191F28]">랜딩메이커</span>
               </Link>
             </div>
 

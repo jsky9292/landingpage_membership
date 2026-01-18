@@ -26,7 +26,7 @@ export default function DashboardLayout({
           <div className="flex justify-between h-16">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2" title="홈으로 이동">
-                <span className="text-xl font-bold text-[#0064FF]">랜딩AI</span>
+                <span className="text-xl font-bold text-[#0064FF]">랜딩메이커</span>
               </Link>
               <Link
                 href="/"

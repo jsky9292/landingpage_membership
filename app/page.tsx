@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -44,6 +44,47 @@ const categories = [
   { id: 'nonprofit', name: '비영리/단체', desc: '후원, 회원모집' },
   { id: 'other', name: '기타', desc: '맞춤형 랜딩페이지' },
 ];
+
+
+// 숫자 카운트업 애니메이션 컴포넌트
+function CountUp({ end, suffix = '', duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          let startTime: number;
+          const animate = (currentTime: number) => {
+            if (!startTime) startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            // easeOutQuart 이징
+            const easeProgress = 1 - Math.pow(1 - progress, 4);
+            setCount(Math.floor(easeProgress * end));
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              setCount(end);
+            }
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [end, duration, hasAnimated]);
+
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+}
 
 // 성공 사례
 const successCases = [
@@ -290,17 +331,30 @@ export default function HomePage() {
           gap: '32px',
           textAlign: 'center',
         }}>
-          {[
-            { value: '10,847', label: '생성된 페이지' },
-            { value: '12.4%', label: '평균 전환율' },
-            { value: '30초', label: '평균 제작 시간' },
-            { value: '4.9', label: '고객 만족도' },
-          ].map((stat, i) => (
-            <div key={i}>
-              <p style={{ fontSize: '36px', fontWeight: 900, color: '#3182F6', margin: '0 0 4px' }}>{stat.value}</p>
-              <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>{stat.label}</p>
-            </div>
-          ))}
+          <div>
+            <p style={{ fontSize: '36px', fontWeight: 900, color: '#3182F6', margin: '0 0 4px' }}>
+              <CountUp end={10847} />
+            </p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>생성된 페이지</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '36px', fontWeight: 900, color: '#3182F6', margin: '0 0 4px' }}>
+              <CountUp end={12} suffix=".4%" duration={1500} />
+            </p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>평균 전환율</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '36px', fontWeight: 900, color: '#3182F6', margin: '0 0 4px' }}>
+              <CountUp end={30} suffix="초" duration={1000} />
+            </p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>평균 제작 시간</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '36px', fontWeight: 900, color: '#3182F6', margin: '0 0 4px' }}>
+              <CountUp end={4} suffix=".9" duration={1500} />
+            </p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>고객 만족도</p>
+          </div>
         </div>
       </section>
 

@@ -49,7 +49,7 @@ export async function sendKakaoAlimtalk(
   }
 
   // 메시지 템플릿
-  const message = `[랜딩AI] 새 신청이 들어왔어요!
+  const message = `[랜딩메이커] 새 신청이 들어왔어요!
 
 📋 ${pageName}
 
@@ -124,7 +124,7 @@ export const ALIMTALK_TEMPLATE_GUIDE = `
    [템플릿명] NEW_SUBMISSION
 
    [템플릿 내용]
-   [랜딩AI] 새 신청이 들어왔어요!
+   [랜딩메이커] 새 신청이 들어왔어요!
 
    📋 #{pageName}
 

@@ -56,30 +56,45 @@ export const authOptions: AuthOptions = {
         provider: account?.provider,
       });
 
-      // Supabase에 사용자 정보 저장/업데이트
+      // Supabase에 사용자 정보 저장/업데이트 (users + profiles 양쪽)
       try {
         const supabase = createServerClient() as any;
 
         // 관리자 이메일 확인
         const role = isAdminEmail(user.email) ? 'admin' : 'user';
+        const userData = {
+          email: user.email,
+          name: user.name || user.email?.split('@')[0],
+          avatar_url: user.image,
+          role: role,
+          plan: role === 'admin' ? 'agency' : 'free',
+        };
 
-        const { error } = await supabase
+        // users 테이블에 저장
+        const { error: usersError } = await supabase
           .from('users')
-          .upsert({
-            email: user.email,
-            name: user.name || user.email?.split('@')[0],
-            avatar_url: user.image,
-            role: role,
-          }, {
+          .upsert(userData, {
             onConflict: 'email',
             ignoreDuplicates: false,
           });
 
-        if (error) {
-          console.error('[Auth] Failed to upsert user:', error);
-        } else {
-          console.log('[Auth] User synced to Supabase, role:', role);
+        if (usersError) {
+          console.error('[Auth] Failed to upsert to users:', usersError);
         }
+
+        // profiles 테이블에도 저장 (API 호환성)
+        const { error: profilesError } = await supabase
+          .from('profiles')
+          .upsert(userData, {
+            onConflict: 'email',
+            ignoreDuplicates: false,
+          });
+
+        if (profilesError) {
+          console.error('[Auth] Failed to upsert to profiles:', profilesError);
+        }
+
+        console.log('[Auth] User synced to Supabase, role:', role);
       } catch (err) {
         console.error('[Auth] Supabase sync error:', err);
       }

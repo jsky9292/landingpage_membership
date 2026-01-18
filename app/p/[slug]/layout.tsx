@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // 기본 메타데이터
   let title = '랜딩페이지';
-  let description = '랜딩AI로 만든 랜딩페이지';
+  let description = '랜딩메이커로 만든 랜딩페이지';
 
   try {
     const supabase = createServerClient() as any;

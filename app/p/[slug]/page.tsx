@@ -471,7 +471,7 @@ export default function PublicPage() {
         paddingBottom: '100px'
       }}>
         <p style={{ fontSize: '12px', color: '#8B95A1' }}>
-          Powered by 랜딩AI
+          Powered by 랜딩메이커
         </p>
       </footer>
 
