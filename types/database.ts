@@ -1,4 +1,5 @@
 export type UserRole = 'user' | 'admin';
+export type UserPlan = 'free' | 'starter' | 'pro' | 'unlimited' | 'agency';
 export type PageStatus = 'draft' | 'published' | 'archived';
 export type SubmissionStatus = 'new' | 'contacted' | 'converted' | 'rejected';
 
@@ -12,6 +13,11 @@ export interface Database {
           name: string | null;
           avatar_url: string | null;
           role: UserRole;
+          plan: UserPlan;
+          plan_started_at: string | null;
+          plan_expires_at: string | null;
+          plan_pages_limit: number;
+          plan_features: Record<string, any>;
           created_at: string;
           updated_at: string;
         };
@@ -21,6 +27,11 @@ export interface Database {
           name?: string | null;
           avatar_url?: string | null;
           role?: UserRole;
+          plan?: UserPlan;
+          plan_started_at?: string | null;
+          plan_expires_at?: string | null;
+          plan_pages_limit?: number;
+          plan_features?: Record<string, any>;
           created_at?: string;
           updated_at?: string;
         };
@@ -30,6 +41,11 @@ export interface Database {
           name?: string | null;
           avatar_url?: string | null;
           role?: UserRole;
+          plan?: UserPlan;
+          plan_started_at?: string | null;
+          plan_expires_at?: string | null;
+          plan_pages_limit?: number;
+          plan_features?: Record<string, any>;
           updated_at?: string;
         };
       };

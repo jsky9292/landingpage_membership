@@ -10,6 +10,12 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  -- 플랜/구독 관련 필드
+  plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'starter', 'pro', 'unlimited', 'agency')),
+  plan_started_at TIMESTAMPTZ,
+  plan_expires_at TIMESTAMPTZ,
+  plan_pages_limit INTEGER DEFAULT 3, -- 플랜별 페이지 생성 제한
+  plan_features JSONB DEFAULT '{}', -- 플랜별 추가 기능 설정
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
