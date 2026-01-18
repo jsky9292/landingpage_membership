@@ -573,7 +573,8 @@ export async function scrapeWebsite(
 
     console.log("[7/7] Detecting Framer site...");
     let framerInfo: FramerInfo | undefined;
-    const framerData = await extractFramerSiteData(page);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const framerData = await extractFramerSiteData(page as any);
 
     if (framerData.isFramerSite) {
       console.log("Framer site detected!");

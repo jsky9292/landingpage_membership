@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/db/supabase';
+import { createServerClient } from '@/lib/supabase/client';
 import { sendEmailNotification } from '@/lib/notifications/email';
 
 export async function POST(
@@ -20,39 +20,28 @@ export async function POST(
       );
     }
 
-    // Supabase 미설정시 데모 모드
-    if (!supabaseAdmin) {
-      console.log('[Demo] Form submission:', { slug, data });
-      return NextResponse.json({
-        success: true,
-        message: '신청이 완료되었습니다.',
-        submissionId: `demo-${Date.now()}`,
-        demo: true,
-      });
-    }
+    const supabase = createServerClient() as any;
 
-    // 페이지 조회 (slug로) - published 또는 draft 모두 허용
-    const { data: page, error: pageError } = await supabaseAdmin
+    // 페이지 조회 (slug로)
+    const { data: page, error: pageError } = await supabase
       .from('landing_pages')
-      .select('id, title, user_id, status')
+      .select('id, title, user_id')
       .eq('slug', slug)
+      .eq('status', 'published')
       .single();
 
     if (pageError || !page) {
       console.error('Page not found:', slug, pageError);
-      // 페이지가 없어도 데모 모드로 제출 허용
-      console.log('[Submit] Page not found, accepting as demo submission');
-      return NextResponse.json({
-        success: true,
-        message: '신청이 완료되었습니다.',
-        submissionId: `fallback-${Date.now()}`,
-      });
+      return NextResponse.json(
+        { error: '페이지를 찾을 수 없습니다.' },
+        { status: 404 }
+      );
     }
 
-    // 페이지 소유자 정보 조회 (profiles 테이블에서)
+    // 페이지 소유자 정보 조회 (알림용)
     let pageOwner: { email?: string; name?: string } | null = null;
     if (page.user_id) {
-      const { data: profile } = await supabaseAdmin
+      const { data: profile } = await supabase
         .from('profiles')
         .select('email, name')
         .eq('id', page.user_id)
@@ -60,15 +49,19 @@ export async function POST(
       pageOwner = profile;
     }
 
+    // 커스텀 필드 추출 (name, phone, email, message 제외한 나머지)
+    const { name, phone, email, goal, current, message, ...customFields } = data;
+
     // 신청 데이터 저장
-    const { data: submission, error: submitError } = await supabaseAdmin
+    const { data: submission, error: submitError } = await supabase
       .from('submissions')
       .insert({
         page_id: page.id,
-        name: data.name,
-        phone: data.phone,
-        email: data.email || null,
-        message: data.goal || data.current || data.message || null,
+        name: name,
+        phone: phone,
+        email: email || null,
+        message: goal || current || message || null,
+        custom_data: Object.keys(customFields).length > 0 ? customFields : null,
         status: 'new',
       })
       .select()
@@ -88,6 +81,8 @@ export async function POST(
       name: data.name,
       phone: data.phone,
     });
+
+    // pageOwner는 이미 위에서 조회됨
 
     // 알림 발송 (비동기로 처리)
     const notificationPromises: Promise<any>[] = [];
