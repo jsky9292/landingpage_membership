@@ -40,17 +40,6 @@ function LoginForm() {
     }
   };
 
-  const handleDemoLogin = async (email: string, password: string) => {
-    const result = await signIn('demo-login', {
-      redirect: false,
-      email,
-      password,
-    });
-    if (result?.ok) {
-      router.push(callbackUrl);
-    }
-  };
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -198,46 +187,6 @@ function LoginForm() {
               </button>
             </div>
 
-            {/* 데모 로그인 섹션 */}
-            <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
-              <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', marginBottom: '16px' }}>
-                테스트용 데모 계정
-              </p>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={() => handleDemoLogin('admin@demo.com', 'admin123')}
-                  style={{
-                    flex: 1,
-                    padding: '14px 16px',
-                    background: '#3182F6',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  관리자 데모
-                </button>
-                <button
-                  onClick={() => handleDemoLogin('user@demo.com', 'user123')}
-                  style={{
-                    flex: 1,
-                    padding: '14px 16px',
-                    background: '#6366F1',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  사용자 데모
-                </button>
-              </div>
-            </div>
           </>
         ) : (
           /* 이메일 로그인 폼 */
