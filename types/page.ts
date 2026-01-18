@@ -21,30 +21,11 @@ export type SectionType =
   | 'image'
   | 'calendar'
   | 'cta'
-  | 'form'
-  | 'timer'        // 카운트다운 타이머
-  | 'inline-cta'   // 중간 CTA 버튼
-  | 'inline-image' // 중간 이미지
-  | 'inline-video' // 중간 유튜브 영상
-  | 'divider';     // 구분선
+  | 'form';
 
 export type PageStatus = 'draft' | 'published' | 'archived';
 
-export type ThemeType =
-  | 'toss'
-  | 'neon'
-  | 'ocean'
-  | 'sunset'
-  | 'forest'
-  | 'minimal'
-  | 'corporate'
-  | 'grape'
-  | 'midnight'
-  | 'dark'
-  | 'warm'
-  | 'luxury'
-  | 'peach'
-  | 'slate';
+export type ThemeType = 'toss' | 'dark' | 'warm' | 'luxury' | 'peach';
 
 // 섹션 콘텐츠 타입
 export interface HeroContent {
@@ -150,54 +131,6 @@ export interface CalendarContent {
   note?: string;
 }
 
-// 카운트다운 타이머 콘텐츠
-export interface TimerContent {
-  title: string; // 예: "36% 런칭 할인 종료까지"
-  endDate: string; // ISO 날짜 문자열
-  backgroundColor?: string; // 배경색
-  textColor?: string; // 텍스트 색상
-  showDays?: boolean;
-  showHours?: boolean;
-  showMinutes?: boolean;
-  showSeconds?: boolean;
-  expiredMessage?: string; // 타이머 종료 후 메시지
-}
-
-// 중간 CTA 버튼 콘텐츠
-export interface InlineCTAContent {
-  buttonText: string;
-  subtitle?: string; // 버튼 위 또는 아래 텍스트
-  style?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
-  fullWidth?: boolean;
-}
-
-// 중간 이미지 콘텐츠
-export interface InlineImageContent {
-  imageUrl: string;
-  alt?: string;
-  caption?: string;
-  size?: 'small' | 'medium' | 'large' | 'full';
-  alignment?: 'left' | 'center' | 'right';
-}
-
-// 중간 유튜브 영상 콘텐츠
-export interface InlineVideoContent {
-  videoUrl: string; // YouTube URL
-  title?: string;
-  caption?: string;
-  autoplay?: boolean;
-  showControls?: boolean;
-}
-
-// 구분선 콘텐츠
-export interface DividerContent {
-  style?: 'line' | 'dots' | 'space';
-  color?: string;
-  thickness?: number;
-  spacing?: number; // 상하 여백
-}
-
 export type SectionContent =
   | HeroContent
   | PainContent
@@ -209,12 +142,7 @@ export type SectionContent =
   | ImageContent
   | CalendarContent
   | CTAContent
-  | FormContent
-  | TimerContent
-  | InlineCTAContent
-  | InlineImageContent
-  | InlineVideoContent
-  | DividerContent;
+  | FormContent;
 
 export interface Section {
   id: string;
@@ -245,42 +173,6 @@ export interface PageContent {
   };
 }
 
-// 연락처 정보
-export interface ContactInfo {
-  phoneNumber?: string;
-  email?: string;
-  kakaoId?: string;
-  instagramId?: string;
-  address?: string;
-  businessName?: string;
-  businessOwner?: string;
-}
-
-// CRM 설정 - 폼 제출 후 처리
-export interface CRMSettings {
-  // 제출 후 리다이렉트 설정
-  redirectType?: 'none' | 'url' | 'kakao' | 'thankyou';
-  redirectUrl?: string; // 커스텀 URL
-  kakaoChannelUrl?: string; // 카카오톡 채널 URL
-
-  // 고객에게 자동 발송
-  autoSendEnabled?: boolean;
-  autoSendType?: 'ebook' | 'link' | 'message';
-  autoSendContent?: string; // 이북 다운로드 링크 또는 메시지
-  autoSendTitle?: string; // 발송 제목
-
-  // 알림톡 설정
-  notifyKakaoEnabled?: boolean;
-  notifyKakaoPhone?: string; // 알림 받을 휴대폰 번호
-  notifyKakaoTemplate?: string; // 알림톡 템플릿 ID
-
-  // 감사 페이지 설정
-  thankYouTitle?: string;
-  thankYouMessage?: string;
-  thankYouButtonText?: string;
-  thankYouButtonUrl?: string;
-}
-
 // 페이지 타입
 export interface Page {
   id: string;
@@ -292,8 +184,6 @@ export interface Page {
   content: PageContent;
   theme: ThemeType;
   formFields: FormField[];
-  contactInfo?: ContactInfo;
-  crmSettings?: CRMSettings;
   status: PageStatus;
   notifyKakao: boolean;
   notifyEmail: boolean;
@@ -301,6 +191,7 @@ export interface Page {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  companyName?: string; // 업체명 (개인정보 동의서에 사용)
 }
 
 // 페이지 생성 요청

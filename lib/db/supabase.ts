@@ -1,16 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Supabase URL 유효성 검사
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+const isValidSupabaseUrl = supabaseUrl && !supabaseUrl.includes('your-project');
 
 // 브라우저용 클라이언트 (anon key)
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const supabase: SupabaseClient | null = isValidSupabaseUrl
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 // 서버용 클라이언트 (service role key - 서버 사이드에서만 사용)
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const supabaseAdmin: SupabaseClient | null = isValidSupabaseUrl
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : null;
 
 // API 설정 타입
 export type APISettings = {
@@ -49,17 +54,28 @@ export type Database = {
           name: string | null;
           phone: string | null;
           avatar_url: string | null;
+          password_hash: string | null;
           kakao_linked: boolean;
           kakao_id: string | null;
           kakao_phone: string | null;
+          google_linked: boolean;
+          google_id: string | null;
           plan: 'free' | 'starter' | 'pro' | 'enterprise';
           plan_expires_at: string | null;
           role: 'user' | 'admin';
+          // 포인트 시스템
+          points: number;
+          // 추천인 시스템
+          referral_code: string;
+          referred_by: string | null;
+          referral_count: number;
+          // 알림 설정
           notify_kakao: boolean;
           notify_email: boolean;
           notify_sms: boolean;
           api_settings: APISettings | null;
           crm_settings: CRMSettings | null;
+          email_verified: boolean;
           created_at: string;
           updated_at: string;
         };

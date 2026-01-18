@@ -17,10 +17,33 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = supabaseAdmin;
+    // Supabase 미설정시 데모 데이터
+    if (!supabaseAdmin) {
+      if (pageId.startsWith('demo-')) {
+        return NextResponse.json({
+          page: {
+            id: pageId,
+            title: pageId === 'demo-page-1' ? '다이어트 프로그램 상담' : '무료 상담 신청',
+            slug: pageId === 'demo-page-1' ? 'diet-program' : 'free-consultation',
+            topic: 'health',
+            prompt: '다이어트 관련 랜딩페이지',
+            status: pageId === 'demo-page-1' ? 'published' : 'draft',
+            theme: 'toss',
+            sections: [],
+            formFields: [{ name: 'name', label: '이름', type: 'text', required: true }, { name: 'phone', label: '연락처', type: 'tel', required: true }],
+            contactInfo: {},
+            viewCount: pageId === 'demo-page-1' ? 245 : 89,
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        });
+      }
+      return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+    }
 
+    
     // 현재 사용자 조회
-    const { data: user } = await supabase
+    const { data: user } = await supabaseAdmin
       .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
@@ -31,7 +54,7 @@ export async function GET(
     }
 
     // 페이지 조회
-    const { data: page, error: pageError } = await supabase
+    const { data: page, error: pageError } = await supabaseAdmin
       .from('landing_pages')
       .select('*')
       .eq('id', pageId)
@@ -85,10 +108,17 @@ export async function PUT(
     const body = await request.json();
     const { title, sections, formFields, theme, status, contactInfo } = body;
 
-    const supabase = supabaseAdmin;
+    // Supabase 미설정시 데모 모드
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        success: true,
+        page: { id: pageId, title, status, theme, sections, formFields, contactInfo, updatedAt: new Date().toISOString() },
+        demo: true,
+      });
+    }
 
     // 현재 사용자 조회
-    const { data: user } = await supabase
+    const { data: user } = await supabaseAdmin
       .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
@@ -99,7 +129,7 @@ export async function PUT(
     }
 
     // 페이지 조회
-    const { data: page } = await supabase
+    const { data: page } = await supabaseAdmin
       .from('landing_pages')
       .select('id, user_id')
       .eq('id', pageId)
@@ -127,7 +157,7 @@ export async function PUT(
     if (contactInfo !== undefined) updateData.contact_info = contactInfo;
 
     // 업데이트
-    const { data: updated, error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabaseAdmin
       .from('landing_pages')
       .update(updateData)
       .eq('id', pageId)
@@ -172,10 +202,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = supabaseAdmin;
+    // Supabase 미설정시 데모 모드
+    if (!supabaseAdmin) {
+      return NextResponse.json({ success: true, demo: true });
+    }
 
     // 현재 사용자 조회
-    const { data: user } = await supabase
+    const { data: user } = await supabaseAdmin
       .from('profiles')
       .select('id, role')
       .eq('email', session.user.email)
@@ -186,7 +219,7 @@ export async function DELETE(
     }
 
     // 페이지 조회
-    const { data: page } = await supabase
+    const { data: page } = await supabaseAdmin
       .from('landing_pages')
       .select('id, user_id')
       .eq('id', pageId)
@@ -202,7 +235,7 @@ export async function DELETE(
     }
 
     // 삭제
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseAdmin
       .from('landing_pages')
       .delete()
       .eq('id', pageId);

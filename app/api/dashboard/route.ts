@@ -1,69 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
-import { supabaseAdmin } from '@/lib/db/supabase';
+import { createServerClient } from '@/lib/supabase/client';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const sessionUser = session.user as any;
-    const sessionRole = sessionUser.role;
-    const isAdmin = sessionRole === 'admin';
+    const supabase = createServerClient() as any;
 
-    // profiles 테이블에서 사용자 조회
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('id, plan')
+    // 현재 사용자 조회
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, role')
       .eq('email', session.user.email)
       .single();
 
-    // 사용자가 없으면 빈 대시보드 반환
-    if (!profile) {
-      return NextResponse.json({
-        stats: {
-          totalPages: 0,
-          totalSubmissions: 0,
-          newSubmissions: 0,
-          conversionRate: 0,
-        },
-        pages: [],
-        isAdmin,
-        plan: {
-          id: 'free',
-          name: '무료',
-          pageLimit: 1,
-          pagesRemaining: 1,
-        },
-      });
+    if (userError || !user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const userPlan = profile.plan || 'free';
+    const isAdmin = (user as any).role === 'admin';
 
-    // 플랜별 페이지 제한
-    const planLimits: Record<string, { pages: number; name: string }> = {
-      free: { pages: 1, name: '무료' },
-      single: { pages: 1, name: '단건 구매' },
-      starter: { pages: 1, name: '스타터' },
-      pro: { pages: 3, name: '프로' },
-      unlimited: { pages: -1, name: '무제한' },
-      agency: { pages: -1, name: '대행사' },
-    };
-    const planInfo = planLimits[userPlan] || planLimits.free;
-
-    // 페이지 목록 조회
-    let pagesQuery = supabaseAdmin
+    // 페이지 목록 조회 (관리자는 전체, 일반 유저는 본인 것만)
+    let pagesQuery = supabase
       .from('landing_pages')
       .select('id, title, slug, status, view_count, created_at, user_id')
       .order('created_at', { ascending: false });
 
     if (!isAdmin) {
-      pagesQuery = pagesQuery.eq('user_id', profile.id);
+      pagesQuery = pagesQuery.eq('user_id', (user as any).id);
     }
 
     const { data: pages, error: pagesError } = await pagesQuery;
@@ -73,21 +43,31 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch pages' }, { status: 500 });
     }
 
+    // 관리자인 경우 사용자 정보 별도 조회
+    let usersMap = new Map();
+    if (isAdmin && pages && pages.length > 0) {
+      const userIds = [...new Set((pages as any[]).map((p: any) => p.user_id))];
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .in('id', userIds);
+
+      (usersData || []).forEach((u: any) => {
+        usersMap.set(u.id, { name: u.name, email: u.email });
+      });
+    }
+
     // 신청 데이터 조회
     const pageIds = (pages as any[])?.map((p: any) => p.id) || [];
 
-    let submissions: any[] = [];
-    if (pageIds.length > 0) {
-      const { data: subs } = await supabaseAdmin
-        .from('submissions')
-        .select('id, page_id, status, created_at')
-        .in('page_id', pageIds);
-      submissions = subs || [];
-    }
+    const { data: submissions } = await supabase
+      .from('submissions')
+      .select('id, page_id, status, created_at')
+      .in('page_id', pageIds);
 
     // 통계 계산
     const submissionsByPage = new Map();
-    submissions.forEach((s: any) => {
+    (submissions as any[])?.forEach((s: any) => {
       if (!submissionsByPage.has(s.page_id)) {
         submissionsByPage.set(s.page_id, { total: 0, new: 0 });
       }
@@ -97,21 +77,25 @@ export async function GET() {
     });
 
     // 페이지 목록에 신청 통계 추가
-    const pagesWithStats = (pages as any[])?.map((page: any) => ({
-      id: page.id,
-      title: page.title,
-      slug: page.slug,
-      status: page.status,
-      viewCount: page.view_count || 0,
-      createdAt: page.created_at,
-      submissionCount: submissionsByPage.get(page.id)?.total || 0,
-      newSubmissionCount: submissionsByPage.get(page.id)?.new || 0,
-    })) || [];
+    const pagesWithStats = (pages as any[])?.map((page: any) => {
+      const userData = usersMap.get(page.user_id);
+      return {
+        id: page.id,
+        title: page.title,
+        slug: page.slug,
+        status: page.status,
+        viewCount: page.view_count,
+        createdAt: page.created_at,
+        submissionCount: submissionsByPage.get(page.id)?.total || 0,
+        newSubmissionCount: submissionsByPage.get(page.id)?.new || 0,
+        userName: isAdmin ? (userData?.name || userData?.email) : undefined,
+      };
+    }) || [];
 
     // 전체 통계
     const totalPages = pagesWithStats.length;
-    const totalSubmissions = submissions.length;
-    const newSubmissions = submissions.filter((s: any) => s.status === 'new').length;
+    const totalSubmissions = (submissions as any[])?.length || 0;
+    const newSubmissions = (submissions as any[])?.filter((s: any) => s.status === 'new').length || 0;
     const totalViews = (pages as any[])?.reduce((sum: number, p: any) => sum + (p.view_count || 0), 0) || 0;
     const conversionRate = totalViews > 0 ? Math.round((totalSubmissions / totalViews) * 1000) / 10 : 0;
 
@@ -124,12 +108,6 @@ export async function GET() {
       },
       pages: pagesWithStats,
       isAdmin,
-      plan: {
-        id: userPlan,
-        name: planInfo.name,
-        pageLimit: planInfo.pages,
-        pagesRemaining: planInfo.pages === -1 ? -1 : Math.max(0, planInfo.pages - totalPages),
-      },
     });
   } catch (error) {
     console.error('Dashboard API error:', error);

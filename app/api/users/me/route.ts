@@ -14,6 +14,18 @@ export async function GET() {
     // 세션에서 role 확인
     const sessionRole = (session.user as any)?.role;
 
+    // Supabase 미설정시 세션 정보 반환
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        id: (session.user as any)?.id || 'session-user',
+        email: session.user.email,
+        name: session.user.name,
+        plan: sessionRole === 'admin' ? 'unlimited' : 'free',
+        role: sessionRole || 'user',
+        demo: true,
+      });
+    }
+
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .select('id, email, name, plan, created_at')

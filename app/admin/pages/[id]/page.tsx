@@ -7,13 +7,15 @@ import { SubmissionStatus, getStatusLabel, getStatusColor } from '@/types/submis
 
 interface Submission {
   id: string;
-  name: string;
-  phone: string;
-  email?: string;
-  message?: string;
+  data: {
+    name: string;
+    phone: string;
+    company?: string;
+    message?: string;
+  };
   status: SubmissionStatus;
   memo?: string;
-  created_at: string;
+  createdAt: string;
 }
 
 interface PageDetail {
@@ -21,152 +23,172 @@ interface PageDetail {
   title: string;
   slug: string;
   status: 'draft' | 'published';
-  view_count: number;
+  viewCount: number;
+  submissions: Submission[];
 }
 
-export default function AdminPageManagementPage() {
+export default function PageManagementPage() {
   const params = useParams();
   const [page, setPage] = useState<PageDetail | null>(null);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | 'all'>('all');
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPageData();
+    async function fetchPageData() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/pages/${params.id}/submissions`);
+        if (!res.ok) {
+          throw new Error('데이터를 불러오는데 실패했습니다.');
+        }
+        const data = await res.json();
+
+        const submissions = (data.submissions || []).map((s: any) => ({
+          id: s.id,
+          data: {
+            name: s.name,
+            phone: s.phone,
+            company: s.company || s.email,
+            message: s.message,
+          },
+          status: s.status,
+          memo: s.memo,
+          createdAt: new Date(s.created_at).toLocaleString('ko-KR'),
+        }));
+
+        const dashboardRes = await fetch('/api/dashboard');
+        const dashboardData = await dashboardRes.json();
+        const pageInfo = dashboardData.pages?.find((p: any) => p.id === params.id);
+
+        setPage({
+          id: data.page?.id || params.id as string,
+          title: data.page?.title || pageInfo?.title || '페이지',
+          slug: pageInfo?.slug || '',
+          status: pageInfo?.status || 'draft',
+          viewCount: pageInfo?.viewCount || 0,
+          submissions,
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (params.id) {
+      fetchPageData();
+    }
   }, [params.id]);
-
-  const fetchPageData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/pages/${params.id}/submissions`);
-
-      if (!res.ok) {
-        if (res.status === 404) {
-          setError('페이지를 찾을 수 없습니다.');
-        } else if (res.status === 403) {
-          setError('접근 권한이 없습니다.');
-        } else {
-          setError('데이터를 불러오는데 실패했습니다.');
-        }
-        return;
-      }
-
-      const data = await res.json();
-      setPage(data.page);
-      setSubmissions(data.submissions || []);
-    } catch (err) {
-      setError('서버 오류가 발생했습니다.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredSubmissions = submissions.filter((sub) => {
-    if (statusFilter === 'all') return true;
-    return sub.status === statusFilter;
-  });
-
-  const statusCounts = {
-    all: submissions.length,
-    new: submissions.filter((s) => s.status === 'new').length,
-    contacted: submissions.filter((s) => s.status === 'contacted').length,
-    done: submissions.filter((s) => s.status === 'done').length,
-    canceled: submissions.filter((s) => s.status === 'canceled').length,
-  };
-
-  const updateSubmissionStatus = async (id: string, newStatus: SubmissionStatus) => {
-    try {
-      const res = await fetch(`/api/submissions/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        setSubmissions((prev) =>
-          prev.map((sub) => (sub.id === id ? { ...sub, status: newStatus } : sub))
-        );
-        if (selectedSubmission?.id === id) {
-          setSelectedSubmission({ ...selectedSubmission, status: newStatus });
-        }
-      }
-    } catch (err) {
-      console.error('Status update error:', err);
-    }
-  };
-
-  const updateSubmissionMemo = async (id: string, memo: string) => {
-    try {
-      const res = await fetch(`/api/submissions/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memo }),
-      });
-
-      if (res.ok) {
-        setSubmissions((prev) =>
-          prev.map((sub) => (sub.id === id ? { ...sub, memo } : sub))
-        );
-        if (selectedSubmission?.id === id) {
-          setSelectedSubmission({ ...selectedSubmission, memo });
-        }
-      }
-    } catch (err) {
-      console.error('Memo update error:', err);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="animate-spin text-4xl mb-4">⏳</div>
           <p className="text-[#4E5968]">로딩중...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !page) {
+  if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="text-4xl mb-4">&#128683;</div>
-          <p className="text-red-500 font-medium">{error}</p>
-          <Link
-            href="/admin/pages"
-            className="mt-4 inline-block text-[#0064FF] hover:underline"
-          >
-            &#8592; 페이지 목록으로
-          </Link>
+          <div className="text-4xl mb-4">⚠️</div>
+          <p className="text-red-500">{error}</p>
         </div>
       </div>
     );
   }
+
+  if (!page) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📭</div>
+          <p className="text-[#4E5968]">페이지를 찾을 수 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const filteredSubmissions = page.submissions.filter((sub) => {
+    if (statusFilter === 'all') return true;
+    return sub.status === statusFilter;
+  });
+
+  const statusCounts = {
+    all: page.submissions.length,
+    new: page.submissions.filter((s) => s.status === 'new').length,
+    contacted: page.submissions.filter((s) => s.status === 'contacted').length,
+    done: page.submissions.filter((s) => s.status === 'done').length,
+    canceled: page.submissions.filter((s) => s.status === 'canceled').length,
+  };
+
+  const updateSubmissionStatus = async (id: string, newStatus: SubmissionStatus) => {
+    setPage((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        submissions: prev.submissions.map((sub) =>
+          sub.id === id ? { ...sub, status: newStatus } : sub
+        ),
+      };
+    });
+
+    try {
+      const res = await fetch(`/api/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) {
+        throw new Error('상태 업데이트 실패');
+      }
+    } catch (err) {
+      console.error('Status update error:', err);
+      alert('상태 업데이트에 실패했습니다.');
+    }
+  };
+
+  const updateSubmissionMemo = async (id: string, memo: string) => {
+    setPage((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        submissions: prev.submissions.map((sub) =>
+          sub.id === id ? { ...sub, memo } : sub
+        ),
+      };
+    });
+
+    try {
+      const res = await fetch(`/api/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memo }),
+      });
+      if (!res.ok) {
+        throw new Error('메모 업데이트 실패');
+      }
+    } catch (err) {
+      console.error('Memo update error:', err);
+      alert('메모 업데이트에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* 뒤로가기 + 헤더 */}
       <div>
         <Link
-          href="/admin/pages"
+          href="/pages"
           className="text-sm text-[#4E5968] hover:text-[#0064FF] mb-2 inline-block"
         >
-          &#8592; 페이지 목록으로
+          ← 페이지 목록으로
         </Link>
         <div className="flex items-start justify-between">
           <div>
@@ -183,8 +205,8 @@ export default function AdminPageManagementPage() {
               )}
             </div>
             <div className="flex items-center gap-4 mt-2 text-sm text-[#4E5968]">
-              <span>조회 {(page.view_count || 0).toLocaleString()}</span>
-              <span>신청 {submissions.length}건</span>
+              <span>👁️ 조회 {page.viewCount.toLocaleString()}</span>
+              <span>📬 신청 {page.submissions.length}건</span>
               {page.status === 'published' && (
                 <a
                   href={`/p/${page.slug}`}
@@ -192,7 +214,7 @@ export default function AdminPageManagementPage() {
                   rel="noopener noreferrer"
                   className="text-[#0064FF] hover:underline"
                 >
-                  페이지 보기
+                  🔗 페이지 보기
                 </a>
               )}
             </div>
@@ -200,39 +222,18 @@ export default function AdminPageManagementPage() {
           <div className="flex gap-2">
             <button
               onClick={() => {
-                // CSV 다운로드
-                const csv = [
-                  ['이름', '연락처', '이메일', '메시지', '상태', '메모', '신청일시'],
-                  ...submissions.map((s) => [
-                    s.name,
-                    s.phone,
-                    s.email || '',
-                    s.message || '',
-                    getStatusLabel(s.status),
-                    s.memo || '',
-                    formatDate(s.created_at),
-                  ]),
-                ]
-                  .map((row) => row.map((cell) => `"${cell}"`).join(','))
-                  .join('\n');
-
-                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${page.title}_신청목록.csv`;
-                link.click();
-                URL.revokeObjectURL(url);
+                // TODO: CSV 다운로드
+                alert('CSV 다운로드 기능 준비 중');
               }}
               className="px-4 py-2 text-sm text-[#4E5968] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              CSV 다운로드
+              📥 CSV 다운로드
             </button>
             <Link
               href={`/preview/${page.id}`}
               className="px-4 py-2 text-sm text-[#0064FF] bg-[#E8F3FF] rounded-lg hover:bg-[#D4E9FF] transition-colors font-medium"
             >
-              페이지 편집
+              ✏️ 페이지 편집
             </Link>
           </div>
         </div>
@@ -264,7 +265,7 @@ export default function AdminPageManagementPage() {
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
           <div className="col-span-2">이름</div>
           <div className="col-span-2">연락처</div>
-          <div className="col-span-2">이메일</div>
+          <div className="col-span-2">소속</div>
           <div className="col-span-2">상태</div>
           <div className="col-span-2">신청일시</div>
           <div className="col-span-2">관리</div>
@@ -278,12 +279,11 @@ export default function AdminPageManagementPage() {
               submission={submission}
               onStatusChange={(status) => updateSubmissionStatus(submission.id, status)}
               onSelect={() => setSelectedSubmission(submission)}
-              formatDate={formatDate}
             />
           ))
         ) : (
           <div className="text-center py-16">
-            <div className="text-4xl mb-4">&#128237;</div>
+            <span className="text-4xl mb-4 block">📭</span>
             <p className="text-[#4E5968]">
               {statusFilter === 'all'
                 ? '아직 신청이 없어요'
@@ -298,9 +298,14 @@ export default function AdminPageManagementPage() {
         <SubmissionDetailModal
           submission={selectedSubmission}
           onClose={() => setSelectedSubmission(null)}
-          onStatusChange={(status) => updateSubmissionStatus(selectedSubmission.id, status)}
-          onMemoChange={(memo) => updateSubmissionMemo(selectedSubmission.id, memo)}
-          formatDate={formatDate}
+          onStatusChange={(status) => {
+            updateSubmissionStatus(selectedSubmission.id, status);
+            setSelectedSubmission({ ...selectedSubmission, status });
+          }}
+          onMemoChange={(memo) => {
+            updateSubmissionMemo(selectedSubmission.id, memo);
+            setSelectedSubmission({ ...selectedSubmission, memo });
+          }}
         />
       )}
     </div>
@@ -311,12 +316,10 @@ function SubmissionRow({
   submission,
   onStatusChange,
   onSelect,
-  formatDate,
 }: {
   submission: Submission;
   onStatusChange: (status: SubmissionStatus) => void;
   onSelect: () => void;
-  formatDate: (date: string) => string;
 }) {
   return (
     <div
@@ -324,19 +327,19 @@ function SubmissionRow({
       onClick={onSelect}
     >
       <div className="col-span-2">
-        <p className="font-medium text-[#191F28]">{submission.name}</p>
+        <p className="font-medium text-[#191F28]">{submission.data.name}</p>
       </div>
       <div className="col-span-2">
         <a
-          href={`tel:${submission.phone}`}
+          href={`tel:${submission.data.phone}`}
           onClick={(e) => e.stopPropagation()}
           className="text-[#0064FF] hover:underline"
         >
-          {submission.phone}
+          {submission.data.phone}
         </a>
       </div>
-      <div className="col-span-2 text-[#4E5968] truncate">
-        {submission.email || '-'}
+      <div className="col-span-2 text-[#4E5968]">
+        {submission.data.company || '-'}
       </div>
       <div className="col-span-2">
         <select
@@ -349,14 +352,14 @@ function SubmissionRow({
             submission.status
           )}`}
         >
-          <option value="new">새 신청</option>
-          <option value="contacted">연락함</option>
-          <option value="done">완료</option>
-          <option value="canceled">취소</option>
+          <option value="new">🆕 새 신청</option>
+          <option value="contacted">📞 연락함</option>
+          <option value="done">✅ 완료</option>
+          <option value="canceled">❌ 취소</option>
         </select>
       </div>
       <div className="col-span-2 text-sm text-[#4E5968]">
-        {formatDate(submission.created_at)}
+        {submission.createdAt}
       </div>
       <div className="col-span-2">
         <button
@@ -378,13 +381,11 @@ function SubmissionDetailModal({
   onClose,
   onStatusChange,
   onMemoChange,
-  formatDate,
 }: {
   submission: Submission;
   onClose: () => void;
   onStatusChange: (status: SubmissionStatus) => void;
   onMemoChange: (memo: string) => void;
-  formatDate: (date: string) => string;
 }) {
   const [memo, setMemo] = useState(submission.memo || '');
 
@@ -398,7 +399,7 @@ function SubmissionDetailModal({
             onClick={onClose}
             className="text-[#4E5968] hover:text-[#191F28] text-2xl"
           >
-            &#10005;
+            ✕
           </button>
         </div>
 
@@ -411,33 +412,28 @@ function SubmissionDetailModal({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-[#8B95A1] mb-1">이름</p>
-                <p className="font-medium text-[#191F28]">{submission.name}</p>
+                <p className="font-medium text-[#191F28]">{submission.data.name}</p>
               </div>
               <div>
                 <p className="text-xs text-[#8B95A1] mb-1">연락처</p>
                 <a
-                  href={`tel:${submission.phone}`}
+                  href={`tel:${submission.data.phone}`}
                   className="font-medium text-[#0064FF] hover:underline"
                 >
-                  {submission.phone}
+                  {submission.data.phone}
                 </a>
               </div>
-              {submission.email && (
+              {submission.data.company && (
                 <div className="col-span-2">
-                  <p className="text-xs text-[#8B95A1] mb-1">이메일</p>
-                  <a
-                    href={`mailto:${submission.email}`}
-                    className="font-medium text-[#0064FF] hover:underline"
-                  >
-                    {submission.email}
-                  </a>
+                  <p className="text-xs text-[#8B95A1] mb-1">소속</p>
+                  <p className="font-medium text-[#191F28]">{submission.data.company}</p>
                 </div>
               )}
-              {submission.message && (
+              {submission.data.message && (
                 <div className="col-span-2">
                   <p className="text-xs text-[#8B95A1] mb-1">문의사항</p>
                   <p className="text-[#191F28] whitespace-pre-line bg-gray-50 p-3 rounded-lg">
-                    {submission.message}
+                    {submission.data.message}
                   </p>
                 </div>
               )}
@@ -479,7 +475,7 @@ function SubmissionDetailModal({
 
           {/* 신청일시 */}
           <div className="text-sm text-[#8B95A1]">
-            신청일시: {formatDate(submission.created_at)}
+            📅 신청일시: {submission.createdAt}
           </div>
         </div>
 
@@ -492,10 +488,10 @@ function SubmissionDetailModal({
             닫기
           </button>
           <a
-            href={`tel:${submission.phone}`}
+            href={`tel:${submission.data.phone}`}
             className="px-6 py-2 bg-[#0064FF] hover:bg-[#0050CC] text-white rounded-lg transition-colors font-medium"
           >
-            전화하기
+            📞 전화하기
           </a>
         </div>
       </div>

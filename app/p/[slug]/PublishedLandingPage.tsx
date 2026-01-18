@@ -17,6 +17,7 @@ interface PublishedLandingPageProps {
     formFields: any[];
     notifyKakao: boolean;
     notifyEmail: boolean;
+    companyName?: string;
   };
 }
 
@@ -87,6 +88,7 @@ export function PublishedLandingPage({ page }: PublishedLandingPageProps) {
         formFields={page.formFields}
         onFormSubmit={handleFormSubmit}
         isSubmitting={isSubmitting}
+        companyName={page.companyName || page.title}
       />
 
       {/* 플로팅 CTA */}

@@ -6,12 +6,13 @@ import { getGeminiApiKey, getClaudeApiKey } from '@/lib/user/get-api-key';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { topic, prompt, tone, emojis, ctaButtonText } = body as {
+    const { topic, prompt, tone, emojis, ctaButtonText, userApiKey } = body as {
       topic: TopicType;
       prompt: string;
       tone?: string;
       emojis?: Record<string, string>;
       ctaButtonText?: string;
+      userApiKey?: string;
     };
 
     // 유효성 검사

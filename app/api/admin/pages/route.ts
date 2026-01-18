@@ -17,6 +17,21 @@ export async function GET() {
     const sessionRole = (session.user as any).role;
     let isAdmin = sessionRole === 'admin';
 
+    // Supabase 미설정시 데모 모드
+    if (!supabaseAdmin) {
+      if (isAdmin) {
+        return NextResponse.json({
+          stats: { totalPages: 2, publishedPages: 1, totalSubmissions: 15, newSubmissions: 3 },
+          pages: [
+            { id: 'demo-1', title: '다이어트 프로그램', slug: 'diet', topic: 'health', status: 'published', viewCount: 245, submissionCount: 12, newSubmissionCount: 2, createdAt: new Date().toISOString(), owner: { email: 'user@demo.com', name: '데모 사용자' } },
+            { id: 'demo-2', title: '무료 상담', slug: 'consult', topic: 'consulting', status: 'draft', viewCount: 89, submissionCount: 3, newSubmissionCount: 1, createdAt: new Date().toISOString(), owner: { email: 'user@demo.com', name: '데모 사용자' } },
+          ],
+          demo: true,
+        });
+      }
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
+
     // DB에서 관리자 확인 (세션에서 확인 안 된 경우)
     if (!isAdmin) {
       const { data: currentUser } = await supabaseAdmin

@@ -68,6 +68,17 @@ export async function POST(req: NextRequest) {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
 
+    // Supabase 미설정시 결제 성공만 반환
+    if (!supabaseAdmin) {
+      console.log('[Payment Demo] Plan update skipped (no Supabase)');
+      return NextResponse.json({
+        success: true,
+        plan: planType,
+        expiresAt: expiresAt.toISOString(),
+        demo: true,
+      });
+    }
+
     // Supabase에 결제 정보 및 플랜 업데이트
     const { error: updateError } = await supabaseAdmin
       .from('profiles')

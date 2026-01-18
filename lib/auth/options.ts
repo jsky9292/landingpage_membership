@@ -2,7 +2,7 @@ import { AuthOptions } from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { supabaseAdmin } from '@/lib/db/supabase';
+import { createServerClient } from '@/lib/supabase/client';
 
 // 데모 계정 (개발/테스트용)
 const DEMO_USERS = [
@@ -74,7 +74,6 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.provider = account?.provider;
-        token.role = (user as any).role || 'user';
       }
       return token;
     },
@@ -83,50 +82,47 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).provider = token.provider;
-        (session.user as any).role = token.role || 'user';
       }
       return session;
     },
     async signIn({ user, account }) {
+      console.log('[Auth] User signed in:', {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        provider: account?.provider,
+      });
+
+      // Supabase에 사용자 정보 저장/업데이트
       try {
-        // Supabase에 사용자 정보 저장/업데이트 (데모 계정 포함)
-        if (user.email) {
-          const isDemoAccount = account?.provider === 'demo-login';
-          const demoUser = isDemoAccount ? DEMO_USERS.find(u => u.email === user.email) : null;
+        const supabase = createServerClient() as any;
 
-          const { error } = await supabaseAdmin
-            .from('profiles')
-            .upsert({
-              id: user.id,
-              email: user.email,
-              name: user.name || null,
-              avatar_url: user.image || null,
-              kakao_linked: account?.provider === 'kakao',
-              kakao_id: account?.provider === 'kakao' ? account.providerAccountId : null,
-              plan: 'free', // 신규 가입 시 무료 플랜
-              role: demoUser?.role || 'user', // 데모 계정은 role 저장
-            }, {
-              onConflict: 'email',
-              ignoreDuplicates: false,
-            });
+        // 데모 계정인 경우 role 설정
+        const demoUser = DEMO_USERS.find(u => u.email === user.email);
+        const role = demoUser?.role || 'user';
 
-          if (error) {
-            console.error('[Auth] Error saving user to Supabase:', error);
-          }
+        const { error } = await supabase
+          .from('users')
+          .upsert({
+            email: user.email,
+            name: user.name || user.email?.split('@')[0],
+            avatar_url: user.image,
+            role: role,
+          }, {
+            onConflict: 'email',
+            ignoreDuplicates: false,
+          });
+
+        if (error) {
+          console.error('[Auth] Failed to upsert user:', error);
+        } else {
+          console.log('[Auth] User synced to Supabase');
         }
-
-        console.log('[Auth] User signed in:', {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          provider: account?.provider,
-        });
-
-        return true;
-      } catch (error) {
-        console.error('[Auth] Sign in error:', error);
-        return true; // 에러가 발생해도 로그인은 허용
+      } catch (err) {
+        console.error('[Auth] Supabase sync error:', err);
       }
+
+      return true;
     },
   },
   session: {

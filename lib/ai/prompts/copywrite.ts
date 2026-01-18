@@ -81,6 +81,8 @@ ${analysisResult}
 
 ## 출력 형식
 다음 JSON 형식으로 각 섹션별 카피를 생성하세요:
+- 각 섹션에 imageKeyword(영문)를 포함하여 해당 섹션에 어울리는 이미지를 검색할 수 있도록 해요.
+- imageKeyword는 Unsplash 검색에 사용되므로 구체적인 영문 키워드로 작성해요 (예: "online course laptop", "success business meeting")
 
 {
   "title": "페이지 제목 - 결과 중심으로 (예: 월 300만원 강의 수익 시스템)",
@@ -89,6 +91,7 @@ ${analysisResult}
       "id": "hero",
       "type": "hero",
       "order": 0,
+      "imageKeyword": "영문 이미지 검색 키워드 (예: successful entrepreneur laptop)",
       "content": {
         "badge": "희소성 뱃지 (예: 7기 모집 중 · 잔여 12석)",
         "headline": "결과 헤드라인 (예: 블로그 하나 없이\\n월 300만원 강의 수익을 만든 방법)",
@@ -101,6 +104,7 @@ ${analysisResult}
       "emojiImage": "/emojis/곤란한남자.png",
       "type": "pain",
       "order": 1,
+      "imageKeyword": "frustrated person thinking problem",
       "content": {
         "label": "공감 질문 (예: 혹시 이런 상황 아니세요?)",
         "title": "상황 요약 (예: 강의 열고 싶은데, 막막하시죠)",
@@ -116,6 +120,7 @@ ${analysisResult}
       "emojiImage": "/emojis/느낌표남자.png",
       "type": "solution",
       "order": 2,
+      "imageKeyword": "breakthrough moment success lightbulb",
       "content": {
         "label": "공감 표현 (예: 저도 똑같았어요)",
         "title": "전환점 (예: 근데 딱 한 가지를 바꿨더니)",
@@ -128,6 +133,7 @@ ${analysisResult}
       "emojiImage": "/emojis/웃는남자.png",
       "type": "benefits",
       "order": 3,
+      "imageKeyword": "happy success achievement celebration",
       "content": {
         "label": "기간 명시 (예: 4주 후 달라지는 것들)",
         "title": "변화 요약 (예: 이런 변화가 생겨요)",
@@ -143,6 +149,7 @@ ${analysisResult}
       "id": "process",
       "type": "process",
       "order": 4,
+      "imageKeyword": "step by step process workflow",
       "content": {
         "label": "기간 표시 (예: 4주 커리큘럼)",
         "title": "진행 안내 (예: 이렇게 진행돼요)",
@@ -158,6 +165,7 @@ ${analysisResult}
       "id": "philosophy",
       "type": "philosophy",
       "order": 5,
+      "imageKeyword": "professional expert knowledge wisdom",
       "content": {
         "label": "이유 질문 (예: 왜 효과가 있을까요?)",
         "title": "핵심 논리 (예: 광고비 0원으로 매달 문의 오는 이유)",
@@ -173,6 +181,7 @@ ${analysisResult}
       "emojiImage": "/emojis/하트남자.png",
       "type": "cta",
       "order": 6,
+      "imageKeyword": "action now opportunity decision",
       "content": {
         "headline": "마감/희소성 (예: 7기 마감까지 3일 남았어요)",
         "subtext": "추가 혜택 (예: 다음 기수는 2달 뒤예요.\\n지금 신청하면 1:1 피드백 추가 제공.)",
@@ -183,6 +192,7 @@ ${analysisResult}
       "id": "form",
       "type": "form",
       "order": 7,
+      "imageKeyword": "contact form registration signup",
       "content": {
         "title": "신청 제목 (예: 7기 참여 신청)",
         "subtitle": "안심 문구 (예: 신청서 작성 후 24시간 내 안내 문자 드려요)",

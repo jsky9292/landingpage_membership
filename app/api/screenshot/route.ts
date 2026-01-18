@@ -62,6 +62,16 @@ export async function POST(request: NextRequest) {
 
       await browser.close();
 
+      // Supabase 미설정시 base64로 반환
+      if (!supabaseAdmin) {
+        const base64 = Buffer.from(screenshotBuffer).toString('base64');
+        return NextResponse.json({
+          success: true,
+          thumbnail: `data:image/jpeg;base64,${base64}`,
+          demo: true,
+        });
+      }
+
       // Upload to Supabase Storage
       const filename = `screenshots/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
 

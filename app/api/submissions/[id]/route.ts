@@ -20,6 +20,22 @@ export async function PATCH(
     const body = await request.json();
     const { status, memo } = body;
 
+    // Supabase 미설정시 데모 모드 처리
+    if (!supabaseAdmin) {
+      if (submissionId.startsWith('sub-')) {
+        // 데모 submission 업데이트 성공 응답
+        return NextResponse.json({
+          submission: {
+            id: submissionId,
+            status: status || 'new',
+            memo: memo || '',
+            updated_at: new Date().toISOString(),
+          },
+        });
+      }
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+    }
+
     const supabase = supabaseAdmin;
 
     // 현재 사용자 조회

@@ -1,411 +1,263 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
-interface PageStats {
-  id: string;
-  title: string;
-  slug: string;
-  status: 'draft' | 'published';
-  viewCount: number;
-  submissionCount: number;
-  newSubmissionCount: number;
-  createdAt: string;
+interface DashboardData {
+  stats: { totalPages: number; totalSubmissions: number; newSubmissions: number; conversionRate: number };
+  pages: Array<{ id: string; title: string; slug: string; status: string; viewCount: number; submissionCount: number; newSubmissionCount: number; createdAt: string }>;
+  plan: { id: string; name: string; pageLimit: number; pagesRemaining: number };
+  isAdmin: boolean;
 }
 
-interface DashboardStats {
-  totalPages: number;
-  totalSubmissions: number;
-  newSubmissions: number;
-  conversionRate: number;
-}
-
-interface PlanInfo {
-  id: string;
-  name: string;
-  pageLimit: number;
-  pagesRemaining: number;
-}
-
-// 사용 가능한 플랜 목록
-const availablePlans = [
-  { id: 'free', name: '무료', pages: 1 },
-  { id: 'starter', name: '스타터', pages: 1 },
-  { id: 'pro', name: '프로', pages: 3 },
-  { id: 'unlimited', name: '무제한', pages: -1 },
-  { id: 'agency', name: '대행사', pages: -1 },
+const notices = [
+  { id: '1', important: true, title: '랜딩페이지 메이커 정식 오픈!', content: 'AI가 자동으로 카피라이팅을 작성해주는 랜딩페이지 제작 서비스입니다.', date: '2025. 01. 11.' },
+  { id: '2', important: false, title: 'AI 카피라이팅 기능 업데이트', content: '더욱 자연스러운 카피를 생성할 수 있도록 업그레이드 되었습니다.', date: '2025. 01. 10.' },
 ];
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalPages: 0,
-    totalSubmissions: 0,
-    newSubmissions: 0,
-    conversionRate: 0,
-  });
-  const [pages, setPages] = useState<PageStats[]>([]);
-  const [plan, setPlan] = useState<PlanInfo>({
-    id: 'free',
-    name: '무료',
-    pageLimit: 1,
-    pagesRemaining: 1,
-  });
+  const { data: session } = useSession();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showPlanDropdown, setShowPlanDropdown] = useState(false);
-  const [changingPlan, setChangingPlan] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const userName = session?.user?.name || '사용자';
+  const userRole = (session?.user as any)?.role || 'user';
+  const isAdmin = userRole === 'admin';
 
-  // 드롭다운 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowPlanDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  useEffect(() => { fetchData(); fetchPoints(); }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchData = async () => {
     try {
-      setLoading(true);
       const res = await fetch('/api/dashboard');
-
-      if (!res.ok) {
-        console.error('Failed to fetch dashboard data');
-        return;
-      }
-
-      const data = await res.json();
-      setStats(data.stats);
-      setPages(data.pages || []);
-      if (data.plan) {
-        setPlan(data.plan);
-      }
-      if (data.isAdmin !== undefined) {
-        setIsAdmin(data.isAdmin);
-      }
-    } catch (error) {
-      console.error('Dashboard fetch error:', error);
-    } finally {
-      setLoading(false);
-    }
+      if (res.ok) setData(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  // 관리자용 플랜 변경 함수
-  const handlePlanChange = async (newPlanId: string) => {
-    if (changingPlan) return;
-
+  const fetchPoints = async () => {
     try {
-      setChangingPlan(true);
-      const res = await fetch('/api/user/plan', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: newPlanId }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        alert(errorData.error || '플랜 변경에 실패했습니다.');
-        return;
+      const res = await fetch('/api/points');
+      if (res.ok) {
+        const data = await res.json();
+        setPoints(data.points || 0);
       }
-
-      // 성공 시 대시보드 새로고침
-      await fetchDashboardData();
-      setShowPlanDropdown(false);
-      alert('플랜이 변경되었습니다.');
-    } catch (error) {
-      console.error('Plan change error:', error);
-      alert('플랜 변경 중 오류가 발생했습니다.');
-    } finally {
-      setChangingPlan(false);
-    }
+    } catch (e) { console.error(e); }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#0064FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#4E5968]">로딩중...</p>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#fff' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #3182F6', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* 환영 메시지 + 플랜 정보 */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#191F28]">내 대시보드</h1>
-          <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요</p>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#fff' }}>
+      {/* 사이드바 */}
+      <aside style={{
+        width: collapsed ? 72 : 240,
+        background: '#fff',
+        borderRight: '1px solid #F2F4F6',
+        position: 'fixed',
+        left: 0, top: 0, bottom: 0,
+        transition: 'width 0.15s ease',
+        zIndex: 100,
+      }}>
+        {/* 로고 */}
+        <div style={{ padding: collapsed ? '24px 0' : '24px 20px', textAlign: collapsed ? 'center' : 'left' }}>
+          <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#3182F6' }}>
+              {collapsed ? 'L' : '랜딩메이커'}
+            </span>
+          </Link>
         </div>
-        <div className="bg-white border border-gray-200 rounded-2xl px-6 py-4">
-          <div className="flex items-center gap-4">
-            <div>
-              <p className="text-sm text-[#4E5968]">
-                현재 플랜 {isAdmin && <span className="text-[#0064FF]">(관리자)</span>}
-              </p>
-              <p className="text-lg font-bold text-[#191F28]">
-                {plan.name}
-                <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
-                  plan.id === 'free' ? 'bg-gray-100 text-gray-600' :
-                  plan.id === 'pro' ? 'bg-[#E8F3FF] text-[#0064FF]' :
-                  plan.id === 'unlimited' ? 'bg-purple-100 text-purple-600' :
-                  'bg-green-100 text-green-600'
-                }`}>
-                  {plan.pageLimit === -1 ? '무제한' : `${stats.totalPages}/${plan.pageLimit}개`}
-                </span>
-              </p>
+
+        {/* 유저 정보 */}
+        {!collapsed && (
+          <div style={{ padding: '16px 20px', borderTop: '1px solid #F2F4F6', borderBottom: '1px solid #F2F4F6' }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#191F28', margin: 0 }}>{userName}</p>
+            <p style={{ fontSize: 13, color: '#3182F6', fontWeight: 500, margin: '4px 0 0' }}>{points.toLocaleString()}P</p>
+          </div>
+        )}
+
+        {/* 메뉴 */}
+        <nav style={{ padding: '16px 12px' }}>
+          <MenuItem label="공지사항" href="#notices" badge={notices.length} collapsed={collapsed} />
+          <MenuItem label="대시보드" href="/dashboard" active collapsed={collapsed} />
+          <MenuItem label="내 페이지" href="/pages" collapsed={collapsed} />
+          <MenuItem label="고객 신청" href="/submissions" badge={data?.stats.newSubmissions || 0} collapsed={collapsed} />
+          <MenuItem label="페이지 만들기" href="/create/free" isNew collapsed={collapsed} />
+          <MenuItem label="샘플" href="/samples" collapsed={collapsed} />
+          <MenuItem label="콘텐츠 생성" href="/content" isNew collapsed={collapsed} />
+          <div style={{ height: 1, background: '#F2F4F6', margin: '16px 0' }} />
+          <MenuItem label="포인트 충전" href="/points" collapsed={collapsed} />
+          <MenuItem label="친구 초대" href="/referral" isNew collapsed={collapsed} />
+          <MenuItem label="설정" href="/settings" collapsed={collapsed} />
+          {isAdmin && <MenuItem label="관리자" href="/admin" collapsed={collapsed} />}
+        </nav>
+
+        {/* 접기 */}
+        <button onClick={() => setCollapsed(!collapsed)} style={{
+          position: 'absolute', right: -14, top: 60,
+          width: 28, height: 28, background: '#fff', border: '1px solid #E5E8EB',
+          borderRadius: '50%', cursor: 'pointer', fontSize: 12, color: '#8B95A1',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        }}>
+          {collapsed ? '→' : '←'}
+        </button>
+      </aside>
+
+      {/* 메인 */}
+      <main style={{ flex: 1, marginLeft: collapsed ? 72 : 240, transition: 'margin 0.15s ease' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
+
+          {/* 공지사항 */}
+          <section id="notices" style={{ marginBottom: 32 }}>
+            <div style={{ background: '#3182F6', borderRadius: '16px 16px 0 0', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ color: '#fff', fontSize: 15, fontWeight: 600 }}>공지사항</span>
+              {isAdmin && <Link href="/admin/notices" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, textDecoration: 'none' }}>관리 →</Link>}
             </div>
-
-            {/* 관리자: 플랜 변경 드롭다운 */}
-            {isAdmin ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setShowPlanDropdown(!showPlanDropdown)}
-                  className="text-sm bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                  disabled={changingPlan}
-                >
-                  {changingPlan ? '변경 중...' : '플랜 변경'}
-                  <span className="text-xs">▼</span>
-                </button>
-
-                {showPlanDropdown && (
-                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[160px]">
-                    {availablePlans.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => handlePlanChange(p.id)}
-                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 first:rounded-t-xl last:rounded-b-xl transition-colors ${
-                          plan.id === p.id ? 'bg-[#E8F3FF] text-[#0064FF] font-medium' : 'text-[#191F28]'
-                        }`}
-                      >
-                        {p.name}
-                        <span className="text-xs text-[#4E5968] ml-2">
-                          ({p.pages === -1 ? '무제한' : `${p.pages}개`})
-                        </span>
-                      </button>
-                    ))}
+            <div style={{ background: '#fff', border: '1px solid #E5E8EB', borderTop: 'none', borderRadius: '0 0 16px 16px' }}>
+              {notices.map((n, i) => (
+                <div key={n.id} style={{ padding: '16px 20px', borderBottom: i < notices.length - 1 ? '1px solid #F2F4F6' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    {n.important && <span style={{ background: '#FFF0F0', color: '#FF4D4D', padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600 }}>중요</span>}
+                    <span style={{ fontSize: 15, fontWeight: 600, color: '#191F28' }}>{n.title}</span>
                   </div>
-                )}
-              </div>
-            ) : plan.id === 'free' ? (
-              <Link
-                href="/pricing"
-                className="text-sm bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                업그레이드
-              </Link>
-            ) : null}
-          </div>
-
-          {/* 관리자 바로가기 */}
-          {isAdmin && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link
-                href="/admin"
-                className="text-sm text-[#0064FF] hover:underline"
-              >
-                관리자 대시보드 →
-              </Link>
+                  <p style={{ fontSize: 14, color: '#6B7684', margin: '4px 0', lineHeight: 1.5 }}>{n.content}</p>
+                  <span style={{ fontSize: 12, color: '#ADB5BD' }}>{n.date}</span>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-      </div>
+          </section>
 
-      {/* 통계 카드 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatsCard
-          label="내 페이지"
-          value={stats.totalPages.toString()}
-          suffix="개"
-        />
-        <StatsCard
-          label="총 신청"
-          value={stats.totalSubmissions.toString()}
-          suffix="건"
-        />
-        <StatsCard
-          label="새 신청"
-          value={stats.newSubmissions.toString()}
-          suffix="건"
-          highlight
-        />
-        <StatsCard
-          label="전환율"
-          value={stats.conversionRate.toFixed(1)}
-          suffix="%"
-        />
-      </div>
+          {/* 헤더 */}
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#191F28', margin: 0 }}>대시보드</h1>
+            <p style={{ fontSize: 14, color: '#6B7684', margin: '4px 0 0' }}>{userName}님, 환영합니다</p>
+          </div>
 
-      {/* 새 신청 알림 */}
-      {stats.newSubmissions > 0 && (
-        <div className="bg-[#E8F3FF] border border-[#0064FF]/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-bold text-[#191F28]">
-                새로운 신청 {stats.newSubmissions}건
-              </p>
-              <p className="text-sm text-[#4E5968]">
-                지금 바로 확인하고 연락해보세요
-              </p>
+          {/* 통계 */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+            <Link href="/points" style={{ textDecoration: 'none' }}>
+              <Card label="포인트 잔액" value={points.toLocaleString()} unit="P" highlight clickable />
+            </Link>
+            <Card label="새 신청" value={data?.stats.newSubmissions || 0} unit="건" />
+            <Card label="총 신청" value={data?.stats.totalSubmissions || 0} unit="건" />
+            <Card label="내 페이지" value={data?.stats.totalPages || 0} unit="개" />
+          </div>
+
+          {/* 신청 현황 */}
+          <div style={{ background: '#fff', border: '1px solid #E5E8EB', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#191F28', margin: 0 }}>고객 신청 현황</h3>
+              <Link href="/submissions" style={{ fontSize: 13, color: '#3182F6', textDecoration: 'none' }}>전체보기</Link>
             </div>
-            <Link
-              href="/pages"
-              className="bg-[#0064FF] hover:bg-[#0050CC] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              확인하기
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* 내 페이지 목록 */}
-      {pages.length > 0 ? (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-[#191F28]">내 페이지</h2>
-            <Link
-              href="/pages"
-              className="text-sm text-[#0064FF] hover:underline"
-            >
-              전체 보기 →
-            </Link>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              <Status label="새 신청" value={data?.stats.newSubmissions || 0} color="#3182F6" bg="#E8F3FF" />
+              <Status label="연락함" value={0} color="#FF9F43" bg="#FFF4E6" />
+              <Status label="완료" value={0} color="#20C997" bg="#E6FCF5" />
+              <Status label="취소" value={0} color="#FF6B6B" bg="#FFF0F0" />
+            </div>
           </div>
 
-          <div className="grid gap-4">
-            {pages.slice(0, 5).map((page) => (
-              <PageCard key={page.id} page={page} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-          <div className="w-16 h-16 bg-[#E8F3FF] rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-[#0064FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-[#191F28] mb-2">
-            첫 랜딩페이지를 만들어보세요
-          </h3>
-          <p className="text-[#4E5968] mb-6">
-            AI가 완벽한 마케팅 카피를 만들어드려요
-          </p>
-          <Link
-            href="/create/free"
-            className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
-          >
-            새 페이지 만들기
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 통계 카드 컴포넌트
-function StatsCard({
-  label,
-  value,
-  suffix,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  suffix: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-5 ${
-        highlight
-          ? 'bg-[#0064FF] text-white'
-          : 'bg-white border border-gray-200'
-      }`}
-    >
-      <p
-        className={`text-sm ${
-          highlight ? 'text-white/80' : 'text-[#4E5968]'
-        }`}
-      >
-        {label}
-      </p>
-      <p className="text-2xl font-bold mt-2">
-        {value}
-        <span className="text-base font-normal ml-1">{suffix}</span>
-      </p>
-    </div>
-  );
-}
-
-// 페이지 카드 컴포넌트
-function PageCard({ page }: { page: PageStats }) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
-  return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-bold text-[#191F28]">{page.title}</h3>
-            {page.status === 'published' ? (
-              <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                게시중
-              </span>
+          {/* 최근 작업 */}
+          <div style={{ background: '#fff', border: '1px solid #E5E8EB', borderRadius: 16, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #F2F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#191F28', margin: 0 }}>최근 작업</h3>
+              <Link href="/pages" style={{ fontSize: 14, color: '#3182F6', textDecoration: 'none' }}>전체보기 →</Link>
+            </div>
+            {(data?.pages?.length || 0) > 0 ? (
+              data?.pages.slice(0, 5).map((p) => (
+                <div key={p.id} style={{ padding: '14px 20px', borderBottom: '1px solid #F2F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{
+                      padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                      background: p.status === 'published' ? '#E6FCF5' : '#F2F4F6',
+                      color: p.status === 'published' ? '#20C997' : '#6B7684',
+                    }}>{p.status === 'published' ? '게시중' : '임시저장'}</span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#191F28' }}>{p.title}</span>
+                    {p.newSubmissionCount > 0 && (
+                      <span style={{ background: '#FFF0F0', color: '#FF6B6B', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 600 }}>NEW</span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 13, color: '#ADB5BD' }}>{new Date(p.createdAt).toLocaleDateString('ko-KR')}</span>
+                    <Link href={`/pages/${p.id}`} style={{ padding: '6px 12px', background: '#F2F4F6', color: '#4E5968', borderRadius: 8, fontSize: 13, textDecoration: 'none' }}>관리</Link>
+                  </div>
+                </div>
+              ))
             ) : (
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                임시저장
-              </span>
-            )}
-            {page.newSubmissionCount > 0 && (
-              <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full font-medium">
-                새 신청 {page.newSubmissionCount}건
-              </span>
+              <div style={{ padding: '48px 20px', textAlign: 'center' }}>
+                <p style={{ fontSize: 15, color: '#6B7684', marginBottom: 16 }}>아직 만든 페이지가 없어요</p>
+                <Link href="/create/free" style={{
+                  display: 'inline-block', padding: '12px 24px',
+                  background: '#3182F6', color: '#fff', borderRadius: 12,
+                  fontSize: 15, fontWeight: 600, textDecoration: 'none',
+                }}>첫 페이지 만들기</Link>
+              </div>
             )}
           </div>
-
-          <div className="flex items-center gap-4 text-sm text-[#4E5968]">
-            <span>조회 {page.viewCount.toLocaleString()}</span>
-            <span>신청 {page.submissionCount}건</span>
-            <span>{formatDate(page.createdAt)}</span>
-          </div>
         </div>
+      </main>
 
-        <div className="flex items-center gap-2">
-          {page.status === 'published' && (
-            <a
-              href={`/p/${page.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-2 text-sm text-[#4E5968] hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              미리보기
-            </a>
-          )}
-          <Link
-            href={`/pages/${page.id}`}
-            className="px-3 py-2 text-sm bg-[#E8F3FF] text-[#0064FF] rounded-lg hover:bg-[#D4E9FF] transition-colors font-medium"
-          >
-            관리하기
-          </Link>
+      <style>{`
+        @media (max-width: 1024px) { aside { display: none !important; } main { margin-left: 0 !important; } }
+        @media (max-width: 640px) { main > div > div:nth-child(4) { grid-template-columns: repeat(2, 1fr) !important; } }
+      `}</style>
+    </div>
+  );
+}
+
+function MenuItem({ label, href, active, badge, isNew, collapsed }: any) {
+  return (
+    <Link href={href} style={{
+      display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between',
+      padding: '10px 12px', borderRadius: 8, marginBottom: 2, textDecoration: 'none',
+      background: active ? '#E8F3FF' : 'transparent',
+      color: active ? '#3182F6' : '#4E5968',
+    }}>
+      <span style={{ fontSize: 14, fontWeight: active ? 600 : 400 }}>{collapsed ? label.charAt(0) : label}</span>
+      {!collapsed && (isNew || badge) && (
+        <div style={{ display: 'flex', gap: 4 }}>
+          {isNew && <span style={{ background: '#3182F6', color: '#fff', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600 }}>NEW</span>}
+          {badge && <span style={{ background: '#F2F4F6', color: '#6B7684', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>{badge}</span>}
         </div>
-      </div>
+      )}
+    </Link>
+  );
+}
+
+function Card({ label, value, unit, highlight, clickable }: { label: string; value: number | string; unit: string; highlight?: boolean; clickable?: boolean }) {
+  return (
+    <div style={{
+      background: highlight ? '#3182F6' : '#fff',
+      border: highlight ? 'none' : '1px solid #E5E8EB',
+      borderRadius: 16, padding: 20,
+      cursor: clickable ? 'pointer' : 'default',
+      transition: clickable ? 'transform 0.2s, box-shadow 0.2s' : 'none',
+    }}>
+      <p style={{ fontSize: 13, color: highlight ? 'rgba(255,255,255,0.8)' : '#6B7684', margin: '0 0 8px' }}>{label}</p>
+      <p style={{ fontSize: 28, fontWeight: 700, color: highlight ? '#fff' : '#191F28', margin: 0 }}>
+        {value}<span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>{unit}</span>
+      </p>
+      {clickable && highlight && (
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: '8px 0 0' }}>충전하기</p>
+      )}
+    </div>
+  );
+}
+
+function Status({ label, value, color = '#6B7684', bg = '#F2F4F6' }: { label: string; value: number; color?: string; bg?: string }) {
+  return (
+    <div style={{ background: bg, borderRadius: 12, padding: '14px 12px', textAlign: 'center' }}>
+      <p style={{ fontSize: 12, color: '#6B7684', margin: '0 0 4px' }}>{label}</p>
+      <p style={{ fontSize: 22, fontWeight: 700, color, margin: 0 }}>{value}</p>
     </div>
   );
 }

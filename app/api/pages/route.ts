@@ -24,6 +24,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Supabase가 설정되지 않은 경우 데모 응답
+    if (!supabaseAdmin) {
+      const demoSlug = slug || `demo-${Date.now().toString(36)}`;
+      return NextResponse.json({
+        success: true,
+        page: {
+          id: `demo-${Date.now()}`,
+          slug: demoSlug,
+          title,
+          status: 'published',
+        },
+        demo: true,
+        message: 'Supabase가 설정되지 않아 데모 모드로 실행됩니다.',
+      });
+    }
+
     const userEmail = session.user.email;
 
     // profiles 테이블에서 사용자 조회
@@ -108,6 +124,38 @@ export async function GET() {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Supabase가 설정되지 않은 경우 데모 데이터 반환
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        pages: [
+          {
+            id: 'demo-page-1',
+            title: '다이어트 프로그램 상담',
+            slug: 'diet-program',
+            topic: 'health',
+            status: 'published',
+            view_count: 245,
+            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            submission_count: 12,
+            new_submission_count: 2,
+          },
+          {
+            id: 'demo-page-2',
+            title: '무료 상담 신청',
+            slug: 'free-consultation',
+            topic: 'consulting',
+            status: 'draft',
+            view_count: 89,
+            created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            updated_at: new Date().toISOString(),
+            submission_count: 3,
+            new_submission_count: 1,
+          },
+        ],
+      });
     }
 
     const userEmail = session.user.email;

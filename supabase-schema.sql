@@ -3,29 +3,7 @@
 -- =====================================================
 -- 이 SQL을 Supabase SQL Editor에서 실행하세요.
 
--- 1. 사용자 프로필 테이블 (profiles)
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  name TEXT,
-  phone TEXT,
-  avatar_url TEXT,
-  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-  plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'starter', 'pro', 'enterprise')),
-  plan_expires_at TIMESTAMPTZ,
-  kakao_linked BOOLEAN DEFAULT FALSE,
-  kakao_id TEXT,
-  kakao_phone TEXT,
-  notify_kakao BOOLEAN DEFAULT TRUE,
-  notify_email BOOLEAN DEFAULT TRUE,
-  notify_sms BOOLEAN DEFAULT FALSE,
-  api_settings JSONB DEFAULT '{}'::jsonb,
-  crm_settings JSONB DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 기존 users 테이블 호환 (선택적)
+-- 1. 사용자 테이블
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
@@ -46,6 +24,7 @@ CREATE TABLE IF NOT EXISTS landing_pages (
   content JSONB NOT NULL DEFAULT '{}',
   status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
   view_count INTEGER DEFAULT 0,
+  company_name TEXT, -- 업체명 (개인정보 동의서에 사용)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   published_at TIMESTAMPTZ
@@ -83,11 +62,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 6. 업데이트 트리거 적용
-DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
-CREATE TRIGGER profiles_updated_at
-  BEFORE UPDATE ON profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-
 DROP TRIGGER IF EXISTS users_updated_at ON users;
 CREATE TRIGGER users_updated_at
   BEFORE UPDATE ON users
@@ -104,22 +78,11 @@ CREATE TRIGGER submissions_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- 7. RLS (Row Level Security) 정책
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE landing_pages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE submissions ENABLE ROW LEVEL SECURITY;
 
--- profiles 테이블: 사용자는 자신의 프로필만 조회/수정 가능
-CREATE POLICY "Profiles: view own" ON profiles
-  FOR SELECT USING (auth.uid()::text = id::text OR role = 'admin');
-
-CREATE POLICY "Profiles: update own" ON profiles
-  FOR UPDATE USING (auth.uid()::text = id::text);
-
-CREATE POLICY "Profiles: insert own" ON profiles
-  FOR INSERT WITH CHECK (auth.uid()::text = id::text);
-
--- users 테이블 (호환용): 사용자는 자신의 정보만 조회/수정 가능
+-- 사용자는 자신의 정보만 조회/수정 가능
 CREATE POLICY "Users can view own profile" ON users
   FOR SELECT USING (auth.uid()::text = id::text OR role = 'admin');
 

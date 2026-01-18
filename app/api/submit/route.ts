@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // 알림톡 발송 함수 (추후 실제 API 연동)
 async function sendKakaoAlimtalk(phone: string, templateId: string, variables: Record<string, string>) {
@@ -71,10 +71,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createServerClient() as any;
+    // Supabase 미설정시 데모 모드
+    if (!supabaseAdmin) {
+      console.log('[Demo] Form submission:', { pageId, name, phone });
+      return NextResponse.json({
+        success: true,
+        message: '신청이 완료되었습니다!',
+        submissionId: `demo-${Date.now()}`,
+        redirect: {
+          type: 'thankyou',
+          thankYou: {
+            title: '신청이 완료되었습니다!',
+            message: '빠른 시일 내에 연락드리겠습니다.',
+          },
+        },
+        demo: true,
+      });
+    }
 
     // 페이지 및 CRM 설정 조회
-    const { data: page, error: pageError } = await supabase
+    const { data: page, error: pageError } = await supabaseAdmin
       .from('landing_pages')
       .select('id, title, status, user_id, crm_settings')
       .eq('id', pageId)
@@ -89,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 신청 데이터 저장
-    const { data: submission, error: submitError } = await supabase
+    const { data: submission, error: submitError } = await supabaseAdmin
       .from('submissions')
       .insert({
         page_id: pageId,

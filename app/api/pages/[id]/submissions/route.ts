@@ -17,6 +17,30 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Supabase 미설정시 데모 데이터
+    if (!supabaseAdmin) {
+      if (pageId.startsWith('demo-')) {
+        const demoSubmissions = pageId === 'demo-page-1' ? [
+          { id: 'sub-1', page_id: pageId, name: '김철수', phone: '010-1234-5678', email: 'kim@example.com', message: '다이어트 상담 받고 싶습니다.', status: 'new', memo: '', created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+          { id: 'sub-2', page_id: pageId, name: '이영희', phone: '010-2345-6789', email: 'lee@example.com', message: '프로그램 가격이 궁금합니다.', status: 'contacted', memo: '전화 완료', created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+          { id: 'sub-3', page_id: pageId, name: '박지민', phone: '010-3456-7890', email: '', message: '', status: 'done', memo: '등록 완료', created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+        ] : [
+          { id: 'sub-4', page_id: pageId, name: '홍길동', phone: '010-9876-5432', email: 'hong@example.com', message: '무료 상담 신청합니다.', status: 'new', memo: '', created_at: new Date().toISOString() },
+        ];
+        return NextResponse.json({
+          page: {
+            id: pageId,
+            title: pageId === 'demo-page-1' ? '다이어트 프로그램 상담' : '무료 상담 신청',
+            slug: pageId === 'demo-page-1' ? 'diet-program' : 'free-consultation',
+            status: pageId === 'demo-page-1' ? 'published' : 'draft',
+            view_count: pageId === 'demo-page-1' ? 245 : 89,
+          },
+          submissions: demoSubmissions,
+        });
+      }
+      return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+    }
+
     const supabase = supabaseAdmin;
 
     // 현재 사용자 조회

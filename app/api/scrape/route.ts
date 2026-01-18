@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     const sessionRole = (session.user as any)?.role;
     let isPro = sessionRole === 'admin';
 
-    // If not admin, check plan from DB
-    if (!isPro) {
+    // If not admin, check plan from DB (if Supabase is configured)
+    if (!isPro && supabaseAdmin) {
       const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('id, plan')
@@ -34,8 +34,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Demo mode - allow admin from session
+    if (!supabaseAdmin && !isPro) {
+      return NextResponse.json(
+        { error: 'Pro plan required' },
+        { status: 403 }
+      );
+    }
+
     // Only Pro or Admin allowed
-    if (!isPro) {
+    if (!isPro && supabaseAdmin) {
       return NextResponse.json(
         { error: 'Pro plan required' },
         { status: 403 }

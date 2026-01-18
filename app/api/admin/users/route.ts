@@ -1,201 +1,157 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
 import { createServerClient } from '@/lib/supabase/client';
 
-// 관리자용 - 전체 사용자 목록 및 통계 조회
-export async function GET() {
+// 회원 목록 조회 (관리자 전용)
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 세션에서 role 확인 (데모 계정용)
-    const sessionRole = (session.user as any).role;
+    const supabase = createServerClient() as any;
 
-    // 현재 사용자가 관리자인지 확인 (세션에서 먼저 체크)
-    let isAdmin = sessionRole === 'admin';
+    // 현재 사용자가 관리자인지 확인
+    const { data: currentUser } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('email', session.user.email)
+      .single();
 
-    // Supabase 연결 시도
-    let supabase: any;
-    try {
-      supabase = createServerClient();
-    } catch (e) {
-      console.error('Supabase client error:', e);
-      // DB 연결 실패 시 데모 관리자면 빈 데이터 반환
-      if (isAdmin) {
-        return NextResponse.json({
-          stats: {
-            totalUsers: 0,
-            totalPages: 0,
-            totalSubmissions: 0,
-            newSubmissions: 0,
-            totalViews: 0,
-            conversionRate: 0,
-          },
-          users: [],
-          message: 'Database not configured',
-        });
-      }
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
-    }
-
-    // DB에서 관리자 확인 (세션에서 확인 안 된 경우만)
-    if (!isAdmin) {
-      try {
-        const { data: currentUser } = await supabase
-          .from('profiles')
-          .select('id, role')
-          .eq('email', session.user.email)
-          .single();
-
-        isAdmin = currentUser?.role === 'admin';
-      } catch (e) {
-        console.error('Admin check error:', e);
-      }
-    }
-
-    if (!isAdmin) {
+    if (!currentUser || currentUser.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 
-    // 전체 사용자 목록 조회 (profiles 테이블에서)
-    const { data: users, error: usersError } = await supabase
-      .from('profiles')
-      .select('id, email, name, role, plan, created_at, avatar_url, kakao_linked')
+    // 검색 파라미터
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search') || '';
+    const role = searchParams.get('role') || 'all';
+
+    // 회원 목록 조회
+    let query = supabase
+      .from('users')
+      .select('id, email, name, avatar_url, role, created_at, updated_at')
       .order('created_at', { ascending: false });
 
-    if (usersError) {
-      console.error('Users fetch error:', usersError);
-      // DB 오류 시 빈 데이터 반환 (관리자인 경우)
-      return NextResponse.json({
-        stats: {
-          totalUsers: 0,
-          totalPages: 0,
-          totalSubmissions: 0,
-          newSubmissions: 0,
-          totalViews: 0,
-          conversionRate: 0,
-        },
-        users: [],
-        message: 'Database query failed: ' + usersError.message,
-      });
+    // 역할 필터
+    if (role !== 'all') {
+      query = query.eq('role', role);
     }
 
-    // 각 사용자별 페이지 수와 신청 수 조회
-    const userIds = users?.map((u: any) => u.id) || [];
+    // 검색 필터 (이름 또는 이메일)
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+    }
 
-    // 사용자별 페이지 통계
-    const { data: pageStats } = await supabase
+    const { data: users, error } = await query;
+
+    if (error) {
+      console.error('Users query error:', error);
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+    }
+
+    // 각 사용자의 페이지 수 조회
+    const userIds = (users || []).map((u: any) => u.id);
+    const { data: pageCounts } = await supabase
       .from('landing_pages')
-      .select('user_id, id, status, view_count')
+      .select('user_id')
       .in('user_id', userIds);
 
-    // 전체 신청 통계 (페이지별)
-    const pageIds = pageStats?.map((p: any) => p.id) || [];
-    const { data: submissions } = await supabase
-      .from('submissions')
-      .select('id, page_id, status, created_at')
-      .in('page_id', pageIds);
-
-    // 통계 계산
-    const userStatsMap = new Map();
-
-    // 페이지 통계 집계
-    pageStats?.forEach((page: any) => {
-      if (!userStatsMap.has(page.user_id)) {
-        userStatsMap.set(page.user_id, {
-          totalPages: 0,
-          publishedPages: 0,
-          totalViews: 0,
-          totalSubmissions: 0,
-          newSubmissions: 0,
-        });
-      }
-      const stats = userStatsMap.get(page.user_id);
-      stats.totalPages++;
-      if (page.status === 'published') stats.publishedPages++;
-      stats.totalViews += page.view_count || 0;
+    // 페이지 수 집계
+    const pageCountMap = new Map();
+    (pageCounts || []).forEach((p: any) => {
+      pageCountMap.set(p.user_id, (pageCountMap.get(p.user_id) || 0) + 1);
     });
 
-    // 신청 통계 집계
-    const pageToUserMap = new Map();
-    pageStats?.forEach((p: any) => pageToUserMap.set(p.id, p.user_id));
+    // 응답 데이터 가공
+    const usersWithStats = (users || []).map((user: any) => ({
+      id: user.id,
+      email: user.email,
+      name: user.name || '이름 없음',
+      avatarUrl: user.avatar_url,
+      role: user.role,
+      pageCount: pageCountMap.get(user.id) || 0,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    }));
 
-    submissions?.forEach((sub: any) => {
-      const userId = pageToUserMap.get(sub.page_id);
-      if (userId && userStatsMap.has(userId)) {
-        const stats = userStatsMap.get(userId);
-        stats.totalSubmissions++;
-        if (sub.status === 'new') stats.newSubmissions++;
-      }
-    });
-
-    // 사용자 데이터에 통계 추가
-    const usersWithStats = users?.map((user: any) => {
-      const stats = userStatsMap.get(user.id) || {
-        totalPages: 0,
-        publishedPages: 0,
-        totalViews: 0,
-        totalSubmissions: 0,
-        newSubmissions: 0,
-      };
-
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        plan: user.plan || 'free',
-        createdAt: user.created_at,
-        lastLoginAt: user.last_login_at,
-        ...stats,
-        conversionRate: stats.totalViews > 0
-          ? Math.round((stats.totalSubmissions / stats.totalViews) * 1000) / 10
-          : 0,
-      };
-    }) || [];
-
-    // 전체 통계
-    const totalUsers = users?.length || 0;
-    const totalPages = pageStats?.length || 0;
-    const totalSubmissions = submissions?.length || 0;
-    const newSubmissions = submissions?.filter((s: any) => s.status === 'new').length || 0;
-    const totalViews = pageStats?.reduce((sum: number, p: any) => sum + (p.view_count || 0), 0) || 0;
+    // 통계
+    const stats = {
+      totalUsers: usersWithStats.length,
+      adminCount: usersWithStats.filter((u: any) => u.role === 'admin').length,
+      userCount: usersWithStats.filter((u: any) => u.role === 'user').length,
+    };
 
     return NextResponse.json({
-      stats: {
-        totalUsers,
-        totalPages,
-        totalSubmissions,
-        newSubmissions,
-        totalViews,
-        conversionRate: totalViews > 0 ? Math.round((totalSubmissions / totalViews) * 1000) / 10 : 0,
-      },
       users: usersWithStats,
+      stats,
     });
   } catch (error) {
     console.error('Admin users API error:', error);
-    // 에러 발생 시에도 데모 관리자라면 빈 데이터 반환
-    const session = await getServerSession(authOptions).catch(() => null);
-    const sessionRole = (session?.user as any)?.role;
-    if (sessionRole === 'admin') {
-      return NextResponse.json({
-        stats: {
-          totalUsers: 0,
-          totalPages: 0,
-          totalSubmissions: 0,
-          newSubmissions: 0,
-          totalViews: 0,
-          conversionRate: 0,
-        },
-        users: [],
-        message: 'Error occurred but admin access granted',
-      });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// 회원 역할 변경 (관리자 전용)
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const supabase = createServerClient() as any;
+
+    // 현재 사용자가 관리자인지 확인
+    const { data: currentUser } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('email', session.user.email)
+      .single();
+
+    if (!currentUser || currentUser.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { userId, role } = body;
+
+    if (!userId || !role) {
+      return NextResponse.json({ error: 'userId and role are required' }, { status: 400 });
+    }
+
+    if (!['user', 'admin'].includes(role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    }
+
+    // 자기 자신의 역할은 변경 불가
+    if (userId === currentUser.id) {
+      return NextResponse.json({ error: 'Cannot change own role' }, { status: 400 });
+    }
+
+    // 역할 업데이트
+    const { data: updatedUser, error } = await supabase
+      .from('users')
+      .update({ role })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Role update error:', error);
+      return NextResponse.json({ error: 'Failed to update role' }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Admin users PATCH error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

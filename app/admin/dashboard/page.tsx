@@ -3,68 +3,55 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-interface UserStats {
+interface PageStats {
   id: string;
-  email: string;
-  name: string | null;
-  totalPages: number;
-  publishedPages: number;
-  totalSubmissions: number;
-  newSubmissions: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  viewCount: number;
+  submissionCount: number;
+  newSubmissionCount: number;
   createdAt: string;
+  userName?: string;
 }
 
-interface AdminStats {
-  totalUsers: number;
+interface DashboardStats {
   totalPages: number;
   totalSubmissions: number;
   newSubmissions: number;
-  totalViews: number;
   conversionRate: number;
 }
 
-export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<AdminStats>({
-    totalUsers: 0,
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({
     totalPages: 0,
     totalSubmissions: 0,
     newSubmissions: 0,
-    totalViews: 0,
     conversionRate: 0,
   });
-  const [recentUsers, setRecentUsers] = useState<UserStats[]>([]);
+  const [pages, setPages] = useState<PageStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/admin/users');
-
-      if (res.status === 403) {
-        setIsAdmin(false);
-        return;
+    async function fetchDashboard() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/dashboard');
+        if (!res.ok) {
+          throw new Error('데이터를 불러오는데 실패했습니다.');
+        }
+        const data = await res.json();
+        setStats(data.stats);
+        setPages(data.pages || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
       }
-
-      if (!res.ok) {
-        console.error('Failed to fetch admin data');
-        return;
-      }
-
-      const data = await res.json();
-      setIsAdmin(true);
-      setStats(data.stats);
-      setRecentUsers(data.users.slice(0, 5)); // 최근 5명만
-    } catch (error) {
-      console.error('Dashboard fetch error:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+    fetchDashboard();
+  }, []);
 
   if (loading) {
     return (
@@ -77,23 +64,12 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!isAdmin) {
+  if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="text-6xl mb-4">🔐</div>
-          <h3 className="text-xl font-bold text-[#191F28] mb-2">
-            관리자 권한이 필요합니다
-          </h3>
-          <p className="text-[#4E5968] mb-6">
-            이 페이지는 관리자만 접근할 수 있습니다.
-          </p>
-          <Link
-            href="/dashboard"
-            className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
-          >
-            내 대시보드로 이동
-          </Link>
+          <div className="text-4xl mb-4">⚠️</div>
+          <p className="text-red-500">{error}</p>
         </div>
       </div>
     );
@@ -103,29 +79,17 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       {/* 환영 메시지 */}
       <div>
-        <h1 className="text-2xl font-bold text-[#191F28]">관리자 대시보드 🛠️</h1>
-        <p className="text-[#4E5968] mt-1">플랫폼 전체 현황을 한눈에 확인하세요.</p>
+        <h1 className="text-2xl font-bold text-[#191F28]">안녕하세요! 👋</h1>
+        <p className="text-[#4E5968] mt-1">오늘도 새로운 고객을 만나보세요.</p>
       </div>
 
       {/* 통계 카드 */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <StatsCard
-          icon="👥"
-          label="전체 사용자"
-          value={stats.totalUsers.toString()}
-          suffix="명"
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatsCard
           icon="📄"
-          label="전체 페이지"
+          label="내 페이지"
           value={stats.totalPages.toString()}
           suffix="개"
-        />
-        <StatsCard
-          icon="👁️"
-          label="총 조회수"
-          value={stats.totalViews.toLocaleString()}
-          suffix=""
         />
         <StatsCard
           icon="📬"
@@ -142,7 +106,7 @@ export default function AdminDashboardPage() {
         />
         <StatsCard
           icon="📈"
-          label="평균 전환율"
+          label="전환율"
           value={stats.conversionRate.toFixed(1)}
           suffix="%"
         />
@@ -159,7 +123,7 @@ export default function AdminDashboardPage() {
                   새로운 신청이 {stats.newSubmissions}건 있어요!
                 </p>
                 <p className="text-sm text-[#4E5968]">
-                  전체 플랫폼에서 처리되지 않은 신청입니다.
+                  지금 바로 확인하고 연락해보세요.
                 </p>
               </div>
             </div>
@@ -173,59 +137,43 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 빠른 액션 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <QuickActionCard
-          icon="👥"
-          title="사용자 관리"
-          description="전체 사용자 목록 보기"
-          href="/admin/users"
-        />
-        <QuickActionCard
-          icon="📄"
-          title="페이지 관리"
-          description="전체 페이지 목록 보기"
-          href="/admin/pages"
-        />
-        <QuickActionCard
-          icon="➕"
-          title="새 페이지 만들기"
-          description="랜딩페이지 생성"
-          href="/create/free"
-        />
-        <QuickActionCard
-          icon="⚙️"
-          title="설정"
-          description="플랫폼 설정 관리"
-          href="/admin/settings"
-        />
-      </div>
-
-      {/* 최근 가입 사용자 */}
+      {/* 내 페이지 목록 */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#191F28]">최근 가입 사용자</h2>
+          <h2 className="text-lg font-bold text-[#191F28]">내 페이지</h2>
           <Link
-            href="/admin/users"
+            href="/admin/pages"
             className="text-sm text-[#0064FF] hover:underline"
           >
             전체 보기 →
           </Link>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-          {recentUsers.length > 0 ? (
-            recentUsers.map((user) => (
-              <UserRow key={user.id} user={user} />
-            ))
-          ) : (
-            <div className="text-center py-16">
-              <span className="text-4xl mb-4 block">👥</span>
-              <p className="text-[#4E5968]">등록된 사용자가 없습니다.</p>
-            </div>
-          )}
+        <div className="grid gap-4">
+          {pages.map((page) => (
+            <PageCard key={page.id} page={page} />
+          ))}
         </div>
       </div>
+
+      {/* 빈 상태 - 페이지가 없을 때 */}
+      {pages.length === 0 && (
+        <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+          <span className="text-6xl mb-4 block">🚀</span>
+          <h3 className="text-xl font-bold text-[#191F28] mb-2">
+            첫 랜딩페이지를 만들어보세요!
+          </h3>
+          <p className="text-[#4E5968] mb-6">
+            AI가 프롬프트 하나로 완벽한 마케팅 카피를 만들어드려요.
+          </p>
+          <Link
+            href="/create/free"
+            className="inline-block bg-[#0064FF] hover:bg-[#0050CC] text-white px-6 py-3 rounded-xl font-medium transition-colors"
+          >
+            + 새 페이지 만들기
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
@@ -246,89 +194,78 @@ function StatsCard({
 }) {
   return (
     <div
-      className={`rounded-2xl p-4 ${
+      className={`rounded-2xl p-5 ${
         highlight
           ? 'bg-[#0064FF] text-white'
           : 'bg-white border border-gray-200'
       }`}
     >
-      <span className="text-xl">{icon}</span>
+      <span className="text-2xl">{icon}</span>
       <p
-        className={`text-xs mt-2 ${
+        className={`text-sm mt-2 ${
           highlight ? 'text-white/80' : 'text-[#4E5968]'
         }`}
       >
         {label}
       </p>
-      <p className="text-xl font-bold mt-1">
+      <p className="text-2xl font-bold mt-1">
         {value}
-        <span className="text-sm font-normal ml-1">{suffix}</span>
+        <span className="text-base font-normal ml-1">{suffix}</span>
       </p>
     </div>
   );
 }
 
-// 빠른 액션 카드 컴포넌트
-function QuickActionCard({
-  icon,
-  title,
-  description,
-  href,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  href: string;
-}) {
+// 페이지 카드 컴포넌트
+function PageCard({ page }: { page: PageStats }) {
   return (
-    <Link
-      href={href}
-      className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-[#0064FF]/30 transition-all"
-    >
-      <span className="text-3xl">{icon}</span>
-      <h3 className="font-bold text-[#191F28] mt-3">{title}</h3>
-      <p className="text-sm text-[#4E5968] mt-1">{description}</p>
-    </Link>
-  );
-}
+    <div className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-bold text-[#191F28]">{page.title}</h3>
+            {page.status === 'published' ? (
+              <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                게시중
+              </span>
+            ) : (
+              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                임시저장
+              </span>
+            )}
+            {page.newSubmissionCount > 0 && (
+              <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full font-medium">
+                새 신청 {page.newSubmissionCount}건
+              </span>
+            )}
+          </div>
 
-// 사용자 행 컴포넌트
-function UserRow({ user }: { user: UserStats }) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
-  return (
-    <Link
-      href={`/admin/users/${user.id}`}
-      className="flex items-center justify-between px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-    >
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-[#E8F3FF] rounded-full flex items-center justify-center text-lg">
-          👤
+          <div className="flex items-center gap-4 text-sm text-[#4E5968]">
+            <span>👁️ {page.viewCount.toLocaleString()}</span>
+            <span>📬 {page.submissionCount}건</span>
+            <span>📅 {page.createdAt}</span>
+          </div>
         </div>
-        <div>
-          <p className="font-medium text-[#191F28]">{user.name || '이름 없음'}</p>
-          <p className="text-sm text-[#4E5968]">{user.email}</p>
+
+        <div className="flex items-center gap-2">
+          {page.status === 'published' && (
+            <a
+              href={`/p/${page.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 text-sm text-[#4E5968] hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              미리보기
+            </a>
+          )}
+          <Link
+            href={`/admin/pages/${page.id}`}
+            className="px-3 py-2 text-sm bg-[#E8F3FF] text-[#0064FF] rounded-lg hover:bg-[#D4E9FF] transition-colors font-medium"
+          >
+            관리하기
+          </Link>
         </div>
       </div>
-      <div className="flex items-center gap-6 text-sm">
-        <div className="text-center">
-          <p className="font-medium text-[#191F28]">{user.totalPages}</p>
-          <p className="text-xs text-[#4E5968]">페이지</p>
-        </div>
-        <div className="text-center">
-          <p className="font-medium text-[#191F28]">{user.totalSubmissions}</p>
-          <p className="text-xs text-[#4E5968]">신청</p>
-        </div>
-        <div className="text-[#4E5968]">
-          {formatDate(user.createdAt)}
-        </div>
-      </div>
-    </Link>
+    </div>
   );
 }

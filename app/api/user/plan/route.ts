@@ -28,6 +28,16 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
+    // Supabase 미설정시 데모 모드
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        success: true,
+        message: 'Demo mode - plan updated',
+        plan: plan || 'free',
+        demo: true,
+      });
+    }
+
     const { data: profile, error: userError } = await supabaseAdmin
       .from('profiles')
       .select('id, plan')
