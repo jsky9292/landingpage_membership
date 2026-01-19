@@ -23,6 +23,8 @@ const themeColors: Record<string, string> = {
   slate: '#475569',
 };
 
+// 기본 OG 이미지 생성기
+// 커스텀 OG 이미지는 layout.tsx의 generateMetadata에서 처리 (더 안정적)
 export default async function Image({ params }: Props) {
   const { slug } = await params;
 

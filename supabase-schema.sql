@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS landing_pages (
   status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
   view_count INTEGER DEFAULT 0,
   company_name TEXT, -- 업체명 (개인정보 동의서에 사용)
+  og_image TEXT, -- 명함/홍보용 OG 이미지 URL (링크 공유시 미리보기에 표시)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   published_at TIMESTAMPTZ

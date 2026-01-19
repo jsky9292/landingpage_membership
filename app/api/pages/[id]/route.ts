@@ -81,6 +81,7 @@ export async function GET(
         sections: page.sections || [],
         formFields: page.form_fields || [],
         contactInfo: page.contact_info || {},
+        ogImage: page.og_image || null, // 명함/홍보용 OG 이미지
         viewCount: page.view_count || 0,
         createdAt: page.created_at,
         updatedAt: page.updated_at,
@@ -106,7 +107,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, sections, formFields, theme, status, contactInfo } = body;
+    const { title, sections, formFields, theme, status, contactInfo, ogImage } = body;
 
     // Supabase 미설정시 데모 모드
     if (!supabaseAdmin) {
@@ -155,6 +156,7 @@ export async function PUT(
     if (theme !== undefined) updateData.theme = theme;
     if (status !== undefined) updateData.status = status;
     if (contactInfo !== undefined) updateData.contact_info = contactInfo;
+    if (ogImage !== undefined) updateData.og_image = ogImage; // 명함/홍보용 OG 이미지
 
     // 업데이트
     const { data: updated, error: updateError } = await supabaseAdmin
@@ -180,6 +182,7 @@ export async function PUT(
         sections: updated.sections,
         formFields: updated.form_fields,
         contactInfo: updated.contact_info || {},
+        ogImage: updated.og_image || null,
         updatedAt: updated.updated_at,
       },
     });

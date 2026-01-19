@@ -43,6 +43,14 @@ SET plan = 'agency', plan_pages_limit = -1
 WHERE role = 'admin';
 
 -- =====================================================
+-- 6. landing_pages 테이블에 og_image 컬럼 추가 (명함/홍보 이미지)
+-- =====================================================
+ALTER TABLE landing_pages
+ADD COLUMN IF NOT EXISTS og_image TEXT;
+
+COMMENT ON COLUMN landing_pages.og_image IS '명함/홍보용 OG 이미지 URL (링크 공유시 미리보기에 표시)';
+
+-- =====================================================
 -- 플랜별 기능 설명:
 --
 -- free (무료):

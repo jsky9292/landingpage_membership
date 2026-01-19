@@ -1,53 +1,63 @@
 import { Metadata } from 'next';
-import { createServerClient } from '@/lib/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 
 type Props = {
   params: Promise<{ slug: string }>;
   children: React.ReactNode;
 };
 
+// 동적 메타데이터 생성 - OG 이미지 직접 설정
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  // 기본 메타데이터
   let title = '랜딩페이지';
-  let description = '랜딩메이커로 만든 랜딩페이지';
+  let description = '';
+  let ogImageUrl: string | null = null;
 
   try {
-    const supabase = createServerClient() as any;
-    const { data: page } = await supabase
-      .from('landing_pages')
-      .select('title, sections')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (page) {
-      title = page.title || '랜딩페이지';
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
 
-      // hero 섹션에서 subtext 가져오기
-      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
-      if (heroSection?.content?.subtext) {
-        description = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 150);
-      } else if (heroSection?.content?.headline) {
-        description = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 150);
+      const { data: page } = await supabase
+        .from('landing_pages')
+        .select('title, sections, og_image')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+
+      if (page) {
+        title = page.title || '랜딩페이지';
+
+        // 사용자 지정 OG 이미지가 있으면 사용
+        if (page.og_image && (page.og_image.startsWith('http://') || page.og_image.startsWith('https://'))) {
+          ogImageUrl = page.og_image;
+        }
+
+        // Hero 섹션에서 description 추출
+        const heroSection = page.sections?.find((s: { type: string }) => s.type === 'hero');
+        if (heroSection?.content?.subtext) {
+          description = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 160);
+        }
       }
     }
   } catch (e) {
     console.error('Metadata generation error:', e);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://landingpage-membership3.vercel.app';
-  const ogImageUrl = `${baseUrl}/p/${slug}/opengraph-image`;
-
-  return {
+  // 기본 메타데이터
+  const metadata: Metadata = {
     title,
-    description,
-    openGraph: {
+    description: description || title + ' - 랜딩메이커',
+  };
+
+  // 사용자 지정 OG 이미지가 있으면 직접 설정 (opengraph-image.tsx 대신)
+  if (ogImageUrl) {
+    metadata.openGraph = {
       title,
-      description,
-      type: 'website',
-      locale: 'ko_KR',
+      description: description || title + ' - 랜딩메이커',
       images: [
         {
           url: ogImageUrl,
@@ -56,14 +66,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: title,
         },
       ],
-    },
-    twitter: {
+    };
+    metadata.twitter = {
       card: 'summary_large_image',
       title,
-      description,
+      description: description || title + ' - 랜딩메이커',
       images: [ogImageUrl],
-    },
-  };
+    };
+  }
+
+  return metadata;
 }
 
 export default function PublicPageLayout({ children }: Props) {
