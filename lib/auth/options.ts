@@ -14,6 +14,19 @@ function isAdminEmail(email: string | null | undefined): boolean {
   return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
+// 추천인 코드 생성 (8자리 영문숫자)
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// 초기 지급 포인트
+const INITIAL_POINTS = 1000;
+
 export const authOptions: AuthOptions = {
   providers: [
     // 카카오 로그인
@@ -60,15 +73,35 @@ export const authOptions: AuthOptions = {
       try {
         const supabase = createServerClient() as any;
 
+        // 기존 사용자 확인
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id, referral_code, points')
+          .eq('email', user.email)
+          .single();
+
         // 관리자 이메일 확인
         const role = isAdminEmail(user.email) ? 'admin' : 'user';
-        const userData = {
+
+        // 새 사용자인 경우 추천 코드와 초기 포인트 설정
+        const isNewUser = !existingProfile;
+        const referralCode = existingProfile?.referral_code || generateReferralCode();
+
+        const userData: Record<string, unknown> = {
           email: user.email,
           name: user.name || user.email?.split('@')[0],
           avatar_url: user.image,
           role: role,
           plan: role === 'admin' ? 'agency' : 'free',
         };
+
+        // 새 사용자인 경우 추가 필드 설정
+        if (isNewUser) {
+          userData.referral_code = referralCode;
+          userData.points = INITIAL_POINTS;
+          userData.referral_count = 0;
+          userData[`${account?.provider}_linked`] = true;
+        }
 
         // users 테이블에 저장
         const { error: usersError } = await supabase
@@ -94,7 +127,21 @@ export const authOptions: AuthOptions = {
           console.error('[Auth] Failed to upsert to profiles:', profilesError);
         }
 
-        console.log('[Auth] User synced to Supabase, role:', role);
+        // 새 사용자인 경우 포인트 히스토리 기록
+        if (isNewUser) {
+          await supabase
+            .from('point_history')
+            .insert({
+              user_id: existingProfile?.id,
+              type: 'bonus',
+              amount: INITIAL_POINTS,
+              balance: INITIAL_POINTS,
+              description: `가입 축하 포인트 ${INITIAL_POINTS}P`,
+              metadata: { type: 'signup', provider: account?.provider },
+            });
+        }
+
+        console.log('[Auth] User synced to Supabase, role:', role, 'isNew:', isNewUser);
       } catch (err) {
         console.error('[Auth] Supabase sync error:', err);
       }

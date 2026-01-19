@@ -6,14 +6,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const isValidSupabaseUrl = supabaseUrl && !supabaseUrl.includes('your-project');
+const isValidAnonKey = supabaseAnonKey && supabaseAnonKey.length > 10;
+const isValidServiceKey = supabaseServiceKey && supabaseServiceKey.length > 10;
 
 // 브라우저용 클라이언트 (anon key)
-export const supabase: SupabaseClient | null = isValidSupabaseUrl
+export const supabase: SupabaseClient | null = isValidSupabaseUrl && isValidAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
 // 서버용 클라이언트 (service role key - 서버 사이드에서만 사용)
-export const supabaseAdmin: SupabaseClient | null = isValidSupabaseUrl
+export const supabaseAdmin: SupabaseClient | null = isValidSupabaseUrl && isValidServiceKey
   ? createClient(supabaseUrl, supabaseServiceKey)
   : null;
 

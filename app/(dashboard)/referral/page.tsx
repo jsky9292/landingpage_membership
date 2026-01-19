@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Script from 'next/script';
+
+declare global {
+  interface Window {
+    Kakao: any;
+  }
+}
 
 interface ReferralData {
   referralCode: string;
@@ -16,6 +23,17 @@ export default function ReferralPage() {
   const [data, setData] = useState<ReferralData | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [kakaoReady, setKakaoReady] = useState(false);
+
+  // Kakao SDK 초기화
+  const initKakao = () => {
+    if (typeof window !== 'undefined' && window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY || '');
+      setKakaoReady(true);
+    } else if (window.Kakao?.isInitialized()) {
+      setKakaoReady(true);
+    }
+  };
 
   useEffect(() => {
     if (session) {
@@ -46,6 +64,36 @@ export default function ReferralPage() {
   const shareLink = typeof window !== 'undefined'
     ? `${window.location.origin}/signup?ref=${data?.referralCode || ''}`
     : '';
+
+  // 카카오톡 공유
+  const shareToKakao = () => {
+    if (!window.Kakao || !window.Kakao.isInitialized()) {
+      alert('카카오톡 공유 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    window.Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: '랜딩메이커 - 2줄로 랜딩페이지 완성!',
+        description: '내 추천 코드로 가입하면 너와 나 모두 1,000P 받아요!',
+        imageUrl: 'https://landingpage-membership3.vercel.app/opengraph-image',
+        link: {
+          mobileWebUrl: shareLink,
+          webUrl: shareLink,
+        },
+      },
+      buttons: [
+        {
+          title: '가입하고 1,000P 받기',
+          link: {
+            mobileWebUrl: shareLink,
+            webUrl: shareLink,
+          },
+        },
+      ],
+    });
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ko-KR', {
@@ -227,59 +275,42 @@ export default function ReferralPage() {
         </div>
       </div>
 
-      {/* 공유 버튼들 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 12,
-        marginBottom: 32,
-      }}>
+      {/* 카카오톡 공유 버튼 */}
+      <div style={{ marginBottom: 32 }}>
         <button
-          onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(shareLink)}&text=${encodeURIComponent('랜딩페이지 AI 메이커에서 무료로 랜딩페이지를 만들어보세요! 내 코드로 가입하면 1000P 드려요.')}`, '_blank')}
+          onClick={shareToKakao}
+          disabled={!kakaoReady}
           style={{
-            padding: '14px',
-            background: '#0088CC',
-            color: '#fff',
+            width: '100%',
+            padding: '16px 24px',
+            background: '#FEE500',
+            color: '#191919',
             border: 'none',
             borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: 'pointer',
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: kakaoReady ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            opacity: kakaoReady ? 1 : 0.6,
           }}
         >
-          텔레그램 공유
-        </button>
-        <button
-          onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('랜딩페이지 AI 메이커에서 무료로 랜딩페이지를 만들어보세요! 내 코드로 가입하면 1000P 드려요. ' + shareLink)}`, '_blank')}
-          style={{
-            padding: '14px',
-            background: '#1DA1F2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          트위터 공유
-        </button>
-        <button
-          onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}`, '_blank')}
-          style={{
-            padding: '14px',
-            background: '#4267B2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          페이스북 공유
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 5.813 2 10.5c0 2.923 1.892 5.486 4.74 6.982-.21.787-.758 2.85-.868 3.29-.134.546.2.54.422.393.173-.116 2.752-1.873 3.868-2.631.6.089 1.22.136 1.838.136 5.523 0 10-3.813 10-8.5S17.523 2 12 2z" fill="#191919"/>
+          </svg>
+          카카오톡으로 공유하기
         </button>
       </div>
+
+      {/* Kakao SDK */}
+      <Script
+        src="https://t1.kakaocdn.net/kakao_js_sdk/2.5.0/kakao.min.js"
+        integrity="sha384-kYPsUbBPlktXsY6/oNHSUDZoTX6+YI51f63jCPEIPFP09ttByAdxd2mEjKuhdqn4"
+        crossOrigin="anonymous"
+        onLoad={initKakao}
+      />
 
       {/* 초대 내역 */}
       <div style={{

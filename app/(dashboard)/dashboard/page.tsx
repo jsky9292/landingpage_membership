@@ -147,9 +147,15 @@ export default function DashboardPage() {
             <Link href="/points" style={{ textDecoration: 'none' }}>
               <Card label="포인트 잔액" value={points.toLocaleString()} unit="P" highlight clickable />
             </Link>
-            <Card label="새 신청" value={data?.stats.newSubmissions || 0} unit="건" />
-            <Card label="총 신청" value={data?.stats.totalSubmissions || 0} unit="건" />
-            <Card label="내 페이지" value={data?.stats.totalPages || 0} unit="개" />
+            <Link href="/submissions?status=new" style={{ textDecoration: 'none' }}>
+              <Card label="새 신청" value={data?.stats.newSubmissions || 0} unit="건" clickable />
+            </Link>
+            <Link href="/submissions" style={{ textDecoration: 'none' }}>
+              <Card label="총 신청" value={data?.stats.totalSubmissions || 0} unit="건" clickable />
+            </Link>
+            <Link href="/pages" style={{ textDecoration: 'none' }}>
+              <Card label="내 페이지" value={data?.stats.totalPages || 0} unit="개" clickable />
+            </Link>
           </div>
 
           {/* 신청 현황 */}
@@ -234,14 +240,21 @@ function MenuItem({ label, href, active, badge, isNew, collapsed }: any) {
 }
 
 function Card({ label, value, unit, highlight, clickable }: { label: string; value: number | string; unit: string; highlight?: boolean; clickable?: boolean }) {
+  const [hover, setHover] = useState(false);
   return (
-    <div style={{
-      background: highlight ? '#3182F6' : '#fff',
-      border: highlight ? 'none' : '1px solid #E5E8EB',
-      borderRadius: 16, padding: 20,
-      cursor: clickable ? 'pointer' : 'default',
-      transition: clickable ? 'transform 0.2s, box-shadow 0.2s' : 'none',
-    }}>
+    <div
+      style={{
+        background: highlight ? '#3182F6' : '#fff',
+        border: highlight ? 'none' : '1px solid #E5E8EB',
+        borderRadius: 16, padding: 20,
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        transform: clickable && hover ? 'translateY(-2px)' : 'none',
+        boxShadow: clickable && hover ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+      }}
+      onMouseEnter={() => clickable && setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <p style={{ fontSize: 13, color: highlight ? 'rgba(255,255,255,0.8)' : '#6B7684', margin: '0 0 8px' }}>{label}</p>
       <p style={{ fontSize: 28, fontWeight: 700, color: highlight ? '#fff' : '#191F28', margin: 0 }}>
         {value}<span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>{unit}</span>

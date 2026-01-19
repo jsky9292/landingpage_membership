@@ -7,11 +7,9 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
     }
-
-    const userId = (session.user as any).id;
 
     // Supabase 미설정시 데모 데이터 반환
     if (!supabaseAdmin) {
@@ -27,23 +25,25 @@ export async function GET() {
       });
     }
 
-    // 사용자 추천 정보 조회
+    const userEmail = session.user.email;
+
+    // 이메일로 사용자 추천 정보 조회
     const { data: user, error: userError } = await supabaseAdmin
       .from('profiles')
-      .select('referral_code, referral_count')
-      .eq('id', userId)
+      .select('id, referral_code, referral_count')
+      .eq('email', userEmail)
       .single();
 
-    if (userError) {
+    if (userError || !user) {
       console.error('User fetch error:', userError);
       return NextResponse.json({ error: '사용자 정보를 불러올 수 없습니다.' }, { status: 500 });
     }
 
-    // 추천한 사용자 목록 조회
+    // 추천한 사용자 목록 조회 (user.id 사용)
     const { data: referrals } = await supabaseAdmin
       .from('profiles')
       .select('name, created_at')
-      .eq('referred_by', userId)
+      .eq('referred_by', user.id)
       .order('created_at', { ascending: false })
       .limit(20);
 

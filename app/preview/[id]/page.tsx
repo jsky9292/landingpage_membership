@@ -805,6 +805,7 @@ function ShareSettingsPanel({
   const [imageUrl, setImageUrl] = useState(ogImage);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -824,18 +825,33 @@ function ShareSettingsPanel({
     }
 
     setError('');
+    setUploading(true);
 
-    // 로컬 미리보기 (Base64)
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setImageUrl(dataUrl);
-      onOgImageChange(dataUrl);
-    };
-    reader.onerror = () => {
-      setError('파일 읽기 실패');
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Supabase Storage에 업로드
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/og-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || '업로드 실패');
+      }
+
+      // 공개 URL 설정
+      setImageUrl(result.url);
+      onOgImageChange(result.url);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : '업로드 실패');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleUrlSubmit = () => {
@@ -953,18 +969,19 @@ function ShareSettingsPanel({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
                 style={{
                   padding: '10px 16px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: '#0064FF',
+                  background: uploading ? '#9CA3AF' : '#0064FF',
                   color: '#fff',
                   fontSize: '13px',
                   fontWeight: '600',
-                  cursor: 'pointer',
+                  cursor: uploading ? 'not-allowed' : 'pointer',
                 }}
               >
-                파일 선택
+                {uploading ? '업로드 중...' : '파일 선택'}
               </button>
               <button
                 type="button"

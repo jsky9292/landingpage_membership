@@ -83,11 +83,9 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
     }
-
-    const userId = (session.user as any).id;
 
     // Supabase 미설정시 데모 데이터 반환
     if (!supabaseAdmin) {
@@ -97,11 +95,27 @@ export async function GET() {
       });
     }
 
-    // 사용자의 페이지 ID 목록 조회
+    const userEmail = session.user.email;
+
+    // profiles 테이블에서 사용자 ID 조회 (이메일 기반)
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json({
+        submissions: [],
+        total: 0,
+      });
+    }
+
+    // 사용자의 페이지 ID 목록 조회 (profile.id 사용)
     const { data: userPages } = await supabaseAdmin
       .from('landing_pages')
       .select('id, title')
-      .eq('user_id', userId);
+      .eq('user_id', profile.id);
 
     if (!userPages || userPages.length === 0) {
       return NextResponse.json({

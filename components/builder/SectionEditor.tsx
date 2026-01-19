@@ -90,13 +90,16 @@ export function SectionEditor({
   });
   const [showEmojiPicker, setShowEmojiPicker] = useState<{ index: number; category: keyof typeof EMOJI_CATEGORIES } | null>(null);
   const [showMediaInput, setShowMediaInput] = useState(false);
+  const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
 
+  // 섹션 ID가 변경될 때만 localContent를 리셋 (내용 변경 시에는 리셋 안함)
   useEffect(() => {
-    if (section) {
+    if (section && section.id !== currentSectionId) {
       setLocalContent(section.content);
       setLocalStyle(section.style || { titleFontSize: 28, textFontSize: 16 });
+      setCurrentSectionId(section.id);
     }
-  }, [section]);
+  }, [section, currentSectionId]);
 
   if (!section || !localContent) {
     return (
