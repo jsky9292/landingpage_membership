@@ -105,25 +105,25 @@ export function SectionRenderer({
 
     switch (section.type as SectionType) {
       case 'hero':
-        return (<><HeroSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{imageDisplay}</>);
+        return (<><HeroSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{imageDisplay}</>);
       case 'pain':
-        return (<>{imageDisplay}<PainSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<PainSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'solution':
-        return (<>{imageDisplay}<SolutionSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<SolutionSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'benefits':
-        return (<>{imageDisplay}<BenefitsSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<BenefitsSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'process':
-        return (<>{imageDisplay}<ProcessSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<ProcessSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'philosophy':
-        return (<>{imageDisplay}<PhilosophySection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<PhilosophySection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'video':
-        return (<>{imageDisplay}<VideoSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<VideoSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'calendar':
-        return (<>{imageDisplay}<CalendarSection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{imageDisplay}<CalendarSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'cta':
-        return (<>{imageDisplay}<CTASection content={section.content as any} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
+        return (<>{imageDisplay}<CTASection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
       case 'form':
-        return (<FormSection content={section.content as any} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} companyName={companyName} />);
+        return (<FormSection content={section.content as any} style={section.style} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} companyName={companyName} />);
       default:
         return null;
     }

@@ -23,17 +23,22 @@ export async function getUserApiSettings(): Promise<UserApiSettings | null> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
-    const { data: user, error } = await supabase
-      .from('users')
+
+    if (!supabase) {
+      return null;
+    }
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
       .select('api_settings')
       .eq('email', session.user.email)
       .single();
 
-    if (error || !user) {
+    if (error || !profile) {
       return null;
     }
 
-    return user.api_settings || null;
+    return profile.api_settings || null;
   } catch (error) {
     console.error('Failed to get user API settings:', error);
     return null;

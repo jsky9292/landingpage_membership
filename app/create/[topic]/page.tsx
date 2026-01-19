@@ -1705,7 +1705,6 @@ export default function CreatePage() {
   const [inputMode, setInputMode] = useState<'form' | 'free'>('form');
   const [freeText, setFreeText] = useState('');
   const [isDistributing, setIsDistributing] = useState(false);
-  const [userApiKey, setUserApiKey] = useState('');
 
   // 질문 개수만큼 답변 배열 초기화
   useEffect(() => {
@@ -1823,7 +1822,6 @@ export default function CreatePage() {
           tone: selectedTone,
           emojis: customEmojis,
           ctaButtonText,
-          userApiKey: userApiKey || undefined,
         }),
       });
 
@@ -2522,52 +2520,6 @@ export default function CreatePage() {
               />
               <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '6px' }}>
                 비워두면 AI가 자동으로 적절한 문구를 생성해요
-              </p>
-            </div>
-
-            {/* Gemini API 키 입력 */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
-                <span style={{ fontSize: '16px' }}>🔑</span>
-                Gemini API 키 (선택)
-              </label>
-              <input
-                type="password"
-                value={userApiKey}
-                onChange={(e) => setUserApiKey(e.target.value)}
-                placeholder="Google AI Studio에서 발급받은 API 키를 입력하세요"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  fontSize: '14px',
-                  border: '2px solid #E5E8EB',
-                  borderRadius: '10px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  background: '#FAFBFC',
-                  transition: 'all 0.2s',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#6366F1';
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#E5E8EB';
-                  e.currentTarget.style.background = '#FAFBFC';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
-              <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '6px' }}>
-                비워두면 시스템 기본 API 키를 사용합니다. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: '#6366F1' }}>API 키 발급받기</a>
               </p>
             </div>
 
