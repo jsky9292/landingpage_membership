@@ -23,14 +23,13 @@ const themeColors: Record<string, string> = {
   slate: '#475569',
 };
 
-// 기본 OG 이미지 생성기
-// 커스텀 OG 이미지는 layout.tsx의 generateMetadata에서 처리 (더 안정적)
 export default async function Image({ params }: Props) {
   const { slug } = await params;
 
   let title = '랜딩페이지';
   let subtitle = '';
   let primaryColor = '#0064FF';
+  let customOgImage: string | null = null;
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -45,7 +44,7 @@ export default async function Image({ params }: Props) {
 
     const { data: page, error } = await supabase
       .from('landing_pages')
-      .select('title, sections, theme')
+      .select('title, sections, theme, og_image')
       .eq('slug', slug)
       .eq('status', 'published')
       .single();
@@ -54,22 +53,58 @@ export default async function Image({ params }: Props) {
       console.error('OG Image Supabase error:', error.message);
     }
 
-    if (page?.title) {
-      title = page.title;
-
-      if (page.theme && themeColors[page.theme]) {
-        primaryColor = themeColors[page.theme];
+    if (page) {
+      // 사용자가 업로드한 명함/OG 이미지가 있으면 그것을 사용
+      if (page.og_image && (page.og_image.startsWith('http://') || page.og_image.startsWith('https://'))) {
+        customOgImage = page.og_image;
       }
 
-      const heroSection = page.sections?.find((s: any) => s.type === 'hero');
-      if (heroSection?.content?.subtext) {
-        subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 40);
-      } else if (heroSection?.content?.headline) {
-        subtitle = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 40);
+      if (page.title) {
+        title = page.title;
+
+        if (page.theme && themeColors[page.theme]) {
+          primaryColor = themeColors[page.theme];
+        }
+
+        const heroSection = page.sections?.find((s: any) => s.type === 'hero');
+        if (heroSection?.content?.subtext) {
+          subtitle = heroSection.content.subtext.replace(/\n/g, ' ').slice(0, 40);
+        } else if (heroSection?.content?.headline) {
+          subtitle = heroSection.content.headline.replace(/\n/g, ' ').slice(0, 40);
+        }
       }
     }
   } catch (e) {
     console.error('OG Image error:', e);
+  }
+
+  // 사용자 지정 OG 이미지가 있으면 해당 이미지를 표시
+  if (customOgImage) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#000',
+          }}
+        >
+          <img
+            src={customOgImage}
+            alt={title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
+      ),
+      { ...size }
+    );
   }
 
   return new ImageResponse(
