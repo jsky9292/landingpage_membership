@@ -1705,6 +1705,25 @@ export default function CreatePage() {
   const [inputMode, setInputMode] = useState<'form' | 'free'>('form');
   const [freeText, setFreeText] = useState('');
   const [isDistributing, setIsDistributing] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState<boolean | null>(null);
+
+  // API 키 보유 여부 확인
+  useEffect(() => {
+    const checkApiKey = async () => {
+      try {
+        const res = await fetch('/api/users/has-api-key');
+        const data = await res.json();
+        setHasApiKey(data.hasApiKey);
+      } catch {
+        setHasApiKey(false);
+      }
+    };
+    if (status === 'authenticated') {
+      checkApiKey();
+    } else {
+      setHasApiKey(false);
+    }
+  }, [status]);
 
   // 질문 개수만큼 답변 배열 초기화
   useEffect(() => {
@@ -1844,6 +1863,69 @@ export default function CreatePage() {
       setError(err.message || '오류가 발생했습니다');
       setIsLoading(false);
     }
+  };
+
+  // 템플릿으로 바로 만들기 (AI 없이)
+  const handleUseTemplate = () => {
+    // 사용량 체크
+    if (!canCreatePage) {
+      setShowLimitModal(true);
+      return;
+    }
+
+    // 기본 템플릿 데이터 생성
+    const defaultSections = ['hero', 'pain', 'solution', 'benefits', 'process', 'cta', 'form'];
+
+    const getDefaultContent = (type: string) => {
+      switch (type) {
+        case 'hero':
+          return { headline: '메인 제목을 입력하세요', subtext: '부제목을 입력하세요', cta: '신청하기' };
+        case 'pain':
+          return { title: '이런 고민 있으신가요?', items: [{ icon: '😰', text: '첫 번째 고민을 입력하세요' }, { icon: '😢', text: '두 번째 고민을 입력하세요' }, { icon: '😩', text: '세 번째 고민을 입력하세요' }] };
+        case 'solution':
+          return { title: '해결책', headline: '해결책 제목', description: '해결책 설명을 입력하세요' };
+        case 'benefits':
+          return { title: '혜택', items: [{ icon: '✨', title: '혜택 1', description: '첫 번째 혜택 설명' }, { icon: '🎯', title: '혜택 2', description: '두 번째 혜택 설명' }, { icon: '💡', title: '혜택 3', description: '세 번째 혜택 설명' }] };
+        case 'process':
+          return { title: '진행 방식', steps: [{ number: 1, title: '1단계', description: '첫 번째 단계 설명' }, { number: 2, title: '2단계', description: '두 번째 단계 설명' }, { number: 3, title: '3단계', description: '세 번째 단계 설명' }] };
+        case 'cta':
+          return { headline: '지금 바로 시작하세요', subtext: '특별 혜택을 놓치지 마세요', buttonText: '신청하기' };
+        case 'form':
+          return { title: '신청하기', buttonText: '제출하기' };
+        default:
+          return {};
+      }
+    };
+
+    const sections = defaultSections.map((type, index) => ({
+      id: `section-${Date.now()}-${index}`,
+      type,
+      content: getDefaultContent(type),
+      order: index,
+    }));
+
+    const formFields = [
+      { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
+      { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
+      { id: 'message', label: '문의사항', type: 'textarea', placeholder: '문의사항을 입력하세요', required: false },
+    ];
+
+    // 페이지 사용량 증가
+    incrementPages();
+
+    try {
+      localStorage.setItem('generatedPage', JSON.stringify({
+        topic,
+        prompt: '템플릿 사용',
+        sections,
+        formFields,
+        theme: 'toss',
+      }));
+    } catch (e) {
+      console.error('localStorage failed:', e);
+    }
+
+    router.push('/preview/new');
   };
 
   return (
@@ -2542,51 +2624,103 @@ export default function CreatePage() {
               </div>
             )}
 
-            {/* 생성 버튼 */}
-            <button
-              onClick={handleGenerate}
-              disabled={(inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading}
-              style={{
-                width: '100%',
-                padding: '18px',
-                fontSize: '16px',
-                fontWeight: '700',
-                color: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? '#8B95A1' : '#fff',
-                background: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
-                  ? '#E5E8EB'
-                  : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                boxShadow: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
-                  ? 'none'
-                  : '0 4px 15px rgba(99,102,241,0.35)',
-                transition: 'all 0.3s',
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <span style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    borderTopColor: '#fff',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                  }} />
-                  AI가 생성 중...
-                </>
-              ) : (
-                <>
-                  <span style={{ fontSize: '20px' }}>🚀</span>
-                  랜딩페이지 만들기
-                </>
+            {/* 생성 버튼 영역 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* API 키가 있으면 AI 생성 버튼 표시 */}
+              {hasApiKey && (
+                <button
+                  onClick={handleGenerate}
+                  disabled={(inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading}
+                  style={{
+                    width: '100%',
+                    padding: '18px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? '#8B95A1' : '#fff',
+                    background: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
+                      ? '#E5E8EB'
+                      : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading) ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    boxShadow: ((inputMode === 'free' ? !freeText.trim() : !answers.some(a => a.trim())) || isLoading)
+                      ? 'none'
+                      : '0 4px 15px rgba(99,102,241,0.35)',
+                    transition: 'all 0.3s',
+                  }}
+                >
+                  {isLoading ? (
+                    <>
+                      <span style={{
+                        width: '20px',
+                        height: '20px',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderTopColor: '#fff',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                      }} />
+                      AI가 생성 중...
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: '20px' }}>✨</span>
+                      AI로 카피라이팅 생성
+                    </>
+                  )}
+                </button>
               )}
-            </button>
+
+              {/* 템플릿으로 만들기 버튼 (항상 표시, API 키 없으면 메인 버튼) */}
+              <button
+                onClick={handleUseTemplate}
+                disabled={isLoading}
+                style={{
+                  width: '100%',
+                  padding: hasApiKey ? '14px' : '18px',
+                  fontSize: hasApiKey ? '14px' : '16px',
+                  fontWeight: '600',
+                  color: hasApiKey ? '#4B5563' : '#fff',
+                  background: hasApiKey ? '#F3F4F6' : 'linear-gradient(135deg, #0064FF 0%, #0050CC 100%)',
+                  border: hasApiKey ? '1px solid #E5E7EB' : 'none',
+                  borderRadius: '12px',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  boxShadow: hasApiKey ? 'none' : '0 4px 15px rgba(0,100,255,0.35)',
+                  transition: 'all 0.3s',
+                  opacity: isLoading ? 0.5 : 1,
+                }}
+              >
+                <span style={{ fontSize: hasApiKey ? '16px' : '20px' }}>📄</span>
+                {hasApiKey ? '템플릿으로 바로 만들기' : '템플릿으로 랜딩페이지 만들기'}
+              </button>
+
+              {/* API 키 없을 때 안내 메시지 */}
+              {hasApiKey === false && (
+                <div style={{
+                  padding: '12px 16px',
+                  background: '#FEF3C7',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  color: '#92400E',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                }}>
+                  <span>💡</span>
+                  <div>
+                    <strong>AI 카피라이팅을 사용하려면?</strong><br />
+                    <a href="/settings" style={{ color: '#0064FF', textDecoration: 'underline' }}>설정</a>에서 Google AI API 키를 등록하세요.
+                  </div>
+                </div>
+              )}
+            </div>
 
             {isLoading && (
               <div style={{

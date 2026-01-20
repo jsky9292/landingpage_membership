@@ -581,99 +581,60 @@ export default function SettingsPage() {
       <section className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-[#191F28] mb-2">AI API 설정</h2>
         <p className="text-sm text-[#4E5968] mb-6">
-          이미지 생성 및 카피라이팅에 사용할 AI 모델을 설정하세요.
+          AI 카피라이팅 기능을 사용하려면 본인의 Google AI API 키를 입력하세요.
         </p>
 
-        {/* 무료/유료 선택 */}
-        <div className="mb-6">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setApiSettings({ ...apiSettings, useOwnKey: false })}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                !apiSettings.useOwnKey
-                  ? 'border-[#0064FF] bg-[#E8F3FF]'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-              }`}
-            >
-              <div className="text-left">
-                <p className="font-bold text-[#191F28]">무료 버전</p>
-                <p className="text-sm text-[#4E5968] mt-1">
-                  기본 제공 API 사용<br />
-                  일일 3회 이미지 생성
-                </p>
-                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                  Free
-                </span>
-              </div>
-            </button>
-            <button
-              onClick={() => setApiSettings({ ...apiSettings, useOwnKey: true })}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                apiSettings.useOwnKey
-                  ? 'border-[#0064FF] bg-[#E8F3FF]'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-              }`}
-            >
-              <div className="text-left">
-                <p className="font-bold text-[#191F28]">유료 버전 (내 API 키)</p>
-                <p className="text-sm text-[#4E5968] mt-1">
-                  본인 API 키로 무제한 사용<br />
-                  모든 프리미엄 모델 지원
-                </p>
-                <span className="inline-block mt-2 px-2 py-1 bg-[#0064FF] text-white text-xs rounded-full">
-                  Premium
-                </span>
-              </div>
-            </button>
+        {/* API 키 입력 */}
+        <div className="space-y-4 p-4 bg-gray-50 rounded-xl mb-6">
+          <div>
+            <label className="block text-sm font-medium text-[#4E5968] mb-2">
+              Google AI API 키
+            </label>
+            {hasGeminiKey && !apiSettings.geminiApiKey && (
+              <p className="text-sm text-green-600 mb-2">✓ API 키가 저장되어 있습니다. 변경하려면 새 키를 입력하세요.</p>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={apiSettings.geminiApiKey}
+                onChange={(e) => setApiSettings({ ...apiSettings, geminiApiKey: e.target.value, useOwnKey: true })}
+                placeholder={hasGeminiKey ? '새 API 키를 입력하세요...' : 'AIza...'}
+                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0064FF]/20 focus:border-[#0064FF]"
+              />
+              <button
+                onClick={testApiKey}
+                disabled={isTestingKey || !apiSettings.geminiApiKey}
+                className="px-4 py-3 bg-[#0064FF] text-white rounded-xl hover:bg-[#0050CC] disabled:opacity-50 whitespace-nowrap"
+              >
+                {isTestingKey ? '테스트 중...' : '테스트'}
+              </button>
+            </div>
+            {keyTestResult === 'success' && (
+              <p className="text-sm text-green-600 mt-2">✓ API 키가 유효합니다!</p>
+            )}
+            {keyTestResult === 'error' && (
+              <p className="text-sm text-red-600 mt-2">✗ API 키가 유효하지 않습니다.</p>
+            )}
+            <p className="text-xs text-[#8B95A1] mt-2">
+              <a
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#0064FF] hover:underline"
+              >
+                Google AI Studio
+              </a>
+              에서 API 키를 발급받으세요.
+            </p>
           </div>
         </div>
 
-        {/* 유료 버전 선택 시 API 키 입력 */}
-        {apiSettings.useOwnKey && (
-          <div className="space-y-4 p-4 bg-gray-50 rounded-xl mb-6">
-            <div>
-              <label className="block text-sm font-medium text-[#4E5968] mb-2">
-                Google AI API 키
-              </label>
-              {hasGeminiKey && !apiSettings.geminiApiKey && (
-                <p className="text-sm text-green-600 mb-2">✓ API 키가 저장되어 있습니다. 변경하려면 새 키를 입력하세요.</p>
-              )}
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={apiSettings.geminiApiKey}
-                  onChange={(e) => setApiSettings({ ...apiSettings, geminiApiKey: e.target.value })}
-                  placeholder={hasGeminiKey ? '새 API 키를 입력하세요...' : 'AIza...'}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0064FF]/20 focus:border-[#0064FF]"
-                />
-                <button
-                  onClick={testApiKey}
-                  disabled={isTestingKey || !apiSettings.geminiApiKey}
-                  className="px-4 py-3 bg-[#0064FF] text-white rounded-xl hover:bg-[#0050CC] disabled:opacity-50 whitespace-nowrap"
-                >
-                  {isTestingKey ? '테스트 중...' : '테스트'}
-                </button>
-              </div>
-              {keyTestResult === 'success' && (
-                <p className="text-sm text-green-600 mt-2">✓ API 키가 유효합니다!</p>
-              )}
-              {keyTestResult === 'error' && (
-                <p className="text-sm text-red-600 mt-2">✗ API 키가 유효하지 않습니다.</p>
-              )}
-              <p className="text-xs text-[#8B95A1] mt-2">
-                <a
-                  href="https://aistudio.google.com/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#0064FF] hover:underline"
-                >
-                  Google AI Studio
-                </a>
-                에서 API 키를 발급받으세요.
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="p-4 bg-[#E8F3FF] rounded-xl mb-6">
+          <p className="text-sm text-[#0064FF]">
+            💡 <strong>API 키가 없으면?</strong><br />
+            AI 카피라이팅 없이 기본 템플릿으로 랜딩페이지를 만들 수 있습니다.
+          </p>
+        </div>
 
         {/* 이미지 생성 모델 선택 */}
         <div className="mb-4">
@@ -756,13 +717,13 @@ export default function SettingsPage() {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlanCard
             name="스타터"
-            price="19,900"
+            price="29,900"
             features={['월 1개 페이지', '카톡 알림', '이메일 알림', '대시보드']}
             recommended
           />
           <PlanCard
             name="프로"
-            price="49,500"
+            price="69,900"
             features={['월 3개 페이지', 'A/B 테스트', '분석 리포트', '우선 지원']}
           />
         </div>
@@ -820,15 +781,16 @@ function PlanCard({
           </li>
         ))}
       </ul>
-      <button
-        className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
+      <a
+        href="/pricing"
+        className={`block w-full py-2 rounded-lg text-sm font-medium transition-colors text-center ${
           recommended
             ? 'bg-[#0064FF] hover:bg-[#0050CC] text-white'
             : 'bg-white hover:bg-gray-100 text-[#191F28] border border-gray-200'
         }`}
       >
         업그레이드
-      </button>
+      </a>
     </div>
   );
 }
