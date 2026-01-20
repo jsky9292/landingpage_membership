@@ -123,7 +123,7 @@ export function SectionRenderer({
       case 'cta':
         return (<>{imageDisplay}<CTASection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
       case 'form':
-        return (<FormSection content={section.content as any} style={section.style} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} companyName={companyName} />);
+        return (<FormSection content={section.content as any} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} companyName={companyName} />);
       default:
         return null;
     }
