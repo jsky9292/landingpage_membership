@@ -216,8 +216,27 @@ export default function PreviewEditPage() {
 
   const handleSectionContentChange = (sectionId: string, content: SectionContent) => {
     if (!data) return;
+
+    // sectionImage와 sectionVideo는 content에서 추출하여 section 레벨로 이동
+    const contentAny = content as any;
+    const sectionImage = contentAny.sectionImage;
+    const sectionVideo = contentAny.sectionVideo;
+
+    // content에서 sectionImage, sectionVideo 제거 (section 레벨에 저장되므로)
+    const cleanContent = { ...content };
+    delete (cleanContent as any).sectionImage;
+    delete (cleanContent as any).sectionVideo;
+
     const newSections = data.sections.map((s) =>
-      s.id === sectionId ? { ...s, content } : s
+      s.id === sectionId
+        ? {
+            ...s,
+            content: cleanContent,
+            // sectionImage/sectionVideo가 있으면 section 레벨에 저장
+            ...(sectionImage !== undefined && { sectionImage }),
+            ...(sectionVideo !== undefined && { sectionVideo }),
+          }
+        : s
     );
     setData({ ...data, sections: newSections });
     setHasUnsavedChanges(true);
@@ -806,7 +825,71 @@ function ShareSettingsPanel({
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [rotation, setRotation] = useState(0); // 0, 90, 180, 270
+  const [isRotating, setIsRotating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 이미지 회전 함수 (Canvas 사용)
+  const rotateImage = async (degrees: number) => {
+    if (!imageUrl || isRotating) return;
+
+    setIsRotating(true);
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('이미지 로드 실패'));
+        img.src = imageUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 컨텍스트 생성 실패');
+
+      // 90도 회전 시 가로/세로 크기 교환
+      const isVerticalRotation = degrees === 90 || degrees === 270;
+      canvas.width = isVerticalRotation ? img.height : img.width;
+      canvas.height = isVerticalRotation ? img.width : img.height;
+
+      // Canvas 중심으로 회전
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((degrees * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+      // Blob으로 변환 후 업로드
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => {
+          if (b) resolve(b);
+          else reject(new Error('이미지 변환 실패'));
+        }, 'image/png', 0.95);
+      });
+
+      const formData = new FormData();
+      formData.append('file', blob, 'rotated-image.png');
+
+      const res = await fetch('/api/upload/og-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || '업로드 실패');
+
+      setImageUrl(result.url);
+      onOgImageChange(result.url);
+      setRotation(0); // 회전 적용 후 리셋
+    } catch (err) {
+      console.error('Rotation error:', err);
+      setError(err instanceof Error ? err.message : '회전 실패');
+    } finally {
+      setIsRotating(false);
+    }
+  };
+
+  const handleRotateLeft = () => rotateImage(270);
+  const handleRotateRight = () => rotateImage(90);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -906,6 +989,68 @@ function ShareSettingsPanel({
                 onError={() => setError('이미지를 불러올 수 없습니다.')}
               />
             </div>
+
+            {/* 회전 버튼 */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '12px',
+              justifyContent: 'center',
+            }}>
+              <button
+                type="button"
+                onClick={handleRotateLeft}
+                disabled={isRotating}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: isRotating ? '#F3F4F6' : '#fff',
+                  color: isRotating ? '#9CA3AF' : '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: isRotating ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                ↺ 왼쪽 회전
+              </button>
+              <button
+                type="button"
+                onClick={handleRotateRight}
+                disabled={isRotating}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: isRotating ? '#F3F4F6' : '#fff',
+                  color: isRotating ? '#9CA3AF' : '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: isRotating ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                ↻ 오른쪽 회전
+              </button>
+            </div>
+
+            {isRotating && (
+              <div style={{
+                textAlign: 'center',
+                fontSize: '12px',
+                color: '#6B7280',
+                marginTop: '8px',
+              }}>
+                회전 중...
+              </div>
+            )}
+
+            {/* 변경/삭제 버튼 */}
             <div style={{
               display: 'flex',
               gap: '8px',

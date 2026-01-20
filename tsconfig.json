@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "ai-landing-saas-backup-20241229", "ai-landing-saas", "scrape-fix-files"]
 }

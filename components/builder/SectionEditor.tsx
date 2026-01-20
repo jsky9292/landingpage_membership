@@ -95,7 +95,13 @@ export function SectionEditor({
   // 섹션 ID가 변경될 때만 localContent를 리셋 (내용 변경 시에는 리셋 안함)
   useEffect(() => {
     if (section && section.id !== currentSectionId) {
-      setLocalContent(section.content);
+      // section 레벨의 sectionImage/sectionVideo도 content에 포함시켜 편집 가능하게 함
+      const contentWithMedia = {
+        ...section.content,
+        ...(section.sectionImage && { sectionImage: section.sectionImage }),
+        ...(section.sectionVideo && { sectionVideo: section.sectionVideo }),
+      };
+      setLocalContent(contentWithMedia as SectionContent);
       setLocalStyle(section.style || { titleFontSize: 28, textFontSize: 16 });
       setCurrentSectionId(section.id);
     }
@@ -394,8 +400,8 @@ export function SectionEditor({
             {/* 섹션 미디어 삽입 */}
             {renderMediaField(
               '섹션에 이미지/영상 추가',
-              (section as any).sectionImage,
-              (section as any).sectionVideo,
+              (localContent as any).sectionImage,
+              (localContent as any).sectionVideo,
               (url) => handleContentUpdate({ sectionImage: url }),
               (url) => handleContentUpdate({ sectionVideo: url })
             )}
@@ -476,8 +482,8 @@ export function SectionEditor({
             {/* 섹션 미디어 삽입 */}
             {renderMediaField(
               '섹션에 이미지/영상 추가',
-              (section as any).sectionImage,
-              (section as any).sectionVideo,
+              (localContent as any).sectionImage,
+              (localContent as any).sectionVideo,
               (url) => handleContentUpdate({ sectionImage: url }),
               (url) => handleContentUpdate({ sectionVideo: url })
             )}

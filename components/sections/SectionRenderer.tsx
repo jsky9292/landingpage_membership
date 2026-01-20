@@ -30,13 +30,33 @@ interface SectionRendererProps {
   onReorderSections?: (sections: Section[]) => void;
 }
 
-// 이모지/섹션 이미지 컴포넌트
-function SectionImageDisplay({ emojiImage, sectionImage }: { emojiImage?: string; sectionImage?: string }) {
-  if (!emojiImage && !sectionImage) return null;
+// YouTube URL에서 비디오 ID 추출
+function getYouTubeVideoId(url: string): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Instagram URL에서 릴스/포스트 ID 추출
+function getInstagramId(url: string): string | null {
+  if (!url) return null;
+  const regExp = /instagram.com\/(p|reel|reels)\/([^/?#&]+)/;
+  const match = url.match(regExp);
+  return match ? match[2] : null;
+}
+
+// 이모지/섹션 이미지/영상 컴포넌트
+function SectionMediaDisplay({ emojiImage, sectionImage, sectionVideo }: { emojiImage?: string; sectionImage?: string; sectionVideo?: string }) {
+  if (!emojiImage && !sectionImage && !sectionVideo) return null;
+
+  const youtubeId = sectionVideo ? getYouTubeVideoId(sectionVideo) : null;
+  const instagramId = sectionVideo ? getInstagramId(sectionVideo) : null;
 
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       gap: '16px',
@@ -64,6 +84,44 @@ function SectionImageDisplay({ emojiImage, sectionImage }: { emojiImage?: string
             objectFit: 'cover',
           }}
         />
+      )}
+      {youtubeId && (
+        <div style={{
+          width: '100%',
+          maxWidth: '560px',
+          aspectRatio: '16/9',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <iframe
+            width="100%"
+            height="100%"
+            src={`https://www.youtube.com/embed/${youtubeId}`}
+            title="YouTube video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ borderRadius: '12px' }}
+          />
+        </div>
+      )}
+      {instagramId && !youtubeId && (
+        <div style={{
+          width: '100%',
+          maxWidth: '400px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <iframe
+            src={`https://www.instagram.com/p/${instagramId}/embed`}
+            width="100%"
+            height="480"
+            frameBorder="0"
+            scrolling="no"
+            allowTransparency={true}
+            style={{ borderRadius: '12px' }}
+          />
+        </div>
       )}
     </div>
   );
@@ -101,27 +159,27 @@ export function SectionRenderer({
 
   const renderSection = (section: Section) => {
     const editHandler = handleEdit(section.id);
-    const imageDisplay = <SectionImageDisplay emojiImage={section.emojiImage} sectionImage={section.sectionImage} />;
+    const mediaDisplay = <SectionMediaDisplay emojiImage={section.emojiImage} sectionImage={section.sectionImage} sectionVideo={section.sectionVideo} />;
 
     switch (section.type as SectionType) {
       case 'hero':
-        return (<><HeroSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{imageDisplay}</>);
+        return (<><HeroSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} />{mediaDisplay}</>);
       case 'pain':
-        return (<>{imageDisplay}<PainSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<PainSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'solution':
-        return (<>{imageDisplay}<SolutionSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<SolutionSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'benefits':
-        return (<>{imageDisplay}<BenefitsSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<BenefitsSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'process':
-        return (<>{imageDisplay}<ProcessSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<ProcessSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'philosophy':
-        return (<>{imageDisplay}<PhilosophySection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<PhilosophySection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'video':
-        return (<>{imageDisplay}<VideoSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<VideoSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'calendar':
-        return (<>{imageDisplay}<CalendarSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
+        return (<>{mediaDisplay}<CalendarSection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} /></>);
       case 'cta':
-        return (<>{imageDisplay}<CTASection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
+        return (<>{mediaDisplay}<CTASection content={section.content as any} style={section.style} theme={theme} isEditable={isEditable} onEdit={editHandler} onCTAClick={scrollToForm} /></>);
       case 'form':
         return (<FormSection content={section.content as any} formFields={formFields} theme={theme} isEditable={isEditable} onEdit={editHandler} onSubmit={onFormSubmit} isSubmitting={isSubmitting} companyName={companyName} />);
       default:

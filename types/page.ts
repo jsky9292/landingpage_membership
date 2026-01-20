@@ -213,6 +213,7 @@ export interface Section {
   style?: SectionStyle; // 스타일 옵션
   emojiImage?: string; // 섹션에 표시할 이모지 이미지 URL
   sectionImage?: string; // 섹션에 표시할 일반 이미지 URL
+  sectionVideo?: string; // 섹션에 표시할 영상 URL (유튜브/인스타)
   imageKeyword?: string; // AI 이미지 생성을 위한 키워드
 }
 

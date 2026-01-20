@@ -19,6 +19,23 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // 버킷 존재 여부 확인 및 생성
+    const bucketName = 'landing-assets';
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(b => b.name === bucketName);
+
+    if (!bucketExists) {
+      const { error: createError } = await supabase.storage.createBucket(bucketName, {
+        public: true,
+        fileSizeLimit: 5242880, // 5MB
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      });
+      if (createError && !createError.message.includes('already exists')) {
+        console.error('Bucket creation error:', createError);
+        return NextResponse.json({ error: 'Storage setup failed: ' + createError.message }, { status: 500 });
+      }
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 

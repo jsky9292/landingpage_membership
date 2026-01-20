@@ -177,8 +177,27 @@ export default function PreviewNewPage() {
 
   const handleSectionContentChange = (sectionId: string, content: SectionContent) => {
     if (!data) return;
+
+    // sectionImage와 sectionVideo는 content에서 추출하여 section 레벨로 이동
+    const contentAny = content as any;
+    const sectionImage = contentAny.sectionImage;
+    const sectionVideo = contentAny.sectionVideo;
+
+    // content에서 sectionImage, sectionVideo 제거 (section 레벨에 저장되므로)
+    const cleanContent = { ...content };
+    delete (cleanContent as any).sectionImage;
+    delete (cleanContent as any).sectionVideo;
+
     const newSections = data.sections.map((s) =>
-      s.id === sectionId ? { ...s, content } : s
+      s.id === sectionId
+        ? {
+            ...s,
+            content: cleanContent,
+            // sectionImage/sectionVideo가 있으면 section 레벨에 저장
+            ...(sectionImage !== undefined && { sectionImage }),
+            ...(sectionVideo !== undefined && { sectionVideo }),
+          }
+        : s
     );
     const newData = { ...data, sections: newSections };
     setData(newData);
