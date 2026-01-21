@@ -29,7 +29,8 @@ export default async function Image({ params }: Props) {
   let title = '랜딩페이지';
   let subtitle = '';
   let primaryColor = '#0064FF';
-  let customOgImage: string | null = null;
+  let customOgImageData: ArrayBuffer | null = null;
+  let customOgImageType: string = 'image/png';
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -54,9 +55,17 @@ export default async function Image({ params }: Props) {
     }
 
     if (page) {
-      // 사용자가 업로드한 명함/OG 이미지가 있으면 그것을 사용
+      // 사용자가 업로드한 명함/OG 이미지가 있으면 fetch해서 가져옴
       if (page.og_image && (page.og_image.startsWith('http://') || page.og_image.startsWith('https://'))) {
-        customOgImage = page.og_image;
+        try {
+          const imgRes = await fetch(page.og_image);
+          if (imgRes.ok) {
+            customOgImageData = await imgRes.arrayBuffer();
+            customOgImageType = imgRes.headers.get('content-type') || 'image/png';
+          }
+        } catch (imgError) {
+          console.error('Failed to fetch OG image:', imgError);
+        }
       }
 
       if (page.title) {
@@ -78,33 +87,14 @@ export default async function Image({ params }: Props) {
     console.error('OG Image error:', e);
   }
 
-  // 사용자 지정 OG 이미지가 있으면 해당 이미지를 표시
-  if (customOgImage) {
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#000',
-          }}
-        >
-          <img
-            src={customOgImage}
-            alt={title}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-            }}
-          />
-        </div>
-      ),
-      { ...size }
-    );
+  // 사용자 지정 OG 이미지가 있으면 해당 이미지를 그대로 반환
+  if (customOgImageData) {
+    return new Response(customOgImageData, {
+      headers: {
+        'Content-Type': customOgImageType,
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+      },
+    });
   }
 
   return new ImageResponse(
