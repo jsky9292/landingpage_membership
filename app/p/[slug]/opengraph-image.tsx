@@ -9,6 +9,10 @@ export const size = {
 };
 export const contentType = 'image/png';
 
+// 동적 렌더링 강제 (캐시 방지)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -29,8 +33,6 @@ export default async function Image({ params }: Props) {
   let title = '랜딩페이지';
   let subtitle = '';
   let primaryColor = '#0064FF';
-  let customOgImageData: ArrayBuffer | null = null;
-  let customOgImageType: string = 'image/png';
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -55,16 +57,34 @@ export default async function Image({ params }: Props) {
     }
 
     if (page) {
-      // 사용자가 업로드한 명함/OG 이미지가 있으면 fetch해서 가져옴
+      // 사용자가 업로드한 명함/OG 이미지가 있으면 fetch해서 직접 반환
       if (page.og_image && (page.og_image.startsWith('http://') || page.og_image.startsWith('https://'))) {
+        console.log('OG Image: Fetching custom image from:', page.og_image);
         try {
-          const imgRes = await fetch(page.og_image);
+          const imgRes = await fetch(page.og_image, {
+            headers: {
+              'Accept': 'image/*',
+            },
+          });
+
           if (imgRes.ok) {
-            customOgImageData = await imgRes.arrayBuffer();
-            customOgImageType = imgRes.headers.get('content-type') || 'image/png';
+            const imageBuffer = await imgRes.arrayBuffer();
+            const contentType = imgRes.headers.get('content-type') || 'image/png';
+
+            console.log('OG Image: Successfully fetched, content-type:', contentType, 'size:', imageBuffer.byteLength);
+
+            // 이미지 데이터를 직접 반환
+            return new Response(imageBuffer, {
+              headers: {
+                'Content-Type': contentType,
+                'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
+              },
+            });
+          } else {
+            console.error('OG Image: Failed to fetch image, status:', imgRes.status);
           }
         } catch (imgError) {
-          console.error('Failed to fetch OG image:', imgError);
+          console.error('OG Image: Error fetching custom image:', imgError);
         }
       }
 
@@ -87,15 +107,7 @@ export default async function Image({ params }: Props) {
     console.error('OG Image error:', e);
   }
 
-  // 사용자 지정 OG 이미지가 있으면 해당 이미지를 그대로 반환
-  if (customOgImageData) {
-    return new Response(customOgImageData, {
-      headers: {
-        'Content-Type': customOgImageType,
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
-      },
-    });
-  }
+  // 커스텀 이미지가 없거나 fetch 실패 시 기본 ImageResponse 생성
 
   return new ImageResponse(
     (

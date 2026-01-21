@@ -6,13 +6,13 @@ type Props = {
   children: React.ReactNode;
 };
 
-// 동적 메타데이터 생성 - OG 이미지 직접 설정
+// 동적 메타데이터 생성
+// 주의: opengraph-image.tsx가 OG 이미지를 처리하므로 여기서는 images를 설정하지 않음
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   let title = '랜딩페이지';
   let description = '';
-  let ogImageUrl: string | null = null;
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,18 +23,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
       const { data: page } = await supabase
         .from('landing_pages')
-        .select('title, sections, og_image')
+        .select('title, sections')
         .eq('slug', slug)
         .eq('status', 'published')
         .single();
 
       if (page) {
         title = page.title || '랜딩페이지';
-
-        // 사용자 지정 OG 이미지가 있으면 사용
-        if (page.og_image && (page.og_image.startsWith('http://') || page.og_image.startsWith('https://'))) {
-          ogImageUrl = page.og_image;
-        }
 
         // Hero 섹션에서 description 추출
         const heroSection = page.sections?.find((s: { type: string }) => s.type === 'hero');
@@ -47,35 +42,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.error('Metadata generation error:', e);
   }
 
-  // 기본 메타데이터
-  const metadata: Metadata = {
+  // 기본 메타데이터만 설정 (og:image는 opengraph-image.tsx에서 처리)
+  return {
     title,
     description: description || title + ' - 랜딩메이커',
-  };
-
-  // 사용자 지정 OG 이미지가 있으면 직접 설정 (opengraph-image.tsx 대신)
-  if (ogImageUrl) {
-    metadata.openGraph = {
+    openGraph: {
       title,
       description: description || title + ' - 랜딩메이커',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    };
-    metadata.twitter = {
+      type: 'website',
+    },
+    twitter: {
       card: 'summary_large_image',
       title,
       description: description || title + ' - 랜딩메이커',
-      images: [ogImageUrl],
-    };
-  }
-
-  return metadata;
+    },
+  };
 }
 
 export default function PublicPageLayout({ children }: Props) {
