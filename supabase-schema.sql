@@ -3,8 +3,9 @@
 -- =====================================================
 -- 이 SQL을 Supabase SQL Editor에서 실행하세요.
 
--- 1. 사용자 테이블
-CREATE TABLE IF NOT EXISTS users (
+-- 1. profiles 테이블 (랜딩메이커 사용자 - OAuth 로그인 사용자)
+-- 카카오/구글 로그인하면 여기에 저장됨
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   name TEXT,
@@ -14,8 +15,44 @@ CREATE TABLE IF NOT EXISTS users (
   plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'starter', 'pro', 'unlimited', 'agency')),
   plan_started_at TIMESTAMPTZ,
   plan_expires_at TIMESTAMPTZ,
-  plan_pages_limit INTEGER DEFAULT 3, -- 플랜별 페이지 생성 제한
-  plan_features JSONB DEFAULT '{}', -- 플랜별 추가 기능 설정
+  plan_pages_limit INTEGER DEFAULT 3,
+  plan_features JSONB DEFAULT '{}',
+  -- 추천 시스템
+  referral_code TEXT UNIQUE,
+  referred_by TEXT,
+  referral_count INTEGER DEFAULT 0,
+  points INTEGER DEFAULT 0,
+  -- OAuth 연동
+  kakao_linked BOOLEAN DEFAULT false,
+  google_linked BOOLEAN DEFAULT false,
+  -- API 설정
+  api_settings JSONB DEFAULT '{}',
+  -- CRM 설정
+  crm_settings JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 1-1. users 테이블 (profiles와 동일 구조, 호환성용)
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  avatar_url TEXT,
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'starter', 'pro', 'unlimited', 'agency')),
+  plan_started_at TIMESTAMPTZ,
+  plan_expires_at TIMESTAMPTZ,
+  plan_pages_limit INTEGER DEFAULT 3,
+  plan_features JSONB DEFAULT '{}',
+  referral_code TEXT UNIQUE,
+  referred_by TEXT,
+  referral_count INTEGER DEFAULT 0,
+  points INTEGER DEFAULT 0,
+  kakao_linked BOOLEAN DEFAULT false,
+  google_linked BOOLEAN DEFAULT false,
+  api_settings JSONB DEFAULT '{}',
+  crm_settings JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
