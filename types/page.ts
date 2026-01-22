@@ -84,11 +84,15 @@ export interface ProcessContent {
 export interface PhilosophyContent {
   label?: string;
   title: string;
-  items: Array<{
+  items?: Array<{
     icon: string;
     title: string;
     description: string;
   }>;
+  // 후기/인용문 스타일 (items 대신 사용)
+  quote?: string;
+  author?: string;
+  role?: string;
 }
 
 export interface CTAContent {

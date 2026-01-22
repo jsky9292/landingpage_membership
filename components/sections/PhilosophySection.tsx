@@ -17,6 +17,9 @@ export function PhilosophySection({ content, theme = 'toss', style }: Philosophy
   const titleSize = style?.titleFontSize || 28;
   const textSize = style?.textFontSize || 16;
 
+  // quote가 있으면 후기/인용문 스타일로 렌더링
+  const isQuoteStyle = content.quote && !content.items?.length;
+
   return (
     <>
       <style>{`
@@ -43,6 +46,23 @@ export function PhilosophySection({ content, theme = 'toss', style }: Philosophy
           word-break: keep-all;
           text-wrap: balance;
         }
+        .philosophy-quote {
+          font-size: ${Math.round(textSize * 1.1)}px;
+          color: ${colors.text};
+          line-height: 1.8;
+          word-break: keep-all;
+          text-wrap: balance;
+          font-style: italic;
+        }
+        .philosophy-author {
+          font-size: ${textSize}px;
+          font-weight: 600;
+          color: ${colors.text};
+        }
+        .philosophy-role {
+          font-size: ${Math.round(textSize * 0.875)}px;
+          color: ${colors.textSecondary};
+        }
       `}</style>
       <section style={{ padding: 'clamp(48px, 10vw, 64px) 20px', background: colors.backgroundAlt }}>
         <div style={{ maxWidth: '480px', margin: '0 auto' }}>
@@ -56,23 +76,45 @@ export function PhilosophySection({ content, theme = 'toss', style }: Philosophy
             {content.title}
           </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {content.items?.map((item, index) => (
-              <div key={index} style={{
-                background: colors.cardBackground || colors.background,
-                borderRadius: '16px',
-                padding: 'clamp(16px, 4vw, 20px)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 3vw, 12px)', marginBottom: '8px' }}>
-                  <span style={{ fontSize: 'clamp(20px, 5vw, 24px)' }}>{item.icon}</span>
-                  <h4 className="philosophy-item-title">{item.title}</h4>
-                </div>
-                <p className="philosophy-item-desc" style={{ paddingLeft: 'clamp(30px, 8vw, 36px)' }}>
-                  {item.description}
-                </p>
+          {isQuoteStyle ? (
+            // 후기/인용문 스타일
+            <div style={{
+              background: colors.cardBackground || colors.background,
+              borderRadius: '20px',
+              padding: 'clamp(24px, 6vw, 32px)',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px', opacity: 0.3 }}>"</div>
+              <p className="philosophy-quote" style={{ marginBottom: '24px' }}>
+                {content.quote}
+              </p>
+              <div>
+                <p className="philosophy-author">{content.author}</p>
+                {content.role && (
+                  <p className="philosophy-role">{content.role}</p>
+                )}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            // 기존 items 스타일
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {content.items?.map((item, index) => (
+                <div key={index} style={{
+                  background: colors.cardBackground || colors.background,
+                  borderRadius: '16px',
+                  padding: 'clamp(16px, 4vw, 20px)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 3vw, 12px)', marginBottom: '8px' }}>
+                    <span style={{ fontSize: 'clamp(20px, 5vw, 24px)' }}>{item.icon}</span>
+                    <h4 className="philosophy-item-title">{item.title}</h4>
+                  </div>
+                  <p className="philosophy-item-desc" style={{ paddingLeft: 'clamp(30px, 8vw, 36px)' }}>
+                    {item.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>
