@@ -1928,6 +1928,45 @@ export default function CreatePage() {
     router.push('/preview/new');
   };
 
+  // 샘플로 바로 시작 (AI 생성 없이)
+  const handleUseSampleDirectly = () => {
+    if (!sampleId) return;
+
+    const sample = getSampleById(sampleId);
+    if (!sample || !sample.sections) return;
+
+    // 사용량 체크
+    if (!canCreatePage) {
+      setShowLimitModal(true);
+      return;
+    }
+
+    // 페이지 사용량 증가
+    incrementPages();
+
+    try {
+      localStorage.setItem('generatedPage', JSON.stringify({
+        topic,
+        prompt: `샘플 사용: ${sample.name}`,
+        sections: sample.sections,
+        formFields: sample.formFields || [
+          { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
+          { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
+        ],
+        theme: sample.theme || 'toss',
+        title: sample.name,
+      }));
+    } catch (e) {
+      console.error('localStorage failed:', e);
+    }
+
+    router.push('/preview/new');
+  };
+
+  // 샘플에 sections가 있는지 확인
+  const currentSample = sampleId ? getSampleById(sampleId) : null;
+  const sampleHasSections = currentSample?.sections && currentSample.sections.length > 0;
+
   return (
     <div style={{ minHeight: '100vh', background: '#FFFFFF' }}>
       {/* 모바일 반응형 스타일 */}
@@ -2626,6 +2665,39 @@ export default function CreatePage() {
 
             {/* 생성 버튼 영역 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* 샘플에 sections가 있으면 바로 시작 버튼 표시 */}
+              {sampleHasSections && (
+                <>
+                  <button
+                    onClick={handleUseSampleDirectly}
+                    disabled={isLoading}
+                    style={{
+                      width: '100%',
+                      padding: '18px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      color: '#fff',
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      boxShadow: '0 4px 15px rgba(16,185,129,0.35)',
+                      transition: 'all 0.3s',
+                    }}
+                  >
+                    <span style={{ fontSize: '20px' }}>🚀</span>
+                    샘플로 바로 시작하기 (AI 생성 없음)
+                  </button>
+                  <div style={{ textAlign: 'center', color: '#6B7280', fontSize: '13px', margin: '-4px 0 8px' }}>
+                    또는 아래에서 AI로 새롭게 생성할 수 있습니다
+                  </div>
+                </>
+              )}
+
               {/* API 키가 있으면 AI 생성 버튼 표시 */}
               {hasApiKey && (
                 <button

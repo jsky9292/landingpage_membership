@@ -8,6 +8,8 @@ export const size = {
   height: 630,
 };
 export const contentType = 'image/png';
+// OG 이미지 캐시 갱신 (60초마다 재생성 가능)
+export const revalidate = 60;
 
 // 동적 렌더링 강제 (캐시 방지)
 export const dynamic = 'force-dynamic';
