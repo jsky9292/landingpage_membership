@@ -318,11 +318,44 @@ export default function PreviewEditPage() {
     setHasUnsavedChanges(true);
   };
 
-  // OG 이미지 (명함/홍보 이미지) 변경 핸들러
-  const handleOgImageChange = (imageUrl: string) => {
+  // OG 이미지 (명함/홍보 이미지) 변경 핸들러 - 자동 저장
+  const handleOgImageChange = async (imageUrl: string) => {
     if (!data) return;
-    setData({ ...data, ogImage: imageUrl || null });
-    setHasUnsavedChanges(true);
+
+    // 로컬 상태 업데이트
+    const updatedData = { ...data, ogImage: imageUrl || null };
+    setData(updatedData);
+
+    // 즉시 서버에 저장 (자동 저장)
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: updatedData.title,
+          sections: updatedData.sections,
+          formFields: updatedData.formFields,
+          theme: updatedData.theme,
+          contactInfo: updatedData.contactInfo || {},
+          ogImage: imageUrl || null,
+        }),
+      });
+
+      if (res.ok) {
+        setSaveMessage('이미지가 저장되었습니다!');
+        setHasUnsavedChanges(false);
+        setTimeout(() => setSaveMessage(null), 2000);
+      } else {
+        setSaveMessage('이미지 저장에 실패했습니다.');
+        setHasUnsavedChanges(true);
+        setTimeout(() => setSaveMessage(null), 3000);
+      }
+    } catch (err) {
+      console.error('Auto-save OG image error:', err);
+      setSaveMessage('이미지 저장 중 오류가 발생했습니다.');
+      setHasUnsavedChanges(true);
+      setTimeout(() => setSaveMessage(null), 3000);
+    }
   };
 
   const getSelectedSection = (): Section | null => {
