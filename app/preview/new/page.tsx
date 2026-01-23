@@ -37,6 +37,7 @@ interface GeneratedData {
   formFields: FormField[];
   theme: string;
   contactInfo?: ContactInfo;
+  ogImage?: string | null; // 명함/홍보용 OG 이미지
 }
 
 export default function PreviewNewPage() {
@@ -52,6 +53,7 @@ export default function PreviewNewPage() {
   const [showAddSection, setShowAddSection] = useState(false);
   const [showThemePanel, setShowThemePanel] = useState(false);
   const [showContactSettings, setShowContactSettings] = useState(false);
+  const [showShareSettings, setShowShareSettings] = useState(false); // 공유 설정 패널
   const [insertAfterOrder, setInsertAfterOrder] = useState<number>(999);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +83,7 @@ export default function PreviewNewPage() {
           })),
           formFields,
           theme: parsed.theme || 'toss',
+          ogImage: parsed.ogImage || null,
         });
       } catch (e) {
         console.error('Failed to parse generated page:', e);
@@ -136,6 +139,7 @@ export default function PreviewNewPage() {
           formFields: data.formFields,
           theme: data.theme,
           contactInfo: data.contactInfo || {},
+          ogImage: data.ogImage || null,
           slug,
         }),
       });
@@ -284,6 +288,14 @@ export default function PreviewNewPage() {
   const handleThemeChange = (theme: ThemeType) => {
     if (!data) return;
     const newData = { ...data, theme };
+    setData(newData);
+    safeSetStorage('generatedPage', JSON.stringify(newData));
+  };
+
+  // OG 이미지 (명함/홍보 이미지) 변경 핸들러
+  const handleOgImageChange = (imageUrl: string) => {
+    if (!data) return;
+    const newData = { ...data, ogImage: imageUrl || null };
     setData(newData);
     safeSetStorage('generatedPage', JSON.stringify(newData));
   };
@@ -661,52 +673,52 @@ export default function PreviewNewPage() {
               background: '#F8FAFC',
             }}>
               <button
-                onClick={() => { setShowThemePanel(false); setShowContactSettings(false); }}
+                onClick={() => { setShowThemePanel(false); setShowContactSettings(false); setShowShareSettings(false); }}
                 style={{
                   flex: 1,
                   padding: '14px',
                   border: 'none',
-                  background: !showThemePanel && !showContactSettings ? '#fff' : 'transparent',
-                  color: !showThemePanel && !showContactSettings ? '#0064FF' : '#6B7280',
-                  fontSize: '14px',
+                  background: !showThemePanel && !showContactSettings && !showShareSettings ? '#fff' : 'transparent',
+                  color: !showThemePanel && !showContactSettings && !showShareSettings ? '#0064FF' : '#6B7280',
+                  fontSize: '13px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  borderBottom: !showThemePanel && !showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
+                  borderBottom: !showThemePanel && !showContactSettings && !showShareSettings ? '2px solid #0064FF' : '2px solid transparent',
                 }}
               >
-                섹션 편집
+                📝 섹션
               </button>
               <button
-                onClick={() => { setShowThemePanel(true); setShowContactSettings(false); }}
+                onClick={() => { setShowThemePanel(true); setShowContactSettings(false); setShowShareSettings(false); }}
                 style={{
                   flex: 1,
                   padding: '14px',
                   border: 'none',
-                  background: showThemePanel && !showContactSettings ? '#fff' : 'transparent',
-                  color: showThemePanel && !showContactSettings ? '#0064FF' : '#6B7280',
-                  fontSize: '14px',
+                  background: showThemePanel ? '#fff' : 'transparent',
+                  color: showThemePanel ? '#0064FF' : '#6B7280',
+                  fontSize: '13px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  borderBottom: showThemePanel && !showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
+                  borderBottom: showThemePanel ? '2px solid #0064FF' : '2px solid transparent',
                 }}
               >
-                톤앤매너
+                🎨 테마
               </button>
               <button
-                onClick={() => { setShowThemePanel(false); setShowContactSettings(true); }}
+                onClick={() => { setShowThemePanel(false); setShowContactSettings(false); setShowShareSettings(true); }}
                 style={{
                   flex: 1,
                   padding: '14px',
                   border: 'none',
-                  background: showContactSettings ? '#fff' : 'transparent',
-                  color: showContactSettings ? '#0064FF' : '#6B7280',
-                  fontSize: '14px',
+                  background: showShareSettings ? '#fff' : 'transparent',
+                  color: showShareSettings ? '#0064FF' : '#6B7280',
+                  fontSize: '13px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  borderBottom: showContactSettings ? '2px solid #0064FF' : '2px solid transparent',
+                  borderBottom: showShareSettings ? '2px solid #0064FF' : '2px solid transparent',
                 }}
               >
-                연락처
+                🔗 공유
               </button>
             </div>
           )}
@@ -739,6 +751,11 @@ export default function PreviewNewPage() {
               <ThemeSelector
                 currentTheme={(data?.theme as ThemeType) || 'toss'}
                 onThemeChange={handleThemeChange}
+              />
+            ) : showShareSettings ? (
+              <ShareSettingsPanel
+                ogImage={data?.ogImage || ''}
+                onOgImageChange={handleOgImageChange}
               />
             ) : showContactSettings ? (
               <div style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
@@ -986,6 +1003,449 @@ export default function PreviewNewPage() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 공유 설정 패널 컴포넌트
+function ShareSettingsPanel({
+  ogImage,
+  onOgImageChange,
+}: {
+  ogImage: string;
+  onOgImageChange: (url: string) => void;
+}) {
+  const [imageUrl, setImageUrl] = useState(ogImage);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 이미지 회전 함수 (Canvas 사용)
+  const rotateImage = async (degrees: number) => {
+    if (!imageUrl || isRotating) return;
+
+    setIsRotating(true);
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('이미지 로드 실패'));
+        img.src = imageUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 컨텍스트 생성 실패');
+
+      const isVerticalRotation = degrees === 90 || degrees === 270;
+      canvas.width = isVerticalRotation ? img.height : img.width;
+      canvas.height = isVerticalRotation ? img.width : img.height;
+
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((degrees * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => {
+          if (b) resolve(b);
+          else reject(new Error('이미지 변환 실패'));
+        }, 'image/png', 0.95);
+      });
+
+      const formData = new FormData();
+      formData.append('file', blob, 'rotated-image.png');
+
+      const res = await fetch('/api/upload/og-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || '업로드 실패');
+
+      setImageUrl(result.url);
+      onOgImageChange(result.url);
+    } catch (err) {
+      console.error('Rotation error:', err);
+      setError(err instanceof Error ? err.message : '회전 실패');
+    } finally {
+      setIsRotating(false);
+    }
+  };
+
+  const handleRotateLeft = () => rotateImage(270);
+  const handleRotateRight = () => rotateImage(90);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('파일 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    setError('');
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/og-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || '업로드 실패');
+      }
+
+      setImageUrl(result.url);
+      onOgImageChange(result.url);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : '업로드 실패');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleUrlSubmit = () => {
+    if (imageUrl.trim()) {
+      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('data:')) {
+        setError('올바른 URL을 입력해주세요.');
+        return;
+      }
+      onOgImageChange(imageUrl);
+      setShowUrlInput(false);
+      setError('');
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl('');
+    onOgImageChange('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div style={{ padding: '24px', overflowY: 'auto', height: '100%' }}>
+      <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#191F28', marginBottom: '8px' }}>
+        🔗 공유 설정
+      </h3>
+      <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '24px' }}>
+        카카오톡, 문자 등으로 링크를 공유할 때<br/>
+        미리보기에 표시될 명함/홍보 이미지를 설정하세요.
+      </p>
+
+      {/* 이미지 미리보기 */}
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+          명함/홍보 이미지
+        </label>
+
+        {imageUrl ? (
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              aspectRatio: '1200/630',
+              backgroundColor: '#F3F4F6',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              border: '1px solid #E5E7EB',
+            }}>
+              <img
+                src={imageUrl}
+                alt="OG 이미지 미리보기"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={() => setError('이미지를 불러올 수 없습니다.')}
+              />
+            </div>
+
+            {/* 회전 버튼 */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '12px',
+              justifyContent: 'center',
+            }}>
+              <button
+                type="button"
+                onClick={handleRotateLeft}
+                disabled={isRotating}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: isRotating ? '#F3F4F6' : '#fff',
+                  color: isRotating ? '#9CA3AF' : '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: isRotating ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                ↺ 왼쪽 회전
+              </button>
+              <button
+                type="button"
+                onClick={handleRotateRight}
+                disabled={isRotating}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: isRotating ? '#F3F4F6' : '#fff',
+                  color: isRotating ? '#9CA3AF' : '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: isRotating ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                ↻ 오른쪽 회전
+              </button>
+            </div>
+
+            {isRotating && (
+              <div style={{
+                textAlign: 'center',
+                fontSize: '12px',
+                color: '#6B7280',
+                marginTop: '8px',
+              }}>
+                회전 중...
+              </div>
+            )}
+
+            {/* 변경/삭제 버튼 */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '12px',
+            }}>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: '#fff',
+                  color: '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                }}
+              >
+                변경
+              </button>
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#FEE2E2',
+                  color: '#DC2626',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            aspectRatio: '1200/630',
+            border: '2px dashed #D1D5DB',
+            borderRadius: '12px',
+            backgroundColor: '#F9FAFB',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            cursor: 'pointer',
+          }}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🖼️</div>
+            <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '16px', textAlign: 'center' }}>
+              명함이나 홍보용 이미지를 업로드하세요<br/>
+              <span style={{ fontSize: '12px', color: '#9CA3AF' }}>권장 크기: 1200 x 630px</span>
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: uploading ? '#9CA3AF' : '#0064FF',
+                  color: '#fff',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: uploading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {uploading ? '업로드 중...' : '파일 선택'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(true)}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #E5E7EB',
+                  background: '#fff',
+                  color: '#374151',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                }}
+              >
+                URL 입력
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 파일 input (숨김) */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+
+      {/* URL 입력 */}
+      {showUrlInput && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          <input
+            type="text"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://example.com/image.jpg"
+            style={{
+              flex: 1,
+              padding: '10px 12px',
+              border: '1px solid #D1D5DB',
+              borderRadius: '8px',
+              fontSize: '13px',
+            }}
+          />
+          <button
+            type="button"
+            onClick={handleUrlSubmit}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#0064FF',
+              color: '#fff',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+            }}
+          >
+            확인
+          </button>
+          <button
+            type="button"
+            onClick={() => { setShowUrlInput(false); setImageUrl(ogImage); }}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid #E5E7EB',
+              background: '#fff',
+              color: '#374151',
+              fontSize: '13px',
+              cursor: 'pointer',
+            }}
+          >
+            취소
+          </button>
+        </div>
+      )}
+
+      {/* 에러 메시지 */}
+      {error && (
+        <p style={{ fontSize: '13px', color: '#DC2626', marginBottom: '16px' }}>{error}</p>
+      )}
+
+      {/* 안내 */}
+      <div style={{
+        padding: '16px',
+        backgroundColor: '#F0F9FF',
+        borderRadius: '12px',
+        marginTop: '24px',
+      }}>
+        <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#0369A1', marginBottom: '8px' }}>
+          💡 활용 팁
+        </h4>
+        <ul style={{ fontSize: '13px', color: '#0C4A6E', margin: 0, paddingLeft: '16px', lineHeight: '1.6' }}>
+          <li>명함 이미지를 넣으면 전문적인 인상을 줄 수 있어요</li>
+          <li>홍보용 배너 이미지를 사용하면 클릭률이 높아져요</li>
+          <li>카카오톡, 문자, SNS 공유 시 이 이미지가 표시돼요</li>
+        </ul>
+      </div>
+
+      {/* 미리보기 예시 */}
+      {imageUrl && (
+        <div style={{ marginTop: '24px' }}>
+          <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '12px' }}>
+            📱 카카오톡 공유 미리보기
+          </h4>
+          <div style={{
+            padding: '12px',
+            backgroundColor: '#F3F4F6',
+            borderRadius: '12px',
+          }}>
+            <div style={{
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            }}>
+              <div style={{ aspectRatio: '1200/630', overflow: 'hidden' }}>
+                <img
+                  src={imageUrl}
+                  alt="미리보기"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ padding: '12px' }}>
+                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>landingmaker.kr</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

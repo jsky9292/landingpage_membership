@@ -5,17 +5,25 @@ import { supabaseAdmin } from '@/lib/db/supabase';
 
 const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY!;
 
-// 플랜별 정보
+// 플랜별 정보 (월간/연간 가격)
 const PLANS = {
   starter: {
-    price: 29000,
-    maxPages: 3,
     name: 'Starter',
+    monthlyPrice: 29900,
+    yearlyPrice: 299000,
+    maxPages: 1,
   },
   pro: {
-    price: 59000,
-    maxPages: 10,
     name: 'Pro',
+    monthlyPrice: 69900,
+    yearlyPrice: 699000,
+    maxPages: 3,
+  },
+  unlimited: {
+    name: 'Unlimited',
+    monthlyPrice: 99000,
+    yearlyPrice: 990000,
+    maxPages: 999, // 무제한
   },
 };
 
@@ -51,8 +59,10 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // orderId에서 플랜 정보 추출 (형식: plan_starter_timestamp)
-    const planType = orderId.split('_')[1] as keyof typeof PLANS;
+    // orderId에서 플랜 정보 추출 (형식: plan_starter_monthly_timestamp 또는 plan_pro_yearly_timestamp)
+    const orderParts = orderId.split('_');
+    const planType = orderParts[1] as keyof typeof PLANS;
+    const billingCycle = orderParts[2] as 'monthly' | 'yearly';
     const plan = PLANS[planType];
 
     if (!plan) {
@@ -60,13 +70,19 @@ export async function POST(req: NextRequest) {
     }
 
     // 금액 검증
-    if (amount !== plan.price) {
+    const expectedPrice = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
+    if (amount !== expectedPrice) {
+      console.error(`[Payment] Amount mismatch: expected ${expectedPrice}, got ${amount}`);
       return NextResponse.json({ error: '결제 금액이 일치하지 않습니다.' }, { status: 400 });
     }
 
-    // 플랜 만료일 계산 (30일 후)
+    // 플랜 만료일 계산
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    if (billingCycle === 'yearly') {
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1년
+    } else {
+      expiresAt.setDate(expiresAt.getDate() + 30); // 30일
+    }
 
     // Supabase 미설정시 결제 성공만 반환
     if (!supabaseAdmin) {
@@ -74,17 +90,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         plan: planType,
+        billingCycle,
         expiresAt: expiresAt.toISOString(),
         demo: true,
       });
     }
 
-    // Supabase에 결제 정보 및 플랜 업데이트
+    // Supabase에 플랜 업데이트
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({
         plan: planType,
+        plan_started_at: new Date().toISOString(),
         plan_expires_at: expiresAt.toISOString(),
+        plan_pages_limit: plan.maxPages,
       })
       .eq('email', session.user.email);
 
@@ -93,7 +112,7 @@ export async function POST(req: NextRequest) {
       // 결제는 성공했으므로 로그만 남기고 성공 반환
     }
 
-    // 결제 내역 저장 (payments 테이블이 있다면)
+    // 결제 내역 저장 (payments 테이블)
     try {
       await supabaseAdmin.from('payments').insert({
         user_email: session.user.email,
@@ -101,17 +120,24 @@ export async function POST(req: NextRequest) {
         order_id: orderId,
         amount: amount,
         plan: planType,
+        billing_cycle: billingCycle,
         status: 'completed',
+        card_company: paymentResult.card?.company || null,
+        card_number: paymentResult.card?.number || null,
+        receipt_url: paymentResult.receipt?.url || null,
       });
     } catch (e) {
       // payments 테이블이 없을 수 있음
-      console.log('[Payment] Payment history not saved (table may not exist)');
+      console.log('[Payment] Payment history not saved:', e);
     }
 
     return NextResponse.json({
       success: true,
       plan: planType,
+      planName: plan.name,
+      billingCycle,
       expiresAt: expiresAt.toISOString(),
+      amount,
     });
 
   } catch (error) {

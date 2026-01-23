@@ -8,6 +8,7 @@ const navigation = [
   { name: '대시보드', href: '/admin/dashboard', icon: '📊' },
   { name: '내 페이지', href: '/admin/pages', icon: '📄' },
   { name: '회원관리', href: '/admin/users', icon: '👥' },
+  { name: '결제내역', href: '/admin/payments', icon: '💳' },
   { name: '설정', href: '/admin/settings', icon: '⚙️' },
 ];
 

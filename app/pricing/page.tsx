@@ -124,17 +124,23 @@ export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [widgetReady, setWidgetReady] = useState(false);
+  const [widgetError, setWidgetError] = useState<string | null>(null);
 
   // 토스페이먼츠 위젯 초기화
   useEffect(() => {
     async function initToss() {
       try {
+        console.log('Initializing Toss Payments with key:', TOSS_CLIENT_KEY);
         const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
         const customerKey = session?.user?.email || `guest_${Date.now()}`;
+        console.log('Customer key:', customerKey);
         const paymentWidgets = tossPayments.widgets({ customerKey });
         setWidgets(paymentWidgets);
+        console.log('Toss Payments widgets initialized successfully');
       } catch (error) {
         console.error('Toss Payments init error:', error);
+        setWidgetError('토스페이먼츠 초기화에 실패했습니다. 페이지를 새로고침해주세요.');
       }
     }
     initToss();
@@ -143,8 +149,23 @@ export default function PricingPage() {
   // 결제 위젯 렌더링
   useEffect(() => {
     if (showPayment && widgets && selectedPlan) {
+      setWidgetReady(false);
+      setWidgetError(null);
+
       const renderWidgets = async () => {
         try {
+          // DOM이 준비될 때까지 잠시 대기
+          await new Promise(resolve => setTimeout(resolve, 200));
+
+          const paymentMethodEl = document.querySelector('#payment-method');
+          const agreementEl = document.querySelector('#agreement');
+
+          if (!paymentMethodEl || !agreementEl) {
+            setWidgetError('결제 위젯 컨테이너를 찾을 수 없습니다.');
+            console.error('Payment widget containers not found');
+            return;
+          }
+
           const paymentAmount = billingPeriod === 'yearly'
             ? selectedPlan.yearlyPrice
             : selectedPlan.monthlyPrice;
@@ -164,8 +185,11 @@ export default function PricingPage() {
               variantKey: 'AGREEMENT',
             }),
           ]);
+
+          setWidgetReady(true);
         } catch (error) {
           console.error('Widget render error:', error);
+          setWidgetError('결제 위젯을 불러오는데 실패했습니다. 페이지를 새로고침해주세요.');
         }
       };
       renderWidgets();
@@ -242,7 +266,11 @@ export default function PricingPage() {
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-lg mx-auto">
           <button
-            onClick={() => setShowPayment(false)}
+            onClick={() => {
+              setShowPayment(false);
+              setWidgetReady(false);
+              setWidgetError(null);
+            }}
             className="mb-6 text-gray-600 hover:text-gray-900 flex items-center gap-2"
           >
             ← 플랜 선택으로 돌아가기
@@ -272,15 +300,34 @@ export default function PricingPage() {
             </div>
 
             {/* 토스페이먼츠 위젯 */}
-            <div id="payment-method" className="mb-4"></div>
+            {widgetError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                {widgetError}
+                <button
+                  onClick={() => window.location.reload()}
+                  className="block mt-2 text-red-700 underline"
+                >
+                  페이지 새로고침
+                </button>
+              </div>
+            )}
+
+            {!widgetReady && !widgetError && (
+              <div className="mb-6 p-8 bg-gray-50 rounded-xl flex flex-col items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#3182F6] border-t-transparent rounded-full animate-spin mb-3"></div>
+                <p className="text-gray-500 text-sm">결제 수단을 불러오는 중...</p>
+              </div>
+            )}
+
+            <div id="payment-method" className={`mb-4 ${!widgetReady ? 'min-h-[200px]' : ''}`}></div>
             <div id="agreement" className="mb-6"></div>
 
             <button
               onClick={handlePayment}
-              disabled={isLoading === selectedPlan.id}
+              disabled={isLoading === selectedPlan.id || !widgetReady}
               className="w-full py-4 bg-[#3182F6] hover:bg-[#1E6DE8] disabled:bg-gray-400 text-white font-semibold rounded-xl transition-colors"
             >
-              {isLoading === selectedPlan.id ? '처리 중...' : `${displayAmount} 결제하기`}
+              {isLoading === selectedPlan.id ? '처리 중...' : !widgetReady ? '결제 수단 로딩 중...' : `${displayAmount} 결제하기`}
             </button>
           </div>
         </div>
@@ -365,16 +412,18 @@ export default function PricingPage() {
                 plan.popular ? 'ring-2 ring-[#3182F6]' : ''
               }`}
             >
-              {/* 50% 할인 뱃지 */}
-              <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                50% OFF
-              </div>
-
               {plan.popular && (
-                <div className="absolute top-0 left-0 right-0 bg-[#3182F6] text-white text-center py-1 text-sm font-medium">
+                <div className="absolute top-0 left-0 right-0 bg-[#3182F6] text-white text-center py-1 text-sm font-medium z-10">
                   가장 인기
                 </div>
               )}
+
+              {/* 50% 할인 뱃지 - popular 플랜은 배너 아래로 위치 */}
+              <div className={`absolute right-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-20 ${
+                plan.popular ? 'top-10' : 'top-4'
+              }`}>
+                50% OFF
+              </div>
 
               <div className={`p-8 ${plan.popular ? 'pt-12' : ''}`}>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>

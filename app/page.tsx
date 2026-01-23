@@ -41,6 +41,7 @@ const categories = [
   { id: 'food', name: '식품/요식업', desc: '배달, 밀키트, 카페' },
   { id: 'ecommerce', name: '이커머스', desc: '쇼핑몰, 구독서비스' },
   { id: 'startup', name: '스타트업', desc: '서비스 론칭, 채용' },
+  { id: 'recruiting', name: '리크루팅', desc: '팀원모집, 영업사원, 설계사' },
   { id: 'nonprofit', name: '비영리/단체', desc: '후원, 회원모집' },
   { id: 'other', name: '기타', desc: '맞춤형 랜딩페이지' },
 ];

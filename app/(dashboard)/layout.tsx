@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils/cn';
 const navigation = [
   { name: '대시보드', href: '/dashboard' },
   { name: '내 페이지', href: '/pages' },
+  { name: '고객 관리', href: '/submissions' },
   { name: '설정', href: '/settings' },
 ];
 

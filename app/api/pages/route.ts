@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, topic, prompt, sections, formFields, theme, slug, contactInfo } = body;
+    const { title, topic, prompt, sections, formFields, theme, slug, contactInfo, ogImage } = body;
 
     // 유효성 검사
     if (!title || !sections) {
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
         form_fields: formFields || [],
         theme: theme || 'toss',
         contact_info: contactInfo || {},
+        og_image: ogImage || null,
         status: 'published',
         view_count: 0,
       })
