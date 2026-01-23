@@ -1691,6 +1691,7 @@ export default function CreatePage() {
   const config = topicData[topic] || topicData.free;
   const sampleId = searchParams.get('sample');
   const urlPrompt = searchParams.get('prompt');
+  const directUse = searchParams.get('direct') === 'true';
 
   const [answers, setAnswers] = useState<string[]>([]);
   const [additionalPrompt, setAdditionalPrompt] = useState('');
@@ -1762,6 +1763,41 @@ export default function CreatePage() {
       setShowExamples(false); // 예시 패널 닫기
     }
   }, [urlPrompt, config.questions, loadedFromSample]);
+
+  // direct=true 파라미터가 있으면 샘플을 바로 사용 (AI 생성 없이)
+  useEffect(() => {
+    if (directUse && sampleId && !usageLoading) {
+      const sample = getSampleById(sampleId);
+      if (!sample || !sample.sections || sample.sections.length === 0) return;
+
+      // 사용량 체크
+      if (!canCreatePage) {
+        setShowLimitModal(true);
+        return;
+      }
+
+      // 페이지 사용량 증가
+      incrementPages();
+
+      try {
+        localStorage.setItem('generatedPage', JSON.stringify({
+          topic,
+          prompt: `샘플 사용: ${sample.name}`,
+          sections: sample.sections,
+          formFields: sample.formFields || [
+            { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
+            { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
+          ],
+          theme: sample.theme || 'toss',
+          title: sample.name,
+        }));
+      } catch (e) {
+        console.error('localStorage failed:', e);
+      }
+
+      router.push('/preview/new');
+    }
+  }, [directUse, sampleId, usageLoading, canCreatePage]);
 
   // 사용량 체크 - 무료 1개 초과시 로그인 또는 결제 필요
   useEffect(() => {
