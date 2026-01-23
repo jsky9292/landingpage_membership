@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { toneStyles, customEmojis } from '@/lib/config/emojis';
-import { getSampleById } from '@/data/samples';
+import { getSampleById, getFirstSampleByTopic } from '@/data/samples';
 
 // 질문-답변 형식 가이드
 interface TopicGuide {
@@ -2104,7 +2104,7 @@ export default function CreatePage() {
     }
   };
 
-  // 템플릿으로 바로 만들기 (AI 없이)
+  // 템플릿으로 바로 만들기 (AI 없이) - 실제 샘플 데이터 사용
   const handleUseTemplate = () => {
     // 사용량 체크
     if (!canCreatePage) {
@@ -2112,59 +2112,95 @@ export default function CreatePage() {
       return;
     }
 
-    // 기본 템플릿 데이터 생성
-    const defaultSections = ['hero', 'pain', 'solution', 'benefits', 'process', 'cta', 'form'];
+    // 현재 토픽에 맞는 샘플 데이터 가져오기
+    const sample = getFirstSampleByTopic(topic);
 
-    const getDefaultContent = (type: string) => {
-      switch (type) {
-        case 'hero':
-          return { headline: '메인 제목을 입력하세요', subtext: '부제목을 입력하세요', cta: '신청하기' };
-        case 'pain':
-          return { title: '이런 고민 있으신가요?', items: [{ icon: '😰', text: '첫 번째 고민을 입력하세요' }, { icon: '😢', text: '두 번째 고민을 입력하세요' }, { icon: '😩', text: '세 번째 고민을 입력하세요' }] };
-        case 'solution':
-          return { title: '해결책', headline: '해결책 제목', description: '해결책 설명을 입력하세요' };
-        case 'benefits':
-          return { title: '혜택', items: [{ icon: '✨', title: '혜택 1', description: '첫 번째 혜택 설명' }, { icon: '🎯', title: '혜택 2', description: '두 번째 혜택 설명' }, { icon: '💡', title: '혜택 3', description: '세 번째 혜택 설명' }] };
-        case 'process':
-          return { title: '진행 방식', steps: [{ number: 1, title: '1단계', description: '첫 번째 단계 설명' }, { number: 2, title: '2단계', description: '두 번째 단계 설명' }, { number: 3, title: '3단계', description: '세 번째 단계 설명' }] };
-        case 'cta':
-          return { headline: '지금 바로 시작하세요', subtext: '특별 혜택을 놓치지 마세요', buttonText: '신청하기' };
-        case 'form':
-          return { title: '신청하기', buttonText: '제출하기' };
-        default:
-          return {};
-      }
-    };
-
-    const sections = defaultSections.map((type, index) => ({
-      id: `section-${Date.now()}-${index}`,
-      type,
-      content: getDefaultContent(type),
-      order: index,
-    }));
-
-    const formFields = [
-      { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
-      { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
-      { id: 'message', label: '문의사항', type: 'textarea', placeholder: '문의사항을 입력하세요', required: false },
-    ];
-
-    // 페이지 사용량 증가
-    incrementPages();
-
-    try {
-      localStorage.setItem('generatedPage', JSON.stringify({
-        topic,
-        prompt: '템플릿 사용',
-        sections,
-        formFields,
-        theme: 'toss',
+    if (sample && sample.sections && sample.sections.length > 0) {
+      // 실제 샘플 데이터 사용
+      const sections = sample.sections.map((section, index) => ({
+        ...section,
+        id: `section-${Date.now()}-${index}`,
+        order: index,
       }));
-    } catch (e) {
-      console.error('localStorage failed:', e);
-    }
 
-    router.push('/preview/new');
+      const formFields = sample.formFields || [
+        { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
+        { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
+        { id: 'message', label: '문의사항', type: 'textarea', placeholder: '문의사항을 입력하세요', required: false },
+      ];
+
+      // 페이지 사용량 증가
+      incrementPages();
+
+      try {
+        localStorage.setItem('generatedPage', JSON.stringify({
+          topic,
+          prompt: `템플릿 사용: ${sample.name}`,
+          sections,
+          formFields,
+          theme: sample.theme || 'toss',
+          title: sample.name,
+        }));
+      } catch (e) {
+        console.error('localStorage failed:', e);
+      }
+
+      router.push('/preview/new');
+    } else {
+      // 샘플이 없으면 기본 템플릿 사용 (폴백)
+      const defaultSections = ['hero', 'pain', 'solution', 'benefits', 'process', 'cta', 'form'];
+
+      const getDefaultContent = (type: string) => {
+        switch (type) {
+          case 'hero':
+            return { headline: '메인 제목을 입력하세요', subtext: '부제목을 입력하세요', cta: '신청하기' };
+          case 'pain':
+            return { title: '이런 고민 있으신가요?', items: [{ icon: '😰', text: '첫 번째 고민을 입력하세요' }, { icon: '😢', text: '두 번째 고민을 입력하세요' }, { icon: '😩', text: '세 번째 고민을 입력하세요' }] };
+          case 'solution':
+            return { title: '해결책', headline: '해결책 제목', description: '해결책 설명을 입력하세요' };
+          case 'benefits':
+            return { title: '혜택', items: [{ icon: '✨', title: '혜택 1', description: '첫 번째 혜택 설명' }, { icon: '🎯', title: '혜택 2', description: '두 번째 혜택 설명' }, { icon: '💡', title: '혜택 3', description: '세 번째 혜택 설명' }] };
+          case 'process':
+            return { title: '진행 방식', steps: [{ number: 1, title: '1단계', description: '첫 번째 단계 설명' }, { number: 2, title: '2단계', description: '두 번째 단계 설명' }, { number: 3, title: '3단계', description: '세 번째 단계 설명' }] };
+          case 'cta':
+            return { headline: '지금 바로 시작하세요', subtext: '특별 혜택을 놓치지 마세요', buttonText: '신청하기' };
+          case 'form':
+            return { title: '신청하기', buttonText: '제출하기' };
+          default:
+            return {};
+        }
+      };
+
+      const sections = defaultSections.map((type, index) => ({
+        id: `section-${Date.now()}-${index}`,
+        type,
+        content: getDefaultContent(type),
+        order: index,
+      }));
+
+      const formFields = [
+        { id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력하세요', required: true },
+        { id: 'phone', label: '연락처', type: 'tel', placeholder: '010-0000-0000', required: true },
+        { id: 'message', label: '문의사항', type: 'textarea', placeholder: '문의사항을 입력하세요', required: false },
+      ];
+
+      // 페이지 사용량 증가
+      incrementPages();
+
+      try {
+        localStorage.setItem('generatedPage', JSON.stringify({
+          topic,
+          prompt: '템플릿 사용',
+          sections,
+          formFields,
+          theme: 'toss',
+        }));
+      } catch (e) {
+        console.error('localStorage failed:', e);
+      }
+
+      router.push('/preview/new');
+    }
   };
 
   // 샘플로 바로 시작 (AI 생성 없이)

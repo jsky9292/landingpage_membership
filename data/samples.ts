@@ -45,6 +45,20 @@ export const categoryToTopic: Record<string, string> = {
   academy: 'course',
 };
 
+// 토픽 → 카테고리 역매핑 (템플릿 찾기용)
+export const topicToCategories: Record<string, string[]> = {
+  course: ['education', 'academy'],
+  consulting: ['consulting', 'medical', 'legal'],
+  service: ['service', 'beauty', 'lifestyle', 'wedding', 'pet'],
+  product: ['product'],
+  event: ['event'],
+  realestate: ['realestate'],
+  franchise: ['franchise'],
+  interior: ['interior'],
+  recruiting: ['recruiting'],
+  free: ['education', 'consulting', 'service', 'product', 'event'], // free는 여러 카테고리 허용
+};
+
 export const samplePages: SamplePage[] = [
   // 교육/강의
   {
@@ -1674,4 +1688,15 @@ export function getSampleById(id: string): SamplePage | undefined {
 export function getSamplesByCategory(category: string): SamplePage[] {
   if (category === 'all') return samplePages;
   return samplePages.filter(sample => sample.category === category);
+}
+
+// 토픽별 첫 번째 샘플 가져오기 (템플릿 버튼용)
+export function getFirstSampleByTopic(topic: string): SamplePage | undefined {
+  const categories = topicToCategories[topic] || topicToCategories['free'];
+  for (const category of categories) {
+    const sample = samplePages.find(s => s.category === category && s.sections && s.sections.length > 0);
+    if (sample) return sample;
+  }
+  // 못 찾으면 아무 샘플이나 반환
+  return samplePages.find(s => s.sections && s.sections.length > 0);
 }
