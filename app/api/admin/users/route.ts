@@ -25,31 +25,41 @@ export async function GET(request: NextRequest) {
       .eq('email', session.user.email)
       .single();
 
+    let isAdmin = currentUser?.role === 'admin';
+
     if (userError) {
       console.error('Error fetching current user:', userError);
 
-      // 프로필이 없으면 생성 시도 (첫 사용자는 관리자로)
+      // 프로필이 없으면 생성 시도
       if (userError.code === 'PGRST116') {
-        const { error: createError } = await supabaseAdmin
+        // 관리자 이메일 목록 확인
+        const ADMIN_EMAILS = ['jsky9292@gmail.com'];
+        const userRole = ADMIN_EMAILS.includes(session.user.email?.toLowerCase() || '') ? 'admin' : 'user';
+
+        const { data: newProfile, error: createError } = await supabaseAdmin
           .from('profiles')
           .insert({
             email: session.user.email,
-            name: session.user.name || session.user.email.split('@')[0],
+            name: session.user.name || session.user.email?.split('@')[0],
             avatar_url: session.user.image,
-            role: 'admin', // 첫 사용자는 관리자로
-            plan: 'free',
-          });
+            role: userRole,
+            plan: userRole === 'admin' ? 'agency' : 'free',
+          })
+          .select()
+          .single();
 
         if (createError) {
           console.error('Error creating profile:', createError);
           return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 });
         }
 
-        // 프로필 생성 성공 후 회원 목록 조회 진행 (아래 로직 계속)
+        isAdmin = newProfile?.role === 'admin';
       } else {
         return NextResponse.json({ error: 'Failed to verify admin status' }, { status: 500 });
       }
-    } else if (!currentUser || currentUser.role !== 'admin') {
+    }
+
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }
 

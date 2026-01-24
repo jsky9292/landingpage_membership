@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 import { getVersionWithBuild } from '@/config/version';
+import { useEffect, useState } from 'react';
 
 const navigation = [
   { name: '대시보드', href: '/dashboard' },
@@ -13,12 +14,30 @@ const navigation = [
   { name: '설정', href: '/settings' },
 ];
 
+const adminNavigation = [
+  { name: '회원관리', href: '/admin/users' },
+  { name: '결제내역', href: '/admin/payments' },
+];
+
+// 관리자 이메일 목록
+const ADMIN_EMAILS = ['jsky9292@gmail.com'];
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      setIsAdmin(ADMIN_EMAILS.includes(session.user.email.toLowerCase()));
+    }
+  }, [session]);
+
+  const allNavigation = isAdmin ? [...navigation, ...adminNavigation] : navigation;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,7 +59,7 @@ export default function DashboardLayout({
 
             {/* 네비게이션 - 데스크톱 */}
             <nav className="hidden md:flex items-center gap-1">
-              {navigation.map((item) => {
+              {allNavigation.map((item) => {
                 const isActive = pathname === item.href ||
                   (item.href !== '/dashboard' && pathname.startsWith(item.href));
                 return (
@@ -81,7 +100,7 @@ export default function DashboardLayout({
         {/* 네비게이션 - 모바일 */}
         <nav className="md:hidden border-t border-gray-200 bg-white">
           <div className="flex justify-around py-2">
-            {navigation.map((item) => {
+            {allNavigation.map((item) => {
               const isActive = pathname === item.href ||
                 (item.href !== '/dashboard' && pathname.startsWith(item.href));
               return (
