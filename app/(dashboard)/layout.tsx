@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
+import { getVersionWithBuild } from '@/config/version';
 
 const navigation = [
   { name: '대시보드', href: '/dashboard' },
@@ -112,6 +113,16 @@ export default function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* 푸터 */}
+      <footer className="border-t border-gray-200 bg-white mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center text-sm text-gray-500">
+            <p>&copy; 2025 랜딩메이커. All rights reserved.</p>
+            <p>{getVersionWithBuild()}</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

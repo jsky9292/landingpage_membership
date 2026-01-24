@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { getVersionWithBuild } from '@/config/version';
 
 // 카테고리 데이터 - 36개 업종
 const categories = [
@@ -814,7 +815,7 @@ export default function HomePage() {
               </div>
               <span style={{ color: '#fff', fontWeight: 700 }}>랜딩메이커</span>
             </div>
-            <p style={{ fontSize: '14px' }}>2026 랜딩메이커. All rights reserved.</p>
+            <p style={{ fontSize: '14px' }}>2025 랜딩메이커. All rights reserved. {getVersionWithBuild()}</p>
           </div>
         </div>
       </footer>

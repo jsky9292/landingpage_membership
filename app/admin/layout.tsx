@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
+import { getVersionWithBuild } from '@/config/version';
 
 const navigation = [
   { name: '대시보드', href: '/admin/dashboard', icon: '📊' },
@@ -25,11 +26,14 @@ export default function DashboardLayout({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               <Link href="/dashboard" className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
                 <span className="text-xl font-bold text-[#191F28]">랜딩메이커</span>
               </Link>
+              <span className="text-xs text-gray-400 font-medium bg-gray-100 px-2 py-0.5 rounded">
+                {getVersionWithBuild()}
+              </span>
             </div>
 
             {/* 네비게이션 - 데스크톱 */}
