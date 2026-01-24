@@ -9,6 +9,8 @@ interface User {
   name: string;
   avatarUrl?: string;
   role: 'user' | 'admin';
+  plan: 'free' | 'starter' | 'pro' | 'unlimited' | 'agency';
+  planExpiresAt?: string;
   pageCount: number;
   createdAt: string;
 }
@@ -17,7 +19,22 @@ interface UserStats {
   totalUsers: number;
   adminCount: number;
   userCount: number;
+  planStats: {
+    free: number;
+    starter: number;
+    pro: number;
+    unlimited: number;
+    agency: number;
+  };
 }
+
+const PLAN_LABELS: Record<string, { name: string; color: string; bg: string }> = {
+  free: { name: '무료', color: 'text-gray-600', bg: 'bg-gray-100' },
+  starter: { name: 'Starter', color: 'text-blue-600', bg: 'bg-blue-100' },
+  pro: { name: 'Pro', color: 'text-purple-600', bg: 'bg-purple-100' },
+  unlimited: { name: 'Unlimited', color: 'text-orange-600', bg: 'bg-orange-100' },
+  agency: { name: 'Agency', color: 'text-red-600', bg: 'bg-red-100' },
+};
 
 export default function UsersManagementPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,11 +42,13 @@ export default function UsersManagementPage() {
     totalUsers: 0,
     adminCount: 0,
     userCount: 0,
+    planStats: { free: 0, starter: 0, pro: 0, unlimited: 0, agency: 0 },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin'>('all');
+  const [planFilter, setPlanFilter] = useState<'all' | 'free' | 'starter' | 'pro' | 'unlimited' | 'agency'>('all');
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
@@ -38,6 +57,7 @@ export default function UsersManagementPage() {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       if (roleFilter !== 'all') params.set('role', roleFilter);
+      if (planFilter !== 'all') params.set('plan', planFilter);
 
       const res = await fetch(`/api/admin/users?${params.toString()}`);
       if (!res.ok) {
@@ -48,7 +68,12 @@ export default function UsersManagementPage() {
       }
       const data = await res.json();
       setUsers(data.users || []);
-      setStats(data.stats || { totalUsers: 0, adminCount: 0, userCount: 0 });
+      setStats(data.stats || {
+        totalUsers: 0,
+        adminCount: 0,
+        userCount: 0,
+        planStats: { free: 0, starter: 0, pro: 0, unlimited: 0, agency: 0 }
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -58,7 +83,7 @@ export default function UsersManagementPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, [roleFilter]);
+  }, [roleFilter, planFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,11 +108,37 @@ export default function UsersManagementPage() {
         throw new Error(data.error || '권한 변경에 실패했습니다.');
       }
 
-      // 성공 시 목록 새로고침
       fetchUsers();
       alert('권한이 변경되었습니다.');
     } catch (err) {
       alert(err instanceof Error ? err.message : '권한 변경에 실패했습니다.');
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const handlePlanChange = async (userId: string, newPlan: string) => {
+    if (!confirm(`이 사용자의 플랜을 ${PLAN_LABELS[newPlan]?.name || newPlan}으로 변경하시겠습니까?`)) {
+      return;
+    }
+
+    setUpdatingUserId(userId);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, plan: newPlan }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '플랜 변경에 실패했습니다.');
+      }
+
+      fetchUsers();
+      alert('플랜이 변경되었습니다.');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '플랜 변경에 실패했습니다.');
     } finally {
       setUpdatingUserId(null);
     }
@@ -127,8 +178,26 @@ export default function UsersManagementPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#191F28]">회원 관리</h1>
         <p className="text-[#4E5968] mt-1">
-          총 {stats.totalUsers}명의 회원이 있어요. (관리자 {stats.adminCount}명, 일반회원 {stats.userCount}명)
+          총 {stats.totalUsers}명의 회원 (관리자 {stats.adminCount}명, 일반 {stats.userCount}명)
         </p>
+      </div>
+
+      {/* 플랜별 통계 카드 */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {Object.entries(PLAN_LABELS).map(([key, { name, color, bg }]) => (
+          <div
+            key={key}
+            onClick={() => setPlanFilter(key as typeof planFilter)}
+            className={`p-4 rounded-xl cursor-pointer transition-all ${
+              planFilter === key ? 'ring-2 ring-[#0064FF]' : ''
+            } ${bg}`}
+          >
+            <p className={`text-sm font-medium ${color}`}>{name}</p>
+            <p className="text-2xl font-bold text-[#191F28]">
+              {stats.planStats?.[key as keyof typeof stats.planStats] || 0}명
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* 검색 및 필터 */}
@@ -166,14 +235,30 @@ export default function UsersManagementPage() {
         </div>
       </div>
 
+      {/* 플랜 필터 초기화 */}
+      {planFilter !== 'all' && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-[#4E5968]">
+            {PLAN_LABELS[planFilter]?.name} 플랜 필터 적용중
+          </span>
+          <button
+            onClick={() => setPlanFilter('all')}
+            className="text-sm text-[#0064FF] hover:underline"
+          >
+            필터 해제
+          </button>
+        </div>
+      )}
+
       {/* 회원 목록 */}
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
         {/* 테이블 헤더 */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
-          <div className="col-span-3">회원 정보</div>
+          <div className="col-span-2">회원 정보</div>
           <div className="col-span-3">이메일</div>
           <div className="col-span-2">권한</div>
-          <div className="col-span-2">페이지 수</div>
+          <div className="col-span-2">플랜</div>
+          <div className="col-span-1">페이지</div>
           <div className="col-span-2">가입일</div>
         </div>
 
@@ -184,19 +269,19 @@ export default function UsersManagementPage() {
               key={user.id}
               className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 hover:bg-gray-50 items-center"
             >
-              <div className="col-span-3 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="col-span-2 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {user.avatarUrl ? (
                     <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-lg">👤</span>
                   )}
                 </div>
-                <div>
-                  <p className="font-medium text-[#191F28]">{user.name}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-[#191F28] truncate">{user.name}</p>
                 </div>
               </div>
-              <div className="col-span-3 text-[#4E5968] truncate">
+              <div className="col-span-3 text-[#4E5968] truncate text-sm">
                 {user.email}
               </div>
               <div className="col-span-2">
@@ -214,7 +299,30 @@ export default function UsersManagementPage() {
                   <option value="admin">관리자</option>
                 </select>
               </div>
-              <div className="col-span-2 text-[#4E5968]">
+              <div className="col-span-2">
+                <select
+                  value={user.plan}
+                  onChange={(e) => handlePlanChange(user.id, e.target.value)}
+                  disabled={updatingUserId === user.id}
+                  className={`text-sm px-3 py-1 rounded-full border-0 cursor-pointer ${
+                    PLAN_LABELS[user.plan]?.bg || 'bg-gray-100'
+                  } ${PLAN_LABELS[user.plan]?.color || 'text-gray-600'} ${
+                    updatingUserId === user.id ? 'opacity-50' : ''
+                  }`}
+                >
+                  <option value="free">무료</option>
+                  <option value="starter">Starter</option>
+                  <option value="pro">Pro</option>
+                  <option value="unlimited">Unlimited</option>
+                  <option value="agency">Agency</option>
+                </select>
+                {user.planExpiresAt && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    ~{new Date(user.planExpiresAt).toLocaleDateString('ko-KR')}
+                  </p>
+                )}
+              </div>
+              <div className="col-span-1 text-[#4E5968] text-sm">
                 {user.pageCount}개
               </div>
               <div className="col-span-2 text-sm text-[#4E5968]">
