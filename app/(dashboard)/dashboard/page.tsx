@@ -24,8 +24,8 @@ export default function DashboardPage() {
   const [collapsed, setCollapsed] = useState(false);
 
   const userName = session?.user?.name || '사용자';
-  const userRole = (session?.user as any)?.role || 'user';
-  const isAdmin = userRole === 'admin';
+  // isAdmin은 API 응답에서 가져옴 (DB에서 role 확인)
+  const isAdmin = data?.isAdmin || false;
 
   useEffect(() => { fetchData(); fetchPoints(); }, []);
 
