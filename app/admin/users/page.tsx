@@ -255,11 +255,12 @@ export default function UsersManagementPage() {
         {/* 테이블 헤더 */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-[#4E5968]">
           <div className="col-span-2">회원 정보</div>
-          <div className="col-span-3">이메일</div>
+          <div className="col-span-2">이메일</div>
           <div className="col-span-2">권한</div>
           <div className="col-span-2">플랜</div>
           <div className="col-span-1">페이지</div>
           <div className="col-span-2">가입일</div>
+          <div className="col-span-1">상세</div>
         </div>
 
         {/* 테이블 바디 */}
@@ -281,7 +282,7 @@ export default function UsersManagementPage() {
                   <p className="font-medium text-[#191F28] truncate">{user.name}</p>
                 </div>
               </div>
-              <div className="col-span-3 text-[#4E5968] truncate text-sm">
+              <div className="col-span-2 text-[#4E5968] truncate text-sm">
                 {user.email}
               </div>
               <div className="col-span-2">
@@ -327,6 +328,15 @@ export default function UsersManagementPage() {
               </div>
               <div className="col-span-2 text-sm text-[#4E5968]">
                 {new Date(user.createdAt).toLocaleDateString('ko-KR')}
+              </div>
+              <div className="col-span-1">
+                <Link
+                  href={`/admin/users/${user.id}`}
+                  className="text-sm px-3 py-1 bg-[#0064FF] text-white rounded-lg hover:bg-[#0050CC] transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  보기
+                </Link>
               </div>
             </div>
           ))
