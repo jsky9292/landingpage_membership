@@ -45,19 +45,36 @@ export const authOptions: AuthOptions = {
     error: '/login',
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       // 최초 로그인 시 사용자 정보 저장
       if (user) {
         token.id = user.id;
         token.provider = account?.provider;
+        // 관리자 이메일 확인하여 role 저장
+        token.role = isAdminEmail(user.email) ? 'admin' : 'user';
       }
+
+      // 세션 업데이트 시 DB에서 role 다시 확인
+      if (trigger === 'update' || !token.role) {
+        const supabase = createServerClient() as any;
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('email', token.email)
+          .single();
+        if (profile) {
+          token.role = profile.role;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
-      // 세션에 사용자 ID 추가
+      // 세션에 사용자 ID와 role 추가
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).provider = token.provider;
+        (session.user as any).role = token.role || 'user';
       }
       return session;
     },
