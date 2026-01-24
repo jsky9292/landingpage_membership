@@ -98,7 +98,16 @@ export default function DashboardPage() {
           <MenuItem label="포인트 충전" href="/points" collapsed={collapsed} />
           <MenuItem label="친구 초대" href="/referral" isNew collapsed={collapsed} />
           <MenuItem label="설정" href="/settings" collapsed={collapsed} />
-          {isAdmin && <MenuItem label="관리자" href="/admin" collapsed={collapsed} />}
+          {isAdmin && (
+            <>
+              <div style={{ height: 1, background: '#F2F4F6', margin: '16px 0' }} />
+              <div style={{ padding: collapsed ? '8px 0' : '8px 12px', marginBottom: 4 }}>
+                {!collapsed && <span style={{ fontSize: 11, fontWeight: 600, color: '#ADB5BD' }}>관리자</span>}
+              </div>
+              <MenuItem label="회원관리" href="/admin/users" collapsed={collapsed} />
+              <MenuItem label="결제내역" href="/admin/payments" collapsed={collapsed} />
+            </>
+          )}
         </nav>
 
         {/* 접기 */}
