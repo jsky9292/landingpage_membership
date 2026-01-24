@@ -280,9 +280,42 @@ export default function PricingPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               {selectedPlan.name} 플랜 결제
             </h2>
-            <p className="text-gray-600 mb-6">
-              {periodLabel} {displayAmount} · 언제든 해지 가능
-            </p>
+
+            {/* 결제 주기 선택 */}
+            <div className="flex items-center justify-center gap-3 mb-6 p-4 bg-gray-50 rounded-xl">
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                  billingPeriod === 'monthly'
+                    ? 'bg-[#3182F6] text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <div className="text-sm">월간 결제</div>
+                <div className={`text-lg font-bold ${billingPeriod === 'monthly' ? 'text-white' : 'text-gray-900'}`}>
+                  {selectedPlan.priceLabel}/월
+                </div>
+              </button>
+              <button
+                onClick={() => setBillingPeriod('yearly')}
+                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all relative ${
+                  billingPeriod === 'yearly'
+                    ? 'bg-[#3182F6] text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  17% 추가할인
+                </div>
+                <div className="text-sm">연간 결제</div>
+                <div className={`text-lg font-bold ${billingPeriod === 'yearly' ? 'text-white' : 'text-gray-900'}`}>
+                  {selectedPlan.yearlyPriceLabel}/년
+                </div>
+                <div className={`text-xs ${billingPeriod === 'yearly' ? 'text-blue-100' : 'text-gray-500'}`}>
+                  월 ₩{Math.round(selectedPlan.yearlyPrice / 12).toLocaleString()} 상당
+                </div>
+              </button>
+            </div>
 
             <div className="border-t border-b border-gray-100 py-4 mb-6">
               <div className="flex justify-between text-lg">
